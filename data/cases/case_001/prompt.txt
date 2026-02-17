@@ -1,0 +1,1 @@
+What is the current weather in Paris? Please provide temperature in Celsius and a short description.
