@@ -2,7 +2,6 @@ name: Validate Dataset
 
 on:
   push:
-    branches: [ main ]
   pull_request:
 
 jobs:
@@ -25,4 +24,4 @@ jobs:
 
       - name: Run dataset validator
         run: |
-          AGENTEVAL_REPO_ROOT=. agenteval-validate-dataset --repo-root .
+          agenteval-validate-dataset --repo-root .
