@@ -1,9 +1,12 @@
 .claude/
+.venv/
 .env
 *.env
 reports/
 scores/
 **/__pycache__/
+__pycache__/
 *.pyc
 .DS_Store
+
 
