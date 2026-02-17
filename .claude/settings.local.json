@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(git -C /c/Users/yanil/Documents/agenteval-workbench add .)"
-    ]
-  }
-}
