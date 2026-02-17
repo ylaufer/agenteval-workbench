@@ -1,1 +1,9 @@
 .claude/
+.env
+*.env
+reports/
+scores/
+**/__pycache__/
+*.pyc
+.DS_Store
+

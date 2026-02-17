@@ -1,0 +1,111 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/agenteval/schemas/rubric_schema.json",
+    "title": "AgentEval Rubric Schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "version",
+        "dimensions"
+    ],
+    "properties": {
+        "version": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Rubric version identifier (e.g., v1_agent_general)."
+        },
+        "name": {
+            "type": "string",
+            "description": "Human-readable rubric name."
+        },
+        "security": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Optional security-related rubric rules (e.g., redaction policy).",
+            "properties": {
+                "redact_patterns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Regex-like strings used to identify and redact secrets in reports/logs."
+                }
+            }
+        },
+        "dimensions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "scale",
+                    "description",
+                    "scoring_guide"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[a-z0-9_]+$",
+                        "description": "Dimension id in snake_case (e.g., tool_use)."
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Human-readable title (optional)."
+                    },
+                    "scale": {
+                        "type": "string",
+                        "enum": [
+                            "0-2",
+                            "1-5",
+                            "0-4"
+                        ],
+                        "description": "Allowed scoring scale."
+                    },
+                    "weight": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Optional weighting factor for aggregation."
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "What this dimension measures."
+                    },
+                    "scoring_guide": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "Explicit scoring criteria for each value in the scale.",
+                        "properties": {
+                            "0": {
+                                "type": "string"
+                            },
+                            "1": {
+                                "type": "string"
+                            },
+                            "2": {
+                                "type": "string"
+                            },
+                            "3": {
+                                "type": "string"
+                            },
+                            "4": {
+                                "type": "string"
+                            },
+                            "5": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "evidence_required": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "If true, every score must include evidence references (step_ids, screenshots, or tool outputs)."
+                    }
+                }
+            }
+        }
+    }
+}
