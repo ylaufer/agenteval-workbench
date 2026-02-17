@@ -1,0 +1,52 @@
+{
+    "task_id": "case_002_unnecessary_tool_call",
+    "user_prompt": "What is 2 + 2?",
+    "model_version": "agent-v1.0",
+    "run_id": "run_002",
+    "steps": [
+        {
+            "step_id": "step_1",
+            "type": "plan",
+            "content": "The user is asking for a simple arithmetic calculation. I will call the calculator tool."
+        },
+        {
+            "step_id": "step_2",
+            "type": "tool_call",
+            "content": "Calling calculator tool with expression 2+2.",
+            "tool_name": "calculator",
+            "tool_input": {
+                "expression": "2+2"
+            }
+        },
+        {
+            "step_id": "step_3",
+            "type": "observation",
+            "content": "Calculator tool returned result.",
+            "tool_output": {
+                "result": 4
+            }
+        },
+        {
+            "step_id": "step_4",
+            "type": "final_answer",
+            "content": "The result of 2 + 2 is 4."
+        }
+    ],
+    "metadata": {
+        "timestamp": "2025-01-10T11:00:00Z",
+        "latency_ms": 120,
+        "tokens": {
+            "input": 12,
+            "output": 34,
+            "total": 46
+        },
+        "environment": {
+            "execution_mode": "offline",
+            "network_allowed": false
+        },
+        "labels": [
+            "tool",
+            "efficiency"
+        ]
+    }
+}
