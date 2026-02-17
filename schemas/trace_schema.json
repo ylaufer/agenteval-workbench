@@ -1,0 +1,215 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/agenteval/schemas/trace_schema.json",
+    "title": "AgentEval Trace Schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "task_id",
+        "user_prompt",
+        "model_version",
+        "steps",
+        "metadata"
+    ],
+    "properties": {
+        "task_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique identifier for the evaluation case."
+        },
+        "user_prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The original user request."
+        },
+        "model_version": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identifier of the model/agent version (e.g., gpt-4.1-mini, agent-v2.3)."
+        },
+        "run_id": {
+            "type": "string",
+            "description": "Optional unique run identifier for repeated executions of the same task."
+        },
+        "steps": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Ordered list of agent steps composing the workflow trace.",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "step_id",
+                    "type",
+                    "content"
+                ],
+                "properties": {
+                    "step_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Unique step identifier within the trace."
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "plan",
+                            "thought",
+                            "tool_call",
+                            "observation",
+                            "final_answer"
+                        ],
+                        "description": "Step category."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Human-readable step content. For tool_call steps, this can be a short description of intent."
+                    },
+                    "tool_name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Tool name invoked in tool_call steps."
+                    },
+                    "tool_input": {
+                        "description": "Tool input payload for tool_call steps. Can be any JSON value.",
+                        "type": [
+                            "object",
+                            "array",
+                            "string",
+                            "number",
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "tool_output": {
+                        "description": "Tool output payload for observation steps (or tool_call if captured inline). Can be any JSON value.",
+                        "type": [
+                            "object",
+                            "array",
+                            "string",
+                            "number",
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "screenshot_path": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Relative path to a screenshot image (png/jpg/webp) associated with this step."
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO-8601 timestamp for the step (optional but recommended)."
+                    },
+                    "latency_ms": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Step latency in milliseconds (optional)."
+                    }
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "tool_call"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "tool_name"
+                            ],
+                            "description": "tool_call steps must specify tool_name."
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "observation"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "description": "observation steps SHOULD provide tool_output when relevant.",
+                            "properties": {}
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "final_answer"
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "description": "final_answer step should contain the final response in content.",
+                            "properties": {}
+                        }
+                    }
+                ]
+            }
+        },
+        "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "timestamp"
+            ],
+            "properties": {
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO-8601 timestamp for the run."
+                },
+                "latency_ms": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Total run latency in milliseconds (optional)."
+                },
+                "tokens": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "input": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "output": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "total": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "description": "Token usage breakdown (optional)."
+                },
+                "environment": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "description": "Optional runtime metadata (OS, browser, tool versions, etc.)."
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Optional tags for filtering (e.g., ui, tool, safety)."
+                }
+            }
+        }
+    }
+}
