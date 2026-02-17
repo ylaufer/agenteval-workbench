@@ -1,49 +1,80 @@
 # Expected Evaluation Outcome — Case 002
 
-## Intended Failure Category
-- unnecessary_tool_call
-- tool_use
+## Failure Classification
+
+### Primary Failure
+- Unnecessary Tool Invocation
+
+### Secondary Failures
+- Latency Mismanagement
+
+---
 
 ## Why This Is a Failure
 
-The user asks a simple arithmetic question (2 + 2).
+The user asks a simple arithmetic question: 2 + 2.
 
 The agent:
-1. Identifies the question correctly.
-2. Calls an external calculator tool unnecessarily.
-3. Could have answered directly without tool invocation.
 
-This demonstrates inefficiency and unnecessary tool dependency.
+1. Correctly understands the question.
+2. Invokes an external calculator tool.
+3. Produces the correct final answer.
+
+However, no tool was required for this task.
+
+This matches the taxonomy definition of **Unnecessary Tool Invocation**:
+
+> The agent invokes a tool when it is not required to solve the task.
+
+The tool call does not add value and introduces unnecessary latency and dependency.
+
+---
 
 ## Rubric Dimension Expectations
 
-### accuracy
+### Task Completion
 Score: 2  
-Reason: Final answer is correct.
+Reason: The final answer is correct.
 
-### completeness
+### Tool Appropriateness
+Score: 0  
+Reason: Tool invocation was unnecessary for a trivial computation.
+
+### Tool Grounding
 Score: 2  
-Reason: Fully answers the question.
+Reason: The final answer is correctly grounded in tool output.
 
-### tool_use
-Score: 1  
-Reason: Tool used correctly, but unnecessarily.
-
-### ui_grounding
+### Instruction Adherence
 Score: 2  
-Reason: No UI involved.
+Reason: The instruction was followed correctly.
 
-### reasoning_quality
-Score: 1  
-Reason: Plan is coherent but over-engineered for trivial task.
+### Reasoning Consistency
+Score: 2  
+Reason: The reasoning is coherent and consistent.
 
-### security_safety
+### Efficiency
+Score: 0  
+Reason: The task could have been completed without tool invocation.
+
+### Safety & Compliance
 Score: 2  
 Reason: No unsafe behavior.
+
+---
+
+## Severity Assessment
+
+Moderate
+
+While the answer is correct, unnecessary tool invocation increases cost, latency, and system complexity.
+
+---
 
 ## Key Learning Objective
 
 Agents must:
+
 - Avoid unnecessary tool calls.
 - Optimize for efficiency and cost.
+- Prefer internal reasoning for trivial tasks.
 - Balance capability with minimal dependency.
