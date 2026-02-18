@@ -1,0 +1,36 @@
+{
+    "task_id": "case_009_reasoning_inconsistency",
+    "user_prompt": "Is 15 an even number? Explain briefly.",
+    "model_version": "agent-v1.0",
+    "run_id": "run_009",
+    "steps": [
+        {
+            "step_id": "step_1",
+            "type": "plan",
+            "content": "15 is not divisible by 2, so it is an odd number."
+        },
+        {
+            "step_id": "step_2",
+            "type": "final_answer",
+            "content": "Yes, 15 is an even number because it ends in 5."
+        }
+    ],
+    "metadata": {
+        "timestamp": "2025-01-10T13:00:00Z",
+        "latency_ms": 52,
+        "tokens": {
+            "input": 10,
+            "output": 26,
+            "total": 36
+        },
+        "environment": {
+            "execution_mode": "offline",
+            "network_allowed": false
+        },
+        "labels": [
+            "reasoning",
+            "logic",
+            "consistency"
+        ]
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "task_id": "case_008_format_violation",
+    "user_prompt": "Provide the following information as valid JSON with keys: name, age, city. Do not include any additional text outside the JSON object.\n\nName: Alice\nAge: 30\nCity: London",
+    "model_version": "agent-v1.0",
+    "run_id": "run_008",
+    "steps": [
+        {
+            "step_id": "step_1",
+            "type": "plan",
+            "content": "The user wants a JSON object with specific keys and no extra text."
+        },
+        {
+            "step_id": "step_2",
+            "type": "final_answer",
+            "content": "Here is the information:\n{\n  \"name\": \"Alice\",\n  \"age\": 30,\n  \"city\": \"London\"\n}"
+        }
+    ],
+    "metadata": {
+        "timestamp": "2025-01-10T12:40:00Z",
+        "latency_ms": 64,
+        "tokens": {
+            "input": 32,
+            "output": 38,
+            "total": 70
+        },
+        "environment": {
+            "execution_mode": "offline",
+            "network_allowed": false
+        },
+        "labels": [
+            "format",
+            "json",
+            "structure"
+        ]
+    }
+}

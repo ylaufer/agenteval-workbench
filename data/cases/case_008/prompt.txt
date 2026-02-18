@@ -1,0 +1,5 @@
+Provide the following information as valid JSON with keys: name, age, city. Do not include any additional text outside the JSON object.
+
+Name: Alice
+Age: 30
+City: London
