@@ -1,9 +1,11 @@
-# Expected Evaluation Outcome — Case 002
-
+---
 Case ID: 002
 Primary Failure: Unnecessary Tool Invocation
 Secondary Failures: Latency Mismanagement
 Severity: Moderate
+---
+
+# Expected Evaluation Outcome — Case 002
 
 ## Failure Classification
 

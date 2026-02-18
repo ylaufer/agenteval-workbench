@@ -1,9 +1,11 @@
-# Expected Evaluation Outcome — Case 001
-
+---
 Case ID: 001
 Primary Failure: Tool Hallucination
 Secondary Failures: Constraint Violation
 Severity: Critical
+---
+
+# Expected Evaluation Outcome — Case 001
 
 ## Failure Classification
 
