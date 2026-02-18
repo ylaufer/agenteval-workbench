@@ -1,0 +1,36 @@
+{
+    "task_id": "case_006_partial_completion",
+    "user_prompt": "Provide three bullet points explaining photosynthesis and include one example of a plant that performs it.",
+    "model_version": "agent-v1.0",
+    "run_id": "run_006",
+    "steps": [
+        {
+            "step_id": "step_1",
+            "type": "plan",
+            "content": "The user wants three bullet points about photosynthesis and one example of a plant."
+        },
+        {
+            "step_id": "step_2",
+            "type": "final_answer",
+            "content": "- Photosynthesis is the process by which plants convert sunlight into chemical energy.\n- It occurs primarily in the chloroplasts of plant cells.\n- Carbon dioxide and water are transformed into glucose and oxygen."
+        }
+    ],
+    "metadata": {
+        "timestamp": "2025-01-10T12:00:00Z",
+        "latency_ms": 88,
+        "tokens": {
+            "input": 20,
+            "output": 52,
+            "total": 72
+        },
+        "environment": {
+            "execution_mode": "offline",
+            "network_allowed": false
+        },
+        "labels": [
+            "completeness",
+            "multi_requirement",
+            "structure"
+        ]
+    }
+}
