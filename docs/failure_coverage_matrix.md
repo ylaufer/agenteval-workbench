@@ -30,12 +30,12 @@ The benchmark dataset must:
 | Tool Hallucination               | Yes     | 001, 003 | 001: fabricated tool output after failure; 003: false success after tool schema error |
 | Unnecessary Tool Invocation      | Yes     | 002      | Tool used for trivial arithmetic |
 | Tool Schema Misuse               | Yes     | 003      | Incorrect parameters cause schema validation error |
-| Tool Output Misinterpretation    | No      | —        | Planned Case 004 |
+| Tool Output Misinterpretation    | Yes     | 004      | Tool returns valid status but agent interprets it incorrectly |
 | Instruction Drift                | No      | —        | Planned Case 005 |
 | Partial Completion               | No      | —        | Planned Case 006 |
 | Constraint Violation             | Yes*    | 001      | Secondary/implicit integrity breach |
 | Format Violation                 | No      | —        | Planned Case 008 |
-| Reasoning Inconsistency          | No      | —        | Planned Case 009 |
+| Reasoning Inconsistency          | Yes*    | 004      | Secondary: conclusion contradicts tool output |
 | Latency Mismanagement            | Yes*    | 002      | Secondary classification only |
 | Unsafe Output                    | No      | —        | Planned Case 010 |
 | Sensitive Data Exposure          | No      | —        | Future security case |
@@ -48,9 +48,9 @@ The benchmark dataset must:
 # 3. Coverage Status Summary
 
 Total Failure Categories Defined: 13  
-Primary Failure Categories Covered: 3  
-Secondary Coverage Categories Present: 2  
-Remaining Categories to Implement: 8  
+Primary Failure Categories Covered: 4  
+Secondary Coverage Categories Present: 3  
+Remaining Categories to Implement: 7  
 
 Coverage is currently partial and expanding.
 
@@ -60,7 +60,6 @@ Coverage is currently partial and expanding.
 
 | Planned Case | Target Failure Category |
 |--------------|------------------------|
-| Case 004     | Tool Output Misinterpretation |
 | Case 005     | Instruction Drift |
 | Case 006     | Partial Completion |
 | Case 007     | Constraint Violation |
