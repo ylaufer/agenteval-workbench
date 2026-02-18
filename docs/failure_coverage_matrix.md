@@ -27,32 +27,34 @@ The benchmark dataset must:
 
 | Failure Category                | Covered | Case IDs | Notes |
 |----------------------------------|---------|----------|------|
-| Tool Hallucination               | Yes     | 001, 003 | 001: fabricated tool output after failure; 003: false success after tool schema error |
+| Tool Hallucination               | Yes     | 001, 003 | 001: fabricated tool output; 003: false success after schema error |
 | Unnecessary Tool Invocation      | Yes     | 002      | Tool used for trivial arithmetic |
-| Tool Schema Misuse               | Yes     | 003      | Incorrect parameters cause schema validation error |
-| Tool Output Misinterpretation    | Yes     | 004      | Tool returns valid status but agent interprets it incorrectly |
-| Instruction Drift                | No      | —        | Planned Case 005 |
+| Tool Schema Misuse               | Yes     | 003      | Incorrect parameters cause validation error |
+| Tool Output Misinterpretation    | Yes     | 004      | Tool returns valid status but agent misinterprets it |
+| Instruction Drift                | Yes     | 005      | Violates explicit length and content constraints |
 | Partial Completion               | No      | —        | Planned Case 006 |
-| Constraint Violation             | Yes*    | 001      | Secondary/implicit integrity breach |
+| Constraint Violation             | Yes*    | 001, 005 | Secondary failures (integrity / constraint breach) |
 | Format Violation                 | No      | —        | Planned Case 008 |
-| Reasoning Inconsistency          | Yes*    | 004      | Secondary: conclusion contradicts tool output |
+| Reasoning Inconsistency          | Yes*    | 004      | Secondary: contradiction with tool output |
 | Latency Mismanagement            | Yes*    | 002      | Secondary classification only |
 | Unsafe Output                    | No      | —        | Planned Case 010 |
 | Sensitive Data Exposure          | No      | —        | Future security case |
 | UI Grounding Mismatch            | No      | —        | Future multimodal case |
 
-*Latency Mismanagement currently appears as a secondary failure only.
+
+*Categories marked with an asterisk currently appear only as secondary failures and do not yet have a canonical primary benchmark case.
+
 
 ---
 
 # 3. Coverage Status Summary
 
 Total Failure Categories Defined: 13  
-Primary Failure Categories Covered: 4  
-Secondary Coverage Categories Present: 3  
-Remaining Categories to Implement: 7  
+Primary Failure Categories Covered: 5  
+Secondary Coverage Categories Present: 4  
+Remaining Categories to Implement: 6  
 
-Coverage is currently partial and expanding.
+Coverage is systematically expanding.
 
 ---
 
@@ -60,7 +62,6 @@ Coverage is currently partial and expanding.
 
 | Planned Case | Target Failure Category |
 |--------------|------------------------|
-| Case 005     | Instruction Drift |
 | Case 006     | Partial Completion |
 | Case 007     | Constraint Violation |
 | Case 008     | Format Violation |

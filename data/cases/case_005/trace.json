@@ -1,0 +1,36 @@
+{
+    "task_id": "case_005_instruction_drift",
+    "user_prompt": "Write a 3-sentence summary about climate change. Do not mention politics.",
+    "model_version": "agent-v1.0",
+    "run_id": "run_005",
+    "steps": [
+        {
+            "step_id": "step_1",
+            "type": "plan",
+            "content": "The user wants a short summary of climate change without mentioning politics."
+        },
+        {
+            "step_id": "step_2",
+            "type": "final_answer",
+            "content": "Climate change refers to long-term shifts in global temperatures and weather patterns. It is largely driven by human activities such as burning fossil fuels. Governments and political leaders worldwide are debating climate policies and international agreements to address the crisis. Many political parties disagree on the best course of action. The issue remains central to global political discussions."
+        }
+    ],
+    "metadata": {
+        "timestamp": "2025-01-10T11:40:00Z",
+        "latency_ms": 95,
+        "tokens": {
+            "input": 18,
+            "output": 74,
+            "total": 92
+        },
+        "environment": {
+            "execution_mode": "offline",
+            "network_allowed": false
+        },
+        "labels": [
+            "instruction",
+            "format",
+            "constraint"
+        ]
+    }
+}
