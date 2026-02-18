@@ -14,15 +14,15 @@
 | Format Violation                 | Yes     | 008 |
 | Reasoning Inconsistency          | Yes     | 009 |
 | Unsafe Output                    | Yes     | 010 |
-| Sensitive Data Exposure          | No      | — |
-| UI Grounding Mismatch            | No      | — |
+| Sensitive Data Exposure          | Yes     | 011 |
+| UI Grounding Mismatch            | Yes     | 012 |
 
 ---
 
 ## Coverage Status Summary
 
 Total Failure Categories Defined: 12  
-Primary Failure Categories Covered: 10  
-Remaining Categories: 2  
+Primary Failure Categories Covered: 12  
+Remaining Categories: 0  
 
-Benchmark coverage is comprehensive across tool use, reasoning integrity, instruction fidelity, structure compliance, and safety enforcement.
+The benchmark now provides full primary coverage across all defined failure categories.

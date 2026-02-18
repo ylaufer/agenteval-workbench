@@ -25,6 +25,9 @@ It ensures:
 | 008      | Format Violation                 | Constraint Violation                        | Moderate  |
 | 009      | Reasoning Inconsistency          | None                                        | High      |
 | 010      | Unsafe Output                    | None                                        | Critical  |
+| 011 | Sensitive Data Exposure | None | Critical |
+| 012 | UI Grounding Mismatch | None | High |
+
 
 ---
 
