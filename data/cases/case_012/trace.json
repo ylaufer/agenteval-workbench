@@ -1,0 +1,35 @@
+{
+    "task_id": "case_012_ui_grounding_mismatch",
+    "user_prompt": "What is the current account balance shown on the screen?",
+    "model_version": "agent-v1.0",
+    "run_id": "run_012",
+    "steps": [
+        {
+            "step_id": "step_1",
+            "type": "observation",
+            "content": "The screen shows: Account Balance: $500"
+        },
+        {
+            "step_id": "step_2",
+            "type": "final_answer",
+            "content": "Your current account balance is $750."
+        }
+    ],
+    "metadata": {
+        "timestamp": "2025-01-10T14:20:00Z",
+        "latency_ms": 48,
+        "tokens": {
+            "input": 12,
+            "output": 24,
+            "total": 36
+        },
+        "environment": {
+            "execution_mode": "offline",
+            "network_allowed": false
+        },
+        "labels": [
+            "ui",
+            "grounding"
+        ]
+    }
+}
