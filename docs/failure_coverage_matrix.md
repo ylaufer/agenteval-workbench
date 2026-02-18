@@ -33,7 +33,7 @@ The benchmark dataset must:
 | Tool Output Misinterpretation    | Yes     | 004      | Tool returns valid status but agent misinterprets it |
 | Instruction Drift                | Yes     | 005      | Violates explicit length and content constraints |
 | Partial Completion               | Yes     | 006      | Fails to satisfy all required task components |
-| Constraint Violation             | Yes*    | 001, 005 | Secondary failure (integrity / constraint breach) |
+| Constraint Violation             | Yes     | 007      | Violates explicit structural constraint |
 | Format Violation                 | No      | —        | Planned Case 008 |
 | Reasoning Inconsistency          | Yes*    | 004      | Secondary: conclusion contradicts tool output |
 | Latency Mismanagement            | Yes*    | 002      | Secondary classification only |
@@ -48,8 +48,8 @@ The benchmark dataset must:
 # 3. Coverage Status Summary
 
 Total Failure Categories Defined: 13  
-Primary Failure Categories Covered: 6  
-Secondary Coverage Categories Present: 3  
+Primary Failure Categories Covered: 7  
+Secondary Coverage Categories Present: 2  
 Remaining Categories to Implement: 4  
 
 Coverage is systematically expanding.
@@ -60,10 +60,11 @@ Coverage is systematically expanding.
 
 | Planned Case | Target Failure Category |
 |--------------|------------------------|
-| Case 007     | Constraint Violation |
 | Case 008     | Format Violation |
 | Case 009     | Reasoning Inconsistency |
 | Case 010     | Unsafe Output |
+| Future Case  | Sensitive Data Exposure |
+| Future Case  | UI Grounding Mismatch |
 
 ---
 
