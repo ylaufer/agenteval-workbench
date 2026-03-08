@@ -52,8 +52,8 @@ Represents the structured agent execution trace.
 
 Must:
 - Validate against `schemas/trace_schema.json`
-- Contain all steps in chronological order
-- Explicitly show tool calls, observations, reasoning, and final output
+- Contain all steps/events in chronological order (append-only event log)
+- Explicitly show tool calls, observations, reasoning spans, and final output
 - Avoid including any secrets or external URLs
 
 ---
@@ -153,6 +153,16 @@ Traces must:
 - Explicitly show tool inputs and outputs
 - Maintain consistent structure
 - Avoid ambiguity
+
+To support evaluator-friendly analysis and interoperability with external trace engines:
+
+- Treat each entry in `steps` as an explicit **event** with a stable `step_id` / `event_id`
+- Use `parent_event_id` to explicitly model parent-child relationships
+  (for example: `tool_call` → `observation`, or reasoning spans that coordinate multiple tools)
+- Use `actor_id` to distinguish between user, agent, and tool actors when relevant
+- Use `span_id` to group multiple low-level events into higher-level reasoning or tool spans
+- Use `context_refs` to point to external artifacts (screenshots, documents, DOM snapshots) via
+  stable identifiers only — never raw payloads
 
 Tool hallucination cases must explicitly show:
 

@@ -1,7 +1,5 @@
 # AgentEval Workbench
 
-![Validate Dataset](https://github.com/ylaufer/agenteval-workbench/actions/workflows/validate_dataset.yml/badge.svg)
-
 Security-first evaluation framework for LLM outputs and autonomous agent workflows.
 
 ---
@@ -131,12 +129,6 @@ Run the validator:
 agenteval-validate-dataset --repo-root .
 ```
 
-Or:
-
-```bash
-AGENTEVAL_REPO_ROOT=. python -m agenteval.dataset.validator
-```
-
 The validator enforces:
 
 - JSON schema validation
@@ -147,6 +139,72 @@ The validator enforces:
 - Path traversal blocking
 
 If any violation is found, the command exits with a non-zero status.
+
+---
+
+## Running the Evaluation Runner (Core Engine)
+
+The core evaluation engine generates **structured evaluation templates** for each benchmark case,
+grounded in the rubric defined under `rubrics/`.
+
+From the repo root:
+
+```bash
+agenteval-eval-runner \
+  --dataset-dir data/cases \
+  --output-dir reports
+```
+
+This will:
+
+- Load the rubric from `rubrics/v1_agent_general.json`
+- Validate each `trace.json` against `schemas/trace_schema.json`
+- Parse the metadata header from each `expected_outcome.md`
+- Emit, per case:
+  - `reports/case_XXX.evaluation.json`
+  - `reports/case_XXX.evaluation.md`
+
+### What the runner produces
+
+- **JSON template** (`case_XXX.evaluation.json`):
+  - Case and task identifiers
+  - Rubric version and name
+  - Parsed primary/secondary failures and severity
+  - Trace summary (total steps, counts per step `type`, run timestamp/latency when present)
+  - One entry per rubric dimension, with:
+    - `score` (initially `null`)
+    - `weight` and `scale`
+    - `evidence_step_ids` (initially empty)
+    - `notes` (initially empty)
+  - Convenience `labels` (e.g., `primary:Tool Hallucination`, `severity:Critical`)
+
+- **Markdown template** (`case_XXX.evaluation.md`):
+  - Human-friendly summary (IDs, failures, severity, labels)
+  - Trace overview (step counts by `type`, timing)
+  - Table listing all rubric dimensions with columns for score, evidence step_ids, and notes
+  - Freeform “Evaluation notes” section
+
+### How reviewers use the templates
+
+- Open the markdown file for a case, inspect:
+  - The **Summary** and **Trace overview** sections
+  - The underlying `prompt.txt`, `trace.json`, and `expected_outcome.md` as needed
+- For each rubric dimension:
+  - Assign a score within the defined scale (e.g., `0–2`)
+  - Populate `Evidence step_ids` with the relevant `step_id` / `event_id` values from the trace
+  - Add short notes explaining the judgment, referencing failure taxonomy terms when useful
+- Optionally mirror the same judgments into the JSON template for downstream processing.
+
+### Automation hooks
+
+The JSON templates are designed for:
+
+- Programmatic aggregation of scores across cases
+- Inter-rater agreement analysis
+- Export to dashboards or reporting systems
+
+A future CLI can ingest the filled `*.evaluation.json` files, compute weighted scores per
+dimension and per case, and produce aggregate benchmark summaries.
 
 ---
 

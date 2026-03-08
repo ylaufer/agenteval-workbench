@@ -30,6 +30,7 @@ where = ["src"]
 
 [project.scripts]
 agenteval-validate-dataset = "agenteval.dataset.validator:main"
+agenteval-eval-runner = "agenteval.core.runner:main"
 
 [tool.ruff]
 line-length = 100

@@ -97,6 +97,10 @@ Must match the `user_prompt` field inside `trace.json`.
 
 Must conform to the dataset trace schema.
 
+Traces are modeled as an **append-only, deterministically ordered event log**. The `steps` array
+captures every plan, reasoning span, tool invocation, observation, and final answer as a
+structured event.
+
 ### Required Top-Level Fields
 
 - task_id
@@ -119,6 +123,11 @@ Optional:
 - tool_name
 - tool_input
 - tool_output
+- event_id
+- parent_event_id
+- actor_id
+- span_id
+- context_refs
 
 ### Metadata Requirements
 
