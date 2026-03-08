@@ -203,8 +203,38 @@ The JSON templates are designed for:
 - Inter-rater agreement analysis
 - Export to dashboards or reporting systems
 
-A future CLI can ingest the filled `*.evaluation.json` files, compute weighted scores per
-dimension and per case, and produce aggregate benchmark summaries.
+The `agenteval-eval-report` CLI ingests the filled `*.evaluation.json` files (see below),
+computes weighted scores per dimension and per case, and produces aggregate benchmark
+summaries in both JSON and Markdown formats.
+
+---
+
+## Generating Structured Evaluation Reports
+
+Once evaluators (or automated agents) have filled in scores in the JSON templates, you can
+generate **summary reports**:
+
+```bash
+agenteval-eval-report \
+  --input-dir reports \
+  --output-json reports/summary.evaluation.json \
+  --output-md reports/summary.evaluation.md
+```
+
+This will:
+
+- Load the rubric (`rubrics/v1_agent_general.json`) to interpret scales and weights
+- Read all `reports/case_XXX.evaluation.json` files
+- Compute:
+  - Per-dimension stats (mean score, distribution, scored/unscored counts)
+  - Normalized overall scores per case (0–1) when scores are present
+  - Primary failure and severity distributions across the benchmark
+- Write:
+  - `reports/summary.evaluation.json` — structured, machine-readable summary
+  - `reports/summary.evaluation.md` — stakeholder-readable report
+
+The Markdown report is intended for stakeholders and reviewers; the JSON report is designed
+for downstream analytics, dashboards, and governance workflows.
 
 ---
 

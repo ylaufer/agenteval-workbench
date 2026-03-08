@@ -9,7 +9,7 @@ This package provides:
 - A CLI runner that generates structured JSON + Markdown evaluation templates
 """
 
-from . import loader, runner, types  # noqa: F401
+from . import loader, report, runner, types  # noqa: F401
 
-__all__ = ["loader", "runner", "types"]
+__all__ = ["loader", "report", "runner", "types"]
 
