@@ -40,6 +40,7 @@ This framework enforces:
 - Failure taxonomy alignment
 - Security scanning
 - CI-enforced dataset integrity
+- Type-safe Python bindings for schemas
 
 ---
 
@@ -80,7 +81,14 @@ agenteval-workbench/
 │   ├── dataset/
 │   │   └── validator.py
 │   ├── core/
-│   └── ...
+│   │   ├── loader.py
+│   │   ├── report.py
+│   │   ├── runner.py
+│   │   └── types.py
+│   ├── schemas/
+│   │   ├── trace.py
+│   │   └── rubric.py
+│   └── __init__.py
 ├── data/cases/
 ├── rubrics/
 ├── schemas/
