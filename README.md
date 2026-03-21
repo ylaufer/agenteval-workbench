@@ -81,14 +81,25 @@ agenteval-workbench/
 │   ├── dataset/
 │   │   └── validator.py
 │   ├── core/
+│   │   ├── calibration.py
 │   │   ├── loader.py
 │   │   ├── report.py
 │   │   ├── runner.py
+│   │   ├── tagger.py
 │   │   └── types.py
 │   ├── schemas/
 │   │   ├── trace.py
 │   │   └── rubric.py
 │   └── __init__.py
+├── tests/
+│   ├── conftest.py
+│   ├── test_calibration.py
+│   ├── test_loader.py
+│   ├── test_report.py
+│   ├── test_runner.py
+│   ├── test_tagger.py
+│   ├── test_types.py
+│   └── test_validator.py
 ├── data/cases/
 ├── rubrics/
 ├── schemas/
@@ -121,7 +132,7 @@ Install the project in editable mode:
 pip install -e .
 ```
 
-Optional (development tools):
+Optional (development tools — includes ruff, mypy, pytest):
 
 ```bash
 pip install -e ".[dev]"
@@ -246,6 +257,70 @@ for downstream analytics, dashboards, and governance workflows.
 
 ---
 
+## Rule-Based Failure Tagging
+
+The evaluation runner automatically tags traces with failure patterns detected via heuristic
+rules in `src/agenteval/core/tagger.py`. Tags are included in evaluation templates under the
+`auto_tags` field.
+
+Current failure detectors:
+
+| Tag | Pattern |
+|-----|---------|
+| `incomplete_execution` | Tool call without a following observation containing output |
+| `hallucination_tool_output` | Final answer contradicts documented tool output |
+| `ui_mismatch` | Multiple screenshots with state-changing steps |
+| `format_violation` | Narrative text in a JSON-only constrained response |
+
+Tags propagate into both the per-case evaluation templates and the aggregated summary report.
+
+---
+
+## Inter-Reviewer Calibration
+
+The calibration CLI computes pairwise inter-reviewer agreement from reviewer score files:
+
+```bash
+agenteval-eval-calibration \
+  --scores-dir scores \
+  --output-json reports/calibration.json \
+  --output-md reports/calibration.md
+```
+
+This will:
+
+- Discover all reviewer score files in `scores/` (format: `case_XXX_reviewer.json`)
+- Compute per-dimension pairwise percent agreement and Cohen's Kappa
+- Write structured JSON and Markdown calibration reports
+
+Reviewer score files are validated against `schemas/reviewer_score_schema.json`.
+
+---
+
+## Running Tests
+
+The project uses pytest with strict markers and fail-fast mode:
+
+```bash
+# Run full test suite
+pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=agenteval --cov-report=term-missing
+```
+
+The test suite covers all modules (137 tests, ~89% coverage):
+
+- `test_types.py` — frozen dataclass construction, defaults, immutability
+- `test_validator.py` — path safety, security scanning, structure checks, schema validation, CLI
+- `test_loader.py` — rubric/trace/reviewer-score loading and parsing
+- `test_runner.py` — header parsing, trace summarization, template generation, CLI
+- `test_report.py` — scale parsing, dimension stats, overall scores, recommendations, CLI
+- `test_tagger.py` — all four failure tag detectors and trace-level tagging
+- `test_calibration.py` — percent agreement, Cohen's kappa, calibration report, CLI
+
+---
+
 ## Continuous Integration
 
 This repository includes a GitHub Actions workflow that automatically runs the dataset validator on:
@@ -289,8 +364,9 @@ This project reflects production-grade AI evaluation practices:
 - Tool grounding must be verified.
 - Failures must be classified.
 - Rubrics must be explicit and versioned.
-- Evaluator consistency must be measurable.
+- Evaluator consistency must be measurable (via inter-reviewer calibration).
 - Security must be enforced at the dataset level.
+- All modules must have automated test coverage.
 
 ---
 

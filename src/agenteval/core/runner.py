@@ -5,11 +5,14 @@ import json
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Sequence, Tuple, cast
 
 from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
 from .loader import load_rubric, load_trace
+from .tagger import tag_trace
 from .types import CaseEvaluationTemplate, DimensionEvaluationTemplate, Rubric
+
+from agenteval.schemas.trace import Trace as _Trace
 
 
 @dataclass(frozen=True)
@@ -56,9 +59,7 @@ def _parse_expected_outcome_header(path: Path) -> _ExpectedOutcomeHeader:
     primary = header.get("primary failure")
     secondary_raw = header.get("secondary failures")
     if secondary_raw:
-        secondary = tuple(
-            part.strip() for part in secondary_raw.split(",") if part.strip()
-        )
+        secondary = tuple(part.strip() for part in secondary_raw.split(",") if part.strip())
     else:
         secondary = tuple()
     severity = header.get("severity")
@@ -110,6 +111,7 @@ def _build_case_template(
     task_id = str(task_id_raw) if isinstance(task_id_raw, str) else case_id
 
     trace_summary = _summarize_trace(trace)
+    auto_tags = tag_trace(cast(_Trace, trace))
 
     dimensions: Dict[str, DimensionEvaluationTemplate] = {}
     for dim in rubric.dimensions:
@@ -137,6 +139,7 @@ def _build_case_template(
         primary_failure=header.primary_failure,
         secondary_failures=header.secondary_failures,
         severity=header.severity,
+        auto_tags=auto_tags,
         trace_summary=trace_summary,
         dimensions=dimensions,
         labels=labels,
@@ -172,6 +175,9 @@ def _write_markdown_template(path: Path, template: CaseEvaluationTemplate, rubri
         lines.append(f"- Secondary failures: {joined}")
     if template.severity:
         lines.append(f"- Severity: `{template.severity}`")
+    if template.auto_tags:
+        tags = ", ".join(f"`{tag}`" for tag in template.auto_tags)
+        lines.append(f"- Auto-detected tags: {tags}")
     if template.labels:
         labels = ", ".join(template.labels)
         lines.append(f"- Labels: {labels}")
@@ -199,9 +205,7 @@ def _write_markdown_template(path: Path, template: CaseEvaluationTemplate, rubri
 
     for dim in rubric.dimensions:
         description = dim.description.replace("|", "\\|")
-        lines.append(
-            f"| `{dim.name}` | {dim.scale} | {dim.weight} | {description} |  |  |  |"
-        )
+        lines.append(f"| `{dim.name}` | {dim.scale} | {dim.weight} | {description} |  |  |  |")
 
     lines.append("")
     lines.append("## Evaluation notes")
@@ -294,4 +298,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

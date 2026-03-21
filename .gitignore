@@ -9,5 +9,5 @@ scores/
 __pycache__/
 *.pyc
 .DS_Store
-
-
+.coverage
+.pytest_cache/

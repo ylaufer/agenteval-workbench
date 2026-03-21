@@ -11,6 +11,8 @@ Provides-Extra: dev
 Requires-Dist: ruff>=0.6.0; extra == "dev"
 Requires-Dist: mypy>=1.10.0; extra == "dev"
 Requires-Dist: typing-extensions>=4.0.0; extra == "dev"
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
 
 # AgentEval Workbench
 
@@ -54,6 +56,7 @@ This framework enforces:
 - Failure taxonomy alignment
 - Security scanning
 - CI-enforced dataset integrity
+- Type-safe Python bindings for schemas
 
 ---
 
@@ -94,7 +97,14 @@ agenteval-workbench/
 │   ├── dataset/
 │   │   └── validator.py
 │   ├── core/
-│   └── ...
+│   │   ├── loader.py
+│   │   ├── report.py
+│   │   ├── runner.py
+│   │   └── types.py
+│   ├── schemas/
+│   │   ├── trace.py
+│   │   └── rubric.py
+│   └── __init__.py
 ├── data/cases/
 ├── rubrics/
 ├── schemas/

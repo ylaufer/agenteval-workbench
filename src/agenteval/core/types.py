@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Mapping, Sequence
 
 
@@ -21,6 +21,27 @@ class Rubric:
     name: str | None
     security_redact_patterns: tuple[str, ...]
     dimensions: tuple[RubricDimension, ...]
+
+
+@dataclass(frozen=True)
+class DimensionScore:
+    """A single reviewer's score for one rubric dimension."""
+
+    score: int
+    evidence_step_ids: tuple[str, ...] = ()
+    notes: str = ""
+
+
+@dataclass(frozen=True)
+class ReviewerScore:
+    """Complete scoring by one reviewer for one benchmark case."""
+
+    case_id: str
+    reviewer_id: str
+    rubric_version: str
+    timestamp: str
+    dimensions: Mapping[str, DimensionScore] = field(default_factory=dict)
+    overall_notes: str = ""
 
 
 @dataclass(frozen=True)
@@ -46,7 +67,7 @@ class CaseEvaluationTemplate:
     primary_failure: str | None
     secondary_failures: tuple[str, ...]
     severity: str | None
+    auto_tags: tuple[str, ...]
     trace_summary: Mapping[str, object]
     dimensions: Mapping[str, DimensionEvaluationTemplate]
     labels: Sequence[str]
-

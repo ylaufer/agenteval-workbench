@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agenteval/schemas/reviewer_score_schema.json",
+  "title": "AgentEval Reviewer Score Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "reviewer_id",
+    "rubric_version",
+    "timestamp",
+    "dimensions"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The case identifier (e.g., case_001)."
+    },
+    "reviewer_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Lowercase snake_case reviewer identifier."
+    },
+    "rubric_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of the rubric used for scoring."
+    },
+    "timestamp": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ISO 8601 timestamp of the scoring session."
+    },
+    "dimensions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["score"],
+        "properties": {
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5,
+            "description": "Score value within the dimension's scale."
+          },
+          "evidence_step_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": [],
+            "description": "Step IDs referenced as evidence."
+          },
+          "notes": {
+            "type": "string",
+            "default": "",
+            "description": "Free-text notes for this dimension."
+          }
+        }
+      },
+      "description": "Scores keyed by dimension name."
+    },
+    "overall_notes": {
+      "type": "string",
+      "default": "",
+      "description": "Free-text overall notes for this case."
+    }
+  }
+}

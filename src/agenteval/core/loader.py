@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Tuple, cast
+from typing import Any, Dict, List, Tuple, cast
 
 import jsonschema
 
 from agenteval.dataset.validator import _get_repo_root, _load_json, _safe_resolve_within
-from .types import Rubric, RubricDimension
+from .types import DimensionScore, ReviewerScore, Rubric, RubricDimension
 
 
 def _load_json_schema(schema_path: Path) -> Dict[str, Any]:
@@ -81,9 +81,7 @@ def _rubric_from_dict(obj: Dict[str, Any]) -> Rubric:
         description_value = str(dim_obj["description"])
 
         scoring_guide_obj = cast(Dict[str, Any], dim_obj["scoring_guide"])
-        scoring_guide: Dict[str, str] = {
-            key: str(val) for key, val in scoring_guide_obj.items()
-        }
+        scoring_guide: Dict[str, str] = {key: str(val) for key, val in scoring_guide_obj.items()}
 
         evidence_required_value = bool(dim_obj.get("evidence_required", True))
 
@@ -132,3 +130,73 @@ def load_trace(
         raise TypeError(msg)
     return cast(Dict[str, Any], trace_obj)
 
+
+def load_reviewer_score(
+    path: Path,
+    schema_path: Path | None = None,
+) -> ReviewerScore:
+    """
+    Load a single reviewer score file, validate against the reviewer score schema,
+    and return a typed ``ReviewerScore`` object.
+    """
+    repo_root = _get_repo_root()
+
+    if schema_path is None:
+        schema_path = repo_root / "schemas" / "reviewer_score_schema.json"
+
+    path = _safe_resolve_within(repo_root, path)
+    schema_path = _safe_resolve_within(repo_root, schema_path)
+
+    schema = _load_json_schema(schema_path)
+    obj = _load_json(path)
+    if not isinstance(obj, dict):
+        msg = f"Reviewer score at {path} is not a JSON object"
+        raise TypeError(msg)
+    jsonschema.validate(instance=obj, schema=schema)
+
+    return _reviewer_score_from_dict(cast(Dict[str, Any], obj))
+
+
+def _reviewer_score_from_dict(obj: Dict[str, Any]) -> ReviewerScore:
+    dims_raw = obj.get("dimensions", {})
+    dimensions: Dict[str, DimensionScore] = {}
+    for dim_name, dim_val in dims_raw.items():
+        if not isinstance(dim_val, dict):
+            continue
+        evidence = dim_val.get("evidence_step_ids", [])
+        dimensions[dim_name] = DimensionScore(
+            score=int(dim_val["score"]),
+            evidence_step_ids=tuple(str(e) for e in evidence),
+            notes=str(dim_val.get("notes", "")),
+        )
+    return ReviewerScore(
+        case_id=str(obj["case_id"]),
+        reviewer_id=str(obj["reviewer_id"]),
+        rubric_version=str(obj["rubric_version"]),
+        timestamp=str(obj["timestamp"]),
+        dimensions=dimensions,
+        overall_notes=str(obj.get("overall_notes", "")),
+    )
+
+
+def load_reviewer_scores_for_case(
+    case_id: str,
+    scores_dir: Path,
+    schema_path: Path | None = None,
+) -> List[ReviewerScore]:
+    """
+    Load all reviewer score files matching ``case_id`` from ``scores_dir``.
+
+    Expects filenames like ``case_001_alice.json``.
+    """
+    repo_root = _get_repo_root()
+    scores_dir = _safe_resolve_within(repo_root, scores_dir)
+    if not scores_dir.exists() or not scores_dir.is_dir():
+        return []
+
+    results: List[ReviewerScore] = []
+    prefix = f"{case_id}_"
+    for path in sorted(scores_dir.iterdir(), key=lambda p: p.name):
+        if path.is_file() and path.name.startswith(prefix) and path.name.endswith(".json"):
+            results.append(load_reviewer_score(path, schema_path=schema_path))
+    return results

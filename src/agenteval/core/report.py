@@ -8,7 +8,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Mapping, Sequence, Tuple
 
 from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
-from .loader import load_rubric
+from .loader import load_reviewer_scores_for_case, load_rubric
+from .types import ReviewerScore
 
 
 Numeric = float
@@ -60,7 +61,8 @@ def _iter_evaluation_files(input_dir: Path) -> Iterable[Path]:
 
 def _load_evaluation(path: Path) -> Mapping[str, Any]:
     text = path.read_text(encoding="utf-8")
-    return json.loads(text)
+    result: Mapping[str, Any] = json.loads(text)
+    return result
 
 
 def _collect_dimension_stats(
@@ -159,6 +161,7 @@ def _summarize_failures(
 ) -> Dict[str, Any]:
     primary_counts: Counter[str] = Counter()
     severity_counts: Counter[str] = Counter()
+    auto_tag_counts: Counter[str] = Counter()
 
     for eval_obj in evaluations:
         primary = eval_obj.get("primary_failure")
@@ -167,11 +170,86 @@ def _summarize_failures(
         severity = eval_obj.get("severity")
         if isinstance(severity, str) and severity:
             severity_counts[severity] += 1
+        auto_tags = eval_obj.get("auto_tags")
+        if isinstance(auto_tags, (list, tuple)):
+            for tag in auto_tags:
+                if isinstance(tag, str) and tag:
+                    auto_tag_counts[tag] += 1
 
     return {
         "primary_failure_counts": dict(sorted(primary_counts.items())),
         "severity_counts": dict(sorted(severity_counts.items())),
+        "auto_tag_counts": dict(sorted(auto_tag_counts.items())),
     }
+
+
+def _load_all_reviewer_scores(
+    evaluations: Sequence[Mapping[str, Any]],
+    scores_dir: Path,
+) -> Dict[str, list[ReviewerScore]]:
+    """Load reviewer scores for every case_id found in evaluations."""
+    result: Dict[str, list[ReviewerScore]] = {}
+    for eval_obj in evaluations:
+        case_id = str(eval_obj.get("case_id", ""))
+        if not case_id:
+            continue
+        scores = load_reviewer_scores_for_case(case_id, scores_dir)
+        if scores:
+            result[case_id] = scores
+    return result
+
+
+def _inject_reviewer_scores_into_stats(
+    dimension_stats: Dict[str, _DimensionStats],
+    reviewer_scores: Mapping[str, list[ReviewerScore]],
+    rubric_info: Mapping[str, Tuple[str, Numeric]],
+) -> Dict[str, _DimensionStats]:
+    """Recalculate dimension stats including reviewer scores."""
+    distributions: Dict[str, Counter[str]] = defaultdict(Counter)
+    totals: Dict[str, Numeric] = defaultdict(float)
+    num_scored: Dict[str, int] = defaultdict(int)
+    num_unscored: Dict[str, int] = defaultdict(int)
+
+    # Carry forward existing stats
+    for dim_name, stats in dimension_stats.items():
+        if stats.mean_score is not None:
+            totals[dim_name] = stats.mean_score * stats.num_scored
+        num_scored[dim_name] = stats.num_scored
+        num_unscored[dim_name] = stats.num_unscored
+        if isinstance(stats.distribution, Mapping):
+            distributions[dim_name] = Counter(stats.distribution)
+
+    # Add reviewer scores
+    for _case_id, scores_list in reviewer_scores.items():
+        for rs in scores_list:
+            for dim_name, dim_score in rs.dimensions.items():
+                if dim_name not in rubric_info:
+                    continue
+                score_str = str(dim_score.score)
+                distributions[dim_name][score_str] += 1
+                totals[dim_name] += float(dim_score.score)
+                num_scored[dim_name] += 1
+
+    merged: Dict[str, _DimensionStats] = {}
+    for dim_name, (scale_str, weight) in rubric_info.items():
+        scale_min, scale_max = _parse_scale(scale_str)
+        scored = num_scored.get(dim_name, 0)
+        mean_score: Numeric | None
+        if scored:
+            mean_score = totals[dim_name] / scored
+        else:
+            mean_score = None
+        merged[dim_name] = _DimensionStats(
+            name=dim_name,
+            scale_min=scale_min,
+            scale_max=scale_max,
+            weight=weight,
+            num_scored=scored,
+            num_unscored=num_unscored.get(dim_name, 0),
+            mean_score=mean_score,
+            distribution=dict(sorted(distributions[dim_name].items())),
+        )
+    return merged
 
 
 def _generate_recommendations(
@@ -182,9 +260,7 @@ def _generate_recommendations(
 
     primary_counts = failure_summary.get("primary_failure_counts", {})
     if isinstance(primary_counts, Mapping):
-        sorted_failures = sorted(
-            primary_counts.items(), key=lambda kv: kv[1], reverse=True
-        )
+        sorted_failures = sorted(primary_counts.items(), key=lambda kv: kv[1], reverse=True)
         for failure, count in sorted_failures[:3]:
             recommendations.append(
                 f"Investigate recurring failure type '{failure}' "
@@ -196,9 +272,7 @@ def _generate_recommendations(
             continue
         if stats.scale_max <= stats.scale_min:
             continue
-        normalized = (stats.mean_score - stats.scale_min) / (
-            stats.scale_max - stats.scale_min
-        )
+        normalized = (stats.mean_score - stats.scale_min) / (stats.scale_max - stats.scale_min)
         if normalized < 0.75:
             recommendations.append(
                 f"Focus on dimension '{dim_name}': average score {stats.mean_score:.2f} "
@@ -222,9 +296,7 @@ def _build_json_report(
     failure_summary: Mapping[str, Any],
 ) -> Dict[str, Any]:
     num_cases = len(evaluations)
-    num_scored_cases = sum(
-        1 for agg in case_aggregates if agg.overall_score is not None
-    )
+    num_scored_cases = sum(1 for agg in case_aggregates if agg.overall_score is not None)
 
     dim_section: Dict[str, Any] = {}
     for name, stats in sorted(dimension_stats.items()):
@@ -299,12 +371,8 @@ def _write_markdown(
 
     lines.append("## Dimension-level breakdown")
     lines.append("")
-    lines.append(
-        "| Dimension | Scale | Weight | Scored / Unscored | Mean score | Distribution |"
-    )
-    lines.append(
-        "|-----------|-------|--------|-------------------|------------|--------------|"
-    )
+    lines.append("| Dimension | Scale | Weight | Scored / Unscored | Mean score | Distribution |")
+    lines.append("|-----------|-------|--------|-------------------|------------|--------------|")
     if isinstance(dimensions, Mapping):
         for name, payload in sorted(dimensions.items()):
             if not isinstance(payload, Mapping):
@@ -343,8 +411,15 @@ def _write_markdown(
         severity_counts = failure_summary.get("severity_counts", {})
         if isinstance(severity_counts, Mapping) and severity_counts:
             lines.append("- Severity distribution:")
-            for severity, count in sorted(severity_counts.items(), key=lambda kv: kv[1], reverse=True):
+            for severity, count in sorted(
+                severity_counts.items(), key=lambda kv: kv[1], reverse=True
+            ):
                 lines.append(f"  - `{severity}`: {count}")
+        auto_tag_counts = failure_summary.get("auto_tag_counts", {})
+        if isinstance(auto_tag_counts, Mapping) and auto_tag_counts:
+            lines.append("- Auto-detected failure patterns:")
+            for tag, count in sorted(auto_tag_counts.items(), key=lambda kv: kv[1], reverse=True):
+                lines.append(f"  - `{tag}`: {count}")
     lines.append("")
 
     lines.append("## Notable failed cases")
@@ -360,9 +435,7 @@ def _write_markdown(
             score_str = f"{score:.3f}" if isinstance(score, (int, float)) else "-"
             primary = case.get("primary_failure") or ""
             severity = case.get("severity") or ""
-            lines.append(
-                f"| `{cid}` | {score_str} | {primary} | {severity} |"
-            )
+            lines.append(f"| `{cid}` | {score_str} | {primary} | {severity} |")
     lines.append("")
 
     lines.append("## Improvement recommendations")
@@ -411,6 +484,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=str(repo_root / "rubrics" / "v1_agent_general.json"),
         help="Path to rubric config (JSON, default: rubrics/v1_agent_general.json).",
     )
+    parser.add_argument(
+        "--scores-dir",
+        type=str,
+        default=str(repo_root / "scores"),
+        help="Directory containing reviewer score files (default: scores/).",
+    )
 
     args = parser.parse_args(argv)
 
@@ -438,6 +517,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         evaluations.append(_load_evaluation(path))
 
     dimension_stats = _collect_dimension_stats(evaluations, rubric_info)
+
+    scores_dir = Path(args.scores_dir)
+    if scores_dir.exists() and scores_dir.is_dir():
+        reviewer_scores = _load_all_reviewer_scores(evaluations, scores_dir)
+        if reviewer_scores:
+            dimension_stats = _inject_reviewer_scores_into_stats(
+                dimension_stats, reviewer_scores, rubric_info
+            )
+
     case_aggregates = _compute_case_overall_scores(evaluations, rubric_info)
     failure_summary = _summarize_failures(evaluations)
 
@@ -460,4 +548,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

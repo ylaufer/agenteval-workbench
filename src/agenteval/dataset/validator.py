@@ -64,8 +64,7 @@ def _find_repo_root(start: Path) -> Path:
         if cur.parent == cur:
             break
         cur = cur.parent
-    raise RuntimeError(
-        "Repo root not found (expected pyproject.toml or .git).")
+    raise RuntimeError("Repo root not found (expected pyproject.toml or .git).")
 
 
 def _get_repo_root() -> Path:
@@ -183,18 +182,27 @@ def validate_dataset(
         dataset_dir = _safe_resolve_within(repo_root, dataset_dir)
         schema_path = _safe_resolve_within(repo_root, schema_path)
     except Exception as e:
-        issues = (ValidationIssue(case_id="__global__",
-                  file_path=str(repo_root), message=str(e)),)
+        issues = (ValidationIssue(case_id="__global__", file_path=str(repo_root), message=str(e)),)
         return ValidationResult(ok=False, issues=issues)
 
     if not dataset_dir.exists() or not dataset_dir.is_dir():
-        issues = (ValidationIssue(case_id="__global__", file_path=str(
-            dataset_dir), message="Dataset directory missing or not a directory"),)
+        issues = (
+            ValidationIssue(
+                case_id="__global__",
+                file_path=str(dataset_dir),
+                message="Dataset directory missing or not a directory",
+            ),
+        )
         return ValidationResult(ok=False, issues=issues)
 
     if not schema_path.exists() or not schema_path.is_file():
-        issues = (ValidationIssue(case_id="__global__", file_path=str(
-            schema_path), message="Trace schema missing or not a file"),)
+        issues = (
+            ValidationIssue(
+                case_id="__global__",
+                file_path=str(schema_path),
+                message="Trace schema missing or not a file",
+            ),
+        )
         return ValidationResult(ok=False, issues=issues)
 
     issues_list: list[ValidationIssue] = []
@@ -207,21 +215,24 @@ def validate_dataset(
         try:
             case_dir = _safe_resolve_within(repo_root, case_dir)
         except Exception as e:
-            issues_list.append(ValidationIssue(
-                case_id=case_id, file_path=str(case_dir), message=str(e)))
+            issues_list.append(
+                ValidationIssue(case_id=case_id, file_path=str(case_dir), message=str(e))
+            )
             continue
 
         # Structure checks
         for err in _validate_case_structure(case_dir):
-            issues_list.append(ValidationIssue(
-                case_id=case_id, file_path=str(case_dir), message=err))
+            issues_list.append(
+                ValidationIssue(case_id=case_id, file_path=str(case_dir), message=err)
+            )
 
         # Schema check
         trace_path = case_dir / "trace.json"
         if trace_path.exists() and trace_path.is_file():
             for err in _validate_trace_against_schema(trace_path, schema_path):
-                issues_list.append(ValidationIssue(
-                    case_id=case_id, file_path=str(trace_path), message=err))
+                issues_list.append(
+                    ValidationIssue(case_id=case_id, file_path=str(trace_path), message=err)
+                )
 
         # Security scans on required files (if present)
         for fname in REQUIRED_CASE_FILES:
@@ -232,11 +243,17 @@ def validate_dataset(
                 fpath = _safe_resolve_within(repo_root, fpath)
                 text = _read_text(fpath)
                 for v in _scan_text_for_security_violations(text):
-                    issues_list.append(ValidationIssue(
-                        case_id=case_id, file_path=str(fpath), message=v))
+                    issues_list.append(
+                        ValidationIssue(case_id=case_id, file_path=str(fpath), message=v)
+                    )
             except Exception as e:
-                issues_list.append(ValidationIssue(case_id=case_id, file_path=str(
-                    fpath), message=f"Failed to read/scan file: {e}"))
+                issues_list.append(
+                    ValidationIssue(
+                        case_id=case_id,
+                        file_path=str(fpath),
+                        message=f"Failed to read/scan file: {e}",
+                    )
+                )
 
     issues = tuple(issues_list)
     return ValidationResult(ok=(len(issues) == 0), issues=issues)
