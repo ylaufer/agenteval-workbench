@@ -1,1 +1,5 @@
-jsonschema
+jsonschema>=4.21.0
+
+[dev]
+ruff>=0.6.0
+mypy>=1.10.0

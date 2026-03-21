@@ -1,0 +1,4 @@
+[console_scripts]
+agenteval-eval-report = agenteval.core.report:main
+agenteval-eval-runner = agenteval.core.runner:main
+agenteval-validate-dataset = agenteval.dataset.validator:main
