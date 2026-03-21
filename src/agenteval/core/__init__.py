@@ -12,4 +12,3 @@ This package provides:
 """
 
 __all__ = ["loader", "report", "runner", "types"]
-
