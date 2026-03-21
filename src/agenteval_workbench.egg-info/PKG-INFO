@@ -10,6 +10,7 @@ Requires-Dist: jsonschema>=4.21.0
 Provides-Extra: dev
 Requires-Dist: ruff>=0.6.0; extra == "dev"
 Requires-Dist: mypy>=1.10.0; extra == "dev"
+Requires-Dist: typing-extensions>=4.0.0; extra == "dev"
 
 # AgentEval Workbench
 

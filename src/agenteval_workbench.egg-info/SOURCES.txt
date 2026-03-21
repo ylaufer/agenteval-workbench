@@ -8,6 +8,9 @@ src/agenteval/core/runner.py
 src/agenteval/core/types.py
 src/agenteval/dataset/__init__.py
 src/agenteval/dataset/validator.py
+src/agenteval/schemas/__init__.py
+src/agenteval/schemas/rubric.py
+src/agenteval/schemas/trace.py
 src/agenteval_workbench.egg-info/PKG-INFO
 src/agenteval_workbench.egg-info/SOURCES.txt
 src/agenteval_workbench.egg-info/dependency_links.txt
