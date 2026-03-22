@@ -1,0 +1,45 @@
+{
+  "run_id": "057b215f-965c-4367-a875-de95f7cbd3d4",
+  "task_id": "demo_case",
+  "user_prompt": "What is the capital of France?",
+  "model_version": "demo-agent-v1",
+  "steps": [
+    {
+      "step_id": "step-1",
+      "type": "thought",
+      "actor_id": "demo-agent",
+      "content": "The agent received the input: What is the capital of France?"
+    },
+    {
+      "step_id": "step-2",
+      "type": "tool_call",
+      "actor_id": "demo-agent",
+      "content": "Calling search tool for query: What is the capital of France?",
+      "tool_name": "search",
+      "tool_input": {
+        "query": "What is the capital of France?"
+      }
+    },
+    {
+      "step_id": "step-3",
+      "type": "observation",
+      "actor_id": "search-tool",
+      "content": "Mock search results for: What is the capital of France?",
+      "tool_output": {
+        "results": [
+          "Mock search results for: What is the capital of France?"
+        ]
+      }
+    },
+    {
+      "step_id": "step-4",
+      "type": "final_answer",
+      "actor_id": "demo-agent",
+      "content": "The capital of France is Paris."
+    }
+  ],
+  "metadata": {
+    "timestamp": "1774142900062",
+    "latency_ms": 0
+  }
+}

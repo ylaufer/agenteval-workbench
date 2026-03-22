@@ -1,0 +1,5 @@
+- [ ] Create execution.py
+- [ ] Implement demo agent
+- [ ] Generate trace.json
+- [ ] Validate trace schema
+- [ ] Run evaluation
