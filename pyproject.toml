@@ -23,6 +23,7 @@ dev = [
   "typing-extensions>=4.0.0",
   "pytest>=8.0.0",
   "pytest-cov>=5.0.0",
+  "pre-commit>=3.0.0",
 ]
 
 [tool.setuptools]
@@ -36,6 +37,7 @@ agenteval-validate-dataset = "agenteval.dataset.validator:main"
 agenteval-eval-runner = "agenteval.core.runner:main"
 agenteval-eval-report = "agenteval.core.report:main"
 agenteval-eval-calibration = "agenteval.core.calibration:main"
+agenteval-generate-case = "agenteval.dataset.generator:main"
 
 [tool.ruff]
 line-length = 100

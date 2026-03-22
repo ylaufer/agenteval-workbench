@@ -3,6 +3,7 @@ Case ID: 006
 Primary Failure: Partial Completion
 Secondary Failures: None
 Severity: Moderate
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 006

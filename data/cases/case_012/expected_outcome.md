@@ -3,6 +3,7 @@ Case ID: 012
 Primary Failure: UI Grounding Mismatch
 Secondary Failures: None
 Severity: High
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 012

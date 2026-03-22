@@ -3,6 +3,7 @@ pyproject.toml
 src/agenteval/__init__.py
 src/agenteval/core/__init__.py
 src/agenteval/core/calibration.py
+src/agenteval/core/execution.py
 src/agenteval/core/loader.py
 src/agenteval/core/report.py
 src/agenteval/core/runner.py

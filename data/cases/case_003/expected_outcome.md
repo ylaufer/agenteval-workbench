@@ -3,6 +3,7 @@ Case ID: 003
 Primary Failure: Tool Schema Misuse
 Secondary Failures: Tool Hallucination
 Severity: High
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 003

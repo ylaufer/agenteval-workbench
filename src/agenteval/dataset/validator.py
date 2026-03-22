@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,12 +37,21 @@ PATH_TRAVERSAL_PATTERN = re.compile(r"\.\.[/\\]")
 
 REQUIRED_CASE_FILES = ("prompt.txt", "trace.json", "expected_outcome.md")
 
+REQUIRED_HEADER_FIELDS = (
+    "Case ID",
+    "Primary Failure",
+    "Secondary Failures",
+    "Severity",
+    "case_version",
+)
+
 
 @dataclass(frozen=True)
 class ValidationIssue:
     case_id: str
     file_path: str
     message: str
+    severity: str = "error"
 
 
 @dataclass(frozen=True)
@@ -157,6 +167,121 @@ def _validate_trace_against_schema(trace_path: Path, schema_path: Path) -> list[
     return errors
 
 
+def _parse_expected_outcome_header(path: Path) -> dict[str, str]:
+    """Parse YAML front matter from expected_outcome.md and return a dict of header fields."""
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+
+    header: dict[str, str] = {}
+    for line in lines[1:]:
+        stripped = line.strip()
+        if stripped == "---":
+            break
+        if not stripped or ":" not in stripped:
+            continue
+        key, value = stripped.split(":", 1)
+        header[key.strip()] = value.strip()
+
+    return header
+
+
+def _validate_header_fields(
+    case_id: str, header: dict[str, str], outcome_path: Path
+) -> list[ValidationIssue]:
+    """Check for the 5 required header fields and return issues for missing ones."""
+    issues: list[ValidationIssue] = []
+    for field_name in REQUIRED_HEADER_FIELDS:
+        if field_name not in header:
+            issues.append(
+                ValidationIssue(
+                    case_id=case_id,
+                    file_path=str(outcome_path),
+                    message=f"expected_outcome.md missing required header field: {field_name}",
+                    severity="error",
+                )
+            )
+    return issues
+
+
+def _check_version_bump(
+    case_id: str,
+    case_dir: Path,
+    header: dict[str, str],
+    repo_root: Path,
+) -> list[ValidationIssue]:
+    """Check if trace.json or expected_outcome.md changed without a case_version bump.
+
+    Uses git diff to detect changes. Skips silently if git is unavailable or
+    the repo has no commits.
+    """
+    issues: list[ValidationIssue] = []
+    case_version = header.get("case_version")
+    if not case_version:
+        return issues
+
+    files_to_check = ["trace.json", "expected_outcome.md"]
+
+    for fname in files_to_check:
+        fpath = case_dir / fname
+        if not fpath.exists():
+            continue
+
+        try:
+            result = subprocess.run(
+                ["git", "diff", "HEAD", "--", str(fpath)],
+                capture_output=True,
+                text=True,
+                cwd=str(repo_root),
+                timeout=10,
+            )
+            if result.returncode != 0:
+                continue
+
+            if result.stdout.strip():
+                # File has changes — check if version was bumped
+                # Compare current case_version with HEAD version
+                old_result = subprocess.run(
+                    ["git", "show", f"HEAD:{fpath.relative_to(repo_root).as_posix()}"],
+                    capture_output=True,
+                    text=True,
+                    cwd=str(repo_root),
+                    timeout=10,
+                )
+                if old_result.returncode != 0:
+                    continue
+
+                # Parse old header to get old case_version
+                old_lines = old_result.stdout.splitlines()
+                old_version = None
+                if old_lines and old_lines[0].strip() == "---":
+                    for line in old_lines[1:]:
+                        stripped = line.strip()
+                        if stripped == "---":
+                            break
+                        if stripped.startswith("case_version:"):
+                            old_version = stripped.split(":", 1)[1].strip()
+                            break
+
+                if old_version and old_version == case_version:
+                    issues.append(
+                        ValidationIssue(
+                            case_id=case_id,
+                            file_path=str(fpath),
+                            message=(
+                                f"{fname} modified without case_version bump "
+                                f"({old_version} \u2192 {case_version})"
+                            ),
+                            severity="warning",
+                        )
+                    )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+
+    return issues
+
+
 def validate_dataset(
     dataset_dir: Path | None = None,
     schema_path: Path | None = None,
@@ -182,7 +307,11 @@ def validate_dataset(
         dataset_dir = _safe_resolve_within(repo_root, dataset_dir)
         schema_path = _safe_resolve_within(repo_root, schema_path)
     except Exception as e:
-        issues = (ValidationIssue(case_id="__global__", file_path=str(repo_root), message=str(e)),)
+        issues = (
+            ValidationIssue(
+                case_id="__global__", file_path=str(repo_root), message=str(e), severity="error"
+            ),
+        )
         return ValidationResult(ok=False, issues=issues)
 
     if not dataset_dir.exists() or not dataset_dir.is_dir():
@@ -191,6 +320,7 @@ def validate_dataset(
                 case_id="__global__",
                 file_path=str(dataset_dir),
                 message="Dataset directory missing or not a directory",
+                severity="error",
             ),
         )
         return ValidationResult(ok=False, issues=issues)
@@ -201,6 +331,7 @@ def validate_dataset(
                 case_id="__global__",
                 file_path=str(schema_path),
                 message="Trace schema missing or not a file",
+                severity="error",
             ),
         )
         return ValidationResult(ok=False, issues=issues)
@@ -216,14 +347,18 @@ def validate_dataset(
             case_dir = _safe_resolve_within(repo_root, case_dir)
         except Exception as e:
             issues_list.append(
-                ValidationIssue(case_id=case_id, file_path=str(case_dir), message=str(e))
+                ValidationIssue(
+                    case_id=case_id, file_path=str(case_dir), message=str(e), severity="error"
+                )
             )
             continue
 
         # Structure checks
         for err in _validate_case_structure(case_dir):
             issues_list.append(
-                ValidationIssue(case_id=case_id, file_path=str(case_dir), message=err)
+                ValidationIssue(
+                    case_id=case_id, file_path=str(case_dir), message=err, severity="error"
+                )
             )
 
         # Schema check
@@ -231,8 +366,31 @@ def validate_dataset(
         if trace_path.exists() and trace_path.is_file():
             for err in _validate_trace_against_schema(trace_path, schema_path):
                 issues_list.append(
-                    ValidationIssue(case_id=case_id, file_path=str(trace_path), message=err)
+                    ValidationIssue(
+                        case_id=case_id, file_path=str(trace_path), message=err, severity="error"
+                    )
                 )
+
+        # Header validation on expected_outcome.md
+        outcome_path = case_dir / "expected_outcome.md"
+        header: dict[str, str] = {}
+        if outcome_path.exists() and outcome_path.is_file():
+            try:
+                header = _parse_expected_outcome_header(outcome_path)
+                issues_list.extend(_validate_header_fields(case_id, header, outcome_path))
+            except Exception as e:
+                issues_list.append(
+                    ValidationIssue(
+                        case_id=case_id,
+                        file_path=str(outcome_path),
+                        message=f"Failed to parse expected_outcome.md header: {e}",
+                        severity="error",
+                    )
+                )
+
+        # Version-bump detection (git-aware, advisory)
+        if header:
+            issues_list.extend(_check_version_bump(case_id, case_dir, header, repo_root))
 
         # Security scans on required files (if present)
         for fname in REQUIRED_CASE_FILES:
@@ -244,7 +402,9 @@ def validate_dataset(
                 text = _read_text(fpath)
                 for v in _scan_text_for_security_violations(text):
                     issues_list.append(
-                        ValidationIssue(case_id=case_id, file_path=str(fpath), message=v)
+                        ValidationIssue(
+                            case_id=case_id, file_path=str(fpath), message=v, severity="error"
+                        )
                     )
             except Exception as e:
                 issues_list.append(
@@ -252,22 +412,34 @@ def validate_dataset(
                         case_id=case_id,
                         file_path=str(fpath),
                         message=f"Failed to read/scan file: {e}",
+                        severity="error",
                     )
                 )
 
-    issues = tuple(issues_list)
-    return ValidationResult(ok=(len(issues) == 0), issues=issues)
+    all_issues: tuple[ValidationIssue, ...] = tuple(issues_list)
+    has_errors = any(i.severity == "error" for i in all_issues)
+    return ValidationResult(ok=(not has_errors), issues=all_issues)
 
 
 def _print_result(result: ValidationResult) -> None:
-    if result.ok:
-        print("✅ Dataset validation successful.")
-        return
+    error_count = sum(1 for i in result.issues if i.severity == "error")
+    warning_count = sum(1 for i in result.issues if i.severity == "warning")
 
-    print("❌ Dataset validation failed.\n")
-    for i, issue in enumerate(result.issues, start=1):
-        print(f"{i}. [{issue.case_id}] {issue.file_path}\n   - {issue.message}")
-    print()
+    for issue in result.issues:
+        prefix = "ERROR" if issue.severity == "error" else "WARNING"
+        print(f"[{issue.case_id}] {prefix}: {issue.message}")
+
+    if result.ok and not result.issues:
+        print("✅ Dataset validation passed.")
+    elif result.ok and warning_count > 0:
+        print(f"\n✅ Dataset validation passed ({warning_count} warning(s)).")
+    else:
+        parts = []
+        if error_count:
+            parts.append(f"{error_count} error(s)")
+        if warning_count:
+            parts.append(f"{warning_count} warning(s)")
+        print(f"\n❌ Dataset validation failed ({', '.join(parts)}).")
 
 
 def main(argv: list[str] | None = None) -> int:

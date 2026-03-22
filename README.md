@@ -79,9 +79,11 @@ Every push and pull request automatically validates:
 agenteval-workbench/
 ├── src/agenteval/
 │   ├── dataset/
-│   │   └── validator.py
+│   │   ├── validator.py       # Dataset validation (structure, schema, security, headers)
+│   │   └── generator.py       # Case generation with failure-type presets
 │   ├── core/
 │   │   ├── calibration.py
+│   │   ├── execution.py
 │   │   ├── loader.py
 │   │   ├── report.py
 │   │   ├── runner.py
@@ -94,6 +96,7 @@ agenteval-workbench/
 ├── tests/
 │   ├── conftest.py
 │   ├── test_calibration.py
+│   ├── test_generator.py
 │   ├── test_loader.py
 │   ├── test_report.py
 │   ├── test_runner.py
@@ -105,6 +108,7 @@ agenteval-workbench/
 ├── schemas/
 ├── docs/
 ├── reports/
+├── .pre-commit-config.yaml
 ├── pyproject.toml
 └── .github/workflows/
 ```
@@ -132,10 +136,16 @@ Install the project in editable mode:
 pip install -e .
 ```
 
-Optional (development tools — includes ruff, mypy, pytest):
+Optional (development tools — includes ruff, mypy, pytest, pre-commit):
 
 ```bash
 pip install -e ".[dev]"
+```
+
+Activate pre-commit hooks (one-time per clone):
+
+```bash
+pre-commit install
 ```
 
 ---
@@ -150,14 +160,63 @@ agenteval-validate-dataset --repo-root .
 
 The validator enforces:
 
-- JSON schema validation
-- Required file structure
+- Required file structure (`prompt.txt`, `trace.json`, `expected_outcome.md`)
+- JSON schema validation (`trace.json` against `schemas/trace_schema.json`)
+- YAML header completeness (5 required fields: `Case ID`, `Primary Failure`, `Secondary Failures`, `Severity`, `case_version`)
+- Error/warning severity levels (errors block, warnings are advisory)
+- Version-bump detection (warns if `trace.json` or `expected_outcome.md` changed without incrementing `case_version`)
 - Secret detection (API keys, Bearer tokens, etc.)
 - URL blocking
 - Absolute path blocking
 - Path traversal blocking
 
-If any violation is found, the command exits with a non-zero status.
+Exit codes:
+
+- `0` — all cases valid (warnings may be present)
+- `1` — one or more validation errors found
+
+Example output with issues:
+
+```
+[case_003] ERROR: Missing required file: prompt.txt
+[case_007] ERROR: expected_outcome.md missing required header field: case_version
+[demo_case] WARNING: trace.json modified without case_version bump (1.0 → 1.0)
+
+❌ Dataset validation failed (2 error(s), 1 warning(s)).
+```
+
+---
+
+## Generating Benchmark Cases
+
+Generate complete, schema-valid cases using the case generator:
+
+```bash
+# Generate a generic case
+agenteval-generate-case --case-id my_test_case
+
+# Generate a case with a specific failure type
+agenteval-generate-case --case-id halluc_example --failure-type tool_hallucination
+
+# Overwrite an existing case
+agenteval-generate-case --case-id demo_case --overwrite
+```
+
+Supported failure types (from the 12 canonical categories):
+
+`tool_hallucination`, `unnecessary_tool_invocation`, `instruction_drift`, `partial_completion`,
+`tool_schema_misuse`, `ui_grounding_mismatch`, `unsafe_output`, `format_violation`,
+`latency_mismanagement`, `reasoning_inconsistency`, `constraint_violation`, `incomplete_execution`
+
+Each generated case includes all 3 required files with valid headers and passes validation immediately.
+
+The generator is also available as a library function:
+
+```python
+from agenteval.dataset import generate_case
+
+case_dir = generate_case(case_id="my_case", failure_type="tool_hallucination")
+```
 
 ---
 
@@ -195,10 +254,11 @@ This will:
     - `weight` and `scale`
     - `evidence_step_ids` (initially empty)
     - `notes` (initially empty)
+  - `case_version` from the `expected_outcome.md` header (`null` if absent)
   - Convenience `labels` (e.g., `primary:Tool Hallucination`, `severity:Critical`)
 
 - **Markdown template** (`case_XXX.evaluation.md`):
-  - Human-friendly summary (IDs, failures, severity, labels)
+  - Human-friendly summary (IDs, failures, severity, case version, labels)
   - Trace overview (step counts by `type`, timing)
   - Table listing all rubric dimensions with columns for score, evidence step_ids, and notes
   - Freeform “Evaluation notes” section
@@ -309,24 +369,27 @@ pytest tests/ -v
 pytest tests/ --cov=agenteval --cov-report=term-missing
 ```
 
-The test suite covers all modules (137 tests, ~89% coverage):
+The test suite covers all modules (157 tests):
 
 - `test_types.py` — frozen dataclass construction, defaults, immutability
-- `test_validator.py` — path safety, security scanning, structure checks, schema validation, CLI
+- `test_validator.py` — path safety, security scanning, structure checks, schema validation, header validation, severity model, batch reporting, version-bump detection, CLI
+- `test_generator.py` — case generation, failure presets, overwrite handling, path safety
 - `test_loader.py` — rubric/trace/reviewer-score loading and parsing
-- `test_runner.py` — header parsing, trace summarization, template generation, CLI
+- `test_runner.py` — header parsing, trace summarization, template generation, case_version propagation, CLI
 - `test_report.py` — scale parsing, dimension stats, overall scores, recommendations, CLI
 - `test_tagger.py` — all four failure tag detectors and trace-level tagging
 - `test_calibration.py` — percent agreement, Cohen's kappa, calibration report, CLI
 
 ---
 
-## Continuous Integration
+## Continuous Integration & Pre-Commit Hooks
 
 This repository includes a GitHub Actions workflow that automatically runs the dataset validator on:
 
 - Every push
 - Every pull request
+
+A pre-commit hook (`.pre-commit-config.yaml`) also runs validation before every local commit, blocking commits with errors while allowing warnings through.
 
 The CI pipeline prevents:
 
@@ -334,6 +397,7 @@ The CI pipeline prevents:
 - Schema-breaking traces
 - Secret leaks
 - Malformed dataset structures
+- Missing YAML header fields (including `case_version`)
 
 ---
 

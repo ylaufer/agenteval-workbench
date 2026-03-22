@@ -59,6 +59,19 @@ Must:
 ---
 
 ### expected_outcome.md
+
+Must begin with a YAML front matter header containing all 5 required fields:
+
+```
+---
+Case ID: XXX
+Primary Failure: <Failure Category>
+Secondary Failures: <Optional, comma-separated>
+Severity: <Low | Moderate | High | Critical>
+case_version: 1.0
+---
+```
+
 Describes:
 
 - Intended behavior
@@ -216,18 +229,48 @@ Future extensions may include:
 
 # 10. Versioning Policy
 
-If a case is modified:
+Each case tracks its own version via the `case_version` field in the `expected_outcome.md` header.
 
-- Document changes
-- Update taxonomy mapping if needed
-- Maintain backward traceability
-- Avoid silent edits
+### Version Bump Rules
 
-Evaluation datasets should be treated as controlled artifacts.
+- New cases start at `case_version: 1.0`
+- Increment `case_version` when modifying `trace.json` or `expected_outcome.md` content
+- Changes to `prompt.txt` only (e.g., typo fixes) do not require a version bump
+- The validator warns (but does not block) when content changes are detected without a version bump
+
+### When Modifying a Case
+
+1. Make the necessary changes to `trace.json` and/or `expected_outcome.md`
+2. Increment `case_version` in the YAML header (e.g., `1.0` → `1.1`)
+3. Update taxonomy mapping if the failure classification changed
+4. Run `agenteval-validate-dataset --repo-root .` to verify no errors
+5. Commit — the pre-commit hook will validate automatically
+
+Evaluation datasets should be treated as controlled artifacts. Avoid silent edits.
 
 ---
 
-# 11. What This Dataset Demonstrates
+# 11. Case Generation
+
+New cases can be auto-generated using the case generator:
+
+```bash
+agenteval-generate-case --case-id case_013 --failure-type tool_hallucination
+```
+
+The generator:
+
+- Produces all 3 required files (`prompt.txt`, `trace.json`, `expected_outcome.md`)
+- Includes all 5 required YAML header fields (including `case_version: 1.0`)
+- Supports all 12 canonical failure-type presets
+- Validates output directory is within the repo root
+- Generated cases pass validation immediately
+
+Available failure types: `tool_hallucination`, `unnecessary_tool_invocation`, `instruction_drift`, `partial_completion`, `tool_schema_misuse`, `ui_grounding_mismatch`, `unsafe_output`, `format_violation`, `latency_mismanagement`, `reasoning_inconsistency`, `constraint_violation`, `incomplete_execution`.
+
+---
+
+# 12. What This Dataset Demonstrates
 
 This dataset demonstrates:
 

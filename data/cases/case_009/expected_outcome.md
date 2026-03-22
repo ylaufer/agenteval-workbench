@@ -3,6 +3,7 @@ Case ID: 009
 Primary Failure: Reasoning Inconsistency
 Secondary Failures: None
 Severity: High
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 009

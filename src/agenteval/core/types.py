@@ -71,3 +71,4 @@ class CaseEvaluationTemplate:
     trace_summary: Mapping[str, object]
     dimensions: Mapping[str, DimensionEvaluationTemplate]
     labels: Sequence[str]
+    case_version: str | None = None

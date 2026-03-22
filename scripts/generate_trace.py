@@ -1,18 +1,16 @@
 from pathlib import Path
 
-from agenteval.core.execution import build_demo_trace, save_trace
+from agenteval.dataset.generator import generate_case
 
 
 def main() -> None:
-    trace = build_demo_trace(
-        "What is the capital of France?",
-        task_id="demo_case",
+    case_dir = generate_case(
+        case_id="demo_case",
+        output_dir=Path("data/cases"),
+        overwrite=True,
     )
 
-    output_path = Path("data/cases/demo_case/trace.json")
-    save_trace(trace, output_path)
-
-    print(f"Trace written to {output_path}")
+    print(f"Demo case created at {case_dir}")
 
 
 if __name__ == "__main__":

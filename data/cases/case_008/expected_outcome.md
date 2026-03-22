@@ -3,6 +3,7 @@ Case ID: 008
 Primary Failure: Format Violation
 Secondary Failures: Constraint Violation
 Severity: Moderate
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 008

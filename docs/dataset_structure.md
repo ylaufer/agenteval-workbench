@@ -33,8 +33,10 @@ agenteval-workbench/
 ├── src/
 │   └── agenteval/
 │       └── dataset/
-│           └── validator.py
+│           ├── validator.py
+│           └── generator.py
 │
+├── .pre-commit-config.yaml
 ├── pyproject.toml
 └── .github/workflows/
 ```
@@ -143,24 +145,23 @@ Must include:
 
 ## 4.3 expected_outcome.md
 
-Must begin with a metadata header:
+Must begin with a YAML front matter header containing all 5 required fields:
 
 ```
 ---
 Case ID: XXX
 Primary Failure: <Failure Category>
-Secondary Failures: <Optional>
+Secondary Failures: <Optional, comma-separated>
 Severity: <Low | Moderate | High | Critical>
+case_version: <MAJOR.MINOR, e.g., 1.0>
 ---
 ```
 
 Followed by structured evaluation reasoning.
 
-Primary Failure must match a category defined in:
+Primary Failure must match a category defined in `docs/failure_taxonomy.md`.
 
-```
-docs/failure_taxonomy.md
-```
+The `case_version` field tracks changes to the case over time. It must be incremented when `trace.json` or `expected_outcome.md` content changes. The validator will warn (but not block) if changes are detected without a version bump.
 
 ---
 
@@ -168,18 +169,27 @@ docs/failure_taxonomy.md
 
 All cases must pass:
 
-```
-python -m agenteval.dataset.validator --repo-root .
+```bash
+agenteval-validate-dataset --repo-root .
 ```
 
 Validation includes:
 
-- Required file presence
-- JSON schema compliance
-- Required fields validation
+- Required file presence (`prompt.txt`, `trace.json`, `expected_outcome.md`)
+- JSON schema compliance (`trace.json` against `schemas/trace_schema.json`)
+- YAML header completeness (5 required fields including `case_version`)
+- Version-bump detection (advisory warning when content changes without `case_version` increment)
 - Safe path enforcement
 - No exposed secrets
 - No absolute local paths
+- No external URLs
+
+Issues are categorized by severity:
+
+- **Errors** — block commits and cause non-zero exit code
+- **Warnings** — reported but do not block (e.g., version-bump detection)
+
+A pre-commit hook (`.pre-commit-config.yaml`) runs validation automatically before every commit.
 
 ---
 
@@ -193,7 +203,34 @@ Validation includes:
 
 ---
 
-# 7. Extensibility Guidelines
+# 7. Case Generation
+
+New cases can be generated using the case generator CLI or library function:
+
+```bash
+# Generate a generic case
+agenteval-generate-case --case-id case_013
+
+# Generate a case with a specific failure type
+agenteval-generate-case --case-id case_013 --failure-type tool_hallucination
+
+# Overwrite an existing case
+agenteval-generate-case --case-id demo_case --overwrite
+```
+
+Or via the library:
+
+```python
+from agenteval.dataset import generate_case
+
+case_dir = generate_case(case_id="case_013", failure_type="tool_hallucination")
+```
+
+Generated cases include all 3 required files with valid headers (including `case_version: 1.0`) and pass validation immediately.
+
+---
+
+# 8. Extensibility Guidelines
 
 Future cases must:
 
@@ -204,9 +241,20 @@ Future cases must:
 
 ---
 
-# 8. Versioning Policy
+# 9. Versioning Policy
 
-If schema changes:
+### Case Versioning
+
+Each case tracks its own version via the `case_version` field in the `expected_outcome.md` header:
+
+- New cases start at `case_version: 1.0`
+- Increment `case_version` when modifying `trace.json` or `expected_outcome.md` content
+- Changes to `prompt.txt` only (e.g., typo fixes) do not require a version bump
+- The validator warns when content changes are detected without a version bump
+
+### Schema Versioning
+
+If the trace or rubric schema changes:
 
 - Update validator
 - Update documentation
@@ -215,7 +263,7 @@ If schema changes:
 
 ---
 
-# 9. Design Principles
+# 10. Design Principles
 
 This dataset follows:
 

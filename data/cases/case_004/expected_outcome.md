@@ -3,6 +3,7 @@ Case ID: 004
 Primary Failure: Tool Output Misinterpretation
 Secondary Failures: Reasoning Inconsistency
 Severity: High
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 004

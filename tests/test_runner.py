@@ -217,3 +217,39 @@ class TestRunnerMain:
         md_files = list(output_dir.glob("*.evaluation.md"))
         assert len(json_files) >= 1
         assert len(md_files) >= 1
+
+
+# ---------------------------------------------------------------------------
+# Case version in templates (US4)
+# ---------------------------------------------------------------------------
+
+
+class TestCaseVersionInTemplates:
+    def test_case_version_included_in_template(self, minimal_trace: Dict[str, Any]) -> None:
+        """T046: Runner includes case_version in CaseEvaluationTemplate."""
+        rubric = _rubric_from_dict(_minimal_rubric_dict())
+        from agenteval.core.runner import _ExpectedOutcomeHeader
+
+        header = _ExpectedOutcomeHeader(
+            case_id="case_001",
+            primary_failure="Test",
+            secondary_failures=(),
+            severity="High",
+            case_version="1.0",
+        )
+        template = _build_case_template("case_001", minimal_trace, rubric, header)
+        assert template.case_version == "1.0"
+
+    def test_missing_case_version_is_none(self, minimal_trace: Dict[str, Any]) -> None:
+        """T047: Runner handles missing case_version (None) gracefully."""
+        rubric = _rubric_from_dict(_minimal_rubric_dict())
+        from agenteval.core.runner import _ExpectedOutcomeHeader
+
+        header = _ExpectedOutcomeHeader(
+            case_id="case_001",
+            primary_failure="Test",
+            secondary_failures=(),
+            severity="High",
+        )
+        template = _build_case_template("case_001", minimal_trace, rubric, header)
+        assert template.case_version is None

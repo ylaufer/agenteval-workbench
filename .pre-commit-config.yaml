@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: validate-dataset
+        name: Validate AgentEval dataset
+        entry: agenteval-validate-dataset --repo-root .
+        language: system
+        pass_filenames: false
+        always_run: true

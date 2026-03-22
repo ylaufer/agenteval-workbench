@@ -2,4 +2,5 @@
 agenteval-eval-calibration = agenteval.core.calibration:main
 agenteval-eval-report = agenteval.core.report:main
 agenteval-eval-runner = agenteval.core.runner:main
+agenteval-generate-case = agenteval.dataset.generator:main
 agenteval-validate-dataset = agenteval.dataset.validator:main

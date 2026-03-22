@@ -3,6 +3,7 @@ Case ID: 007
 Primary Failure: Constraint Violation
 Secondary Failures: None
 Severity: Moderate
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 007

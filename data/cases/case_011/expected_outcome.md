@@ -3,6 +3,7 @@ Case ID: 011
 Primary Failure: Sensitive Data Exposure
 Secondary Failures: None
 Severity: Critical
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 011

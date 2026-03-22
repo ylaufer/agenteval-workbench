@@ -21,6 +21,7 @@ class _ExpectedOutcomeHeader:
     primary_failure: str | None
     secondary_failures: Tuple[str, ...]
     severity: str | None
+    case_version: str | None = None
 
 
 def _parse_expected_outcome_header(path: Path) -> _ExpectedOutcomeHeader:
@@ -63,12 +64,14 @@ def _parse_expected_outcome_header(path: Path) -> _ExpectedOutcomeHeader:
     else:
         secondary = tuple()
     severity = header.get("severity")
+    case_version = header.get("case_version")
 
     return _ExpectedOutcomeHeader(
         case_id=case_id or None,
         primary_failure=primary or None,
         secondary_failures=secondary,
         severity=severity or None,
+        case_version=case_version or None,
     )
 
 
@@ -143,6 +146,7 @@ def _build_case_template(
         trace_summary=trace_summary,
         dimensions=dimensions,
         labels=labels,
+        case_version=header.case_version,
     )
 
 
@@ -178,6 +182,8 @@ def _write_markdown_template(path: Path, template: CaseEvaluationTemplate, rubri
     if template.auto_tags:
         tags = ", ".join(f"`{tag}`" for tag in template.auto_tags)
         lines.append(f"- Auto-detected tags: {tags}")
+    if template.case_version:
+        lines.append(f"- Case version: `{template.case_version}`")
     if template.labels:
         labels = ", ".join(template.labels)
         lines.append(f"- Labels: {labels}")

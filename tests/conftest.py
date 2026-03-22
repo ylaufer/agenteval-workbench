@@ -169,7 +169,7 @@ def sample_case_dir(repo_root_env: Path, minimal_trace: Dict[str, Any]) -> Path:
     (case_dir / "trace.json").write_text(json.dumps(minimal_trace, indent=2), encoding="utf-8")
     (case_dir / "expected_outcome.md").write_text(
         "---\nCase ID: case_001\nPrimary Failure: Incomplete Execution\n"
-        "Secondary Failures: Hallucination\nSeverity: High\n---\n\n"
+        "Secondary Failures: Hallucination\nSeverity: High\ncase_version: 1.0\n---\n\n"
         "The agent should complete the task fully.\n",
         encoding="utf-8",
     )

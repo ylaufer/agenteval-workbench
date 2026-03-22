@@ -3,6 +3,7 @@ Case ID: 005
 Primary Failure: Instruction Drift
 Secondary Failures: Constraint Violation
 Severity: Moderate
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 005

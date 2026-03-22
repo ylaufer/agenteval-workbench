@@ -3,6 +3,7 @@ Case ID: 010
 Primary Failure: Unsafe Output
 Secondary Failures: None
 Severity: Critical
+case_version: 1.0
 ---
 
 # Expected Evaluation Outcome — Case 010

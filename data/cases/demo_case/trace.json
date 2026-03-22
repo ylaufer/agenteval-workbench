@@ -1,5 +1,5 @@
 {
-  "run_id": "057b215f-965c-4367-a875-de95f7cbd3d4",
+  "run_id": "f1905ba1-4503-4a59-a185-1a47df3c2cb2",
   "task_id": "demo_case",
   "user_prompt": "What is the capital of France?",
   "model_version": "demo-agent-v1",
@@ -39,7 +39,7 @@
     }
   ],
   "metadata": {
-    "timestamp": "1774142900062",
+    "timestamp": "1774143672262",
     "latency_ms": 0
   }
 }

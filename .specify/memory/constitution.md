@@ -1,18 +1,24 @@
 <!--
 Sync Impact Report
-- Version change: 0.0.0 → 1.0.0
-- Modified principles: N/A (initial constitution)
-- Added sections:
-  - Core Principles: 5 principles (Security First, Schema-Driven, Offline & Sandboxed,
-    Test-Driven Quality, Minimal Dependencies)
-  - Security Constraints (Section 2)
-  - Development Workflow (Section 3)
-  - Governance
-- Removed sections: N/A
+- Version change: 1.0.0 → 1.1.0
+- Modified principles:
+  - "II. Schema-Driven Contracts" → "II. Schema-First Contracts" (renamed + expanded
+    with reproducibility-first emphasis and explicit trace validation requirement)
+  - "IV. Test-Driven Quality" → expanded to explicitly mandate testing for schema
+    contracts, dataset validation, and report generation
+- Added principles:
+  - "VI. Dataset Completeness (NON-NEGOTIABLE)" — every case must include prompt.txt,
+    trace.json, expected_outcome.md; all must be valid before commit
+  - "VII. Backward-Compatible Evolution" — features must preserve backward
+    compatibility for the evaluation runner
+  - "VIII. Library-First Architecture" — UI features must remain thin wrappers
+    over library code in src/
+- Added sections: None
+- Removed sections: None
 - Templates requiring updates:
-  - .specify/templates/plan-template.md — ✅ compatible (Constitution Check section exists)
-  - .specify/templates/spec-template.md — ✅ compatible (no constitution-specific references)
-  - .specify/templates/tasks-template.md — ✅ compatible (phase structure aligns)
+  - .specify/templates/plan-template.md — ✅ compatible (dynamic Constitution Check)
+  - .specify/templates/spec-template.md — ✅ compatible
+  - .specify/templates/tasks-template.md — ✅ compatible
 - Follow-up TODOs: None
 -->
 
@@ -38,11 +44,14 @@ Security is a hard constraint, not a quality attribute to be traded off.
 workflows. A single leaked secret or traversal exploit compromises the entire
 evaluation chain.
 
-### II. Schema-Driven Contracts
+### II. Schema-First Contracts
 
-All data interchange MUST be governed by explicit, versioned JSON schemas.
+This project is schema-first and reproducibility-first. All data interchange
+MUST be governed by explicit, versioned JSON schemas.
 
 - Every `trace.json` MUST validate against `schemas/trace_schema.json`.
+- All generated traces MUST validate against the trace schema before being
+  accepted into the dataset.
 - Every rubric MUST validate against `schemas/rubric_schema.json`.
 - Schema changes MUST be backward-compatible: add new optional fields rather than
   breaking existing traces.
@@ -53,7 +62,8 @@ All data interchange MUST be governed by explicit, versioned JSON schemas.
 
 **Rationale**: Schemas are the contract between data producers (benchmark authors),
 the evaluation engine, and downstream consumers (reports, dashboards). Breaking a
-schema silently corrupts the entire pipeline.
+schema silently corrupts the entire pipeline. Schema-first design ensures
+reproducibility across environments and reviewers.
 
 ### III. Offline & Sandboxed Execution
 
@@ -74,6 +84,8 @@ All modules MUST have automated test coverage; untested code is incomplete code.
 
 - New modules MUST ship with corresponding `pytest` tests.
 - Tests MUST cover happy paths, error paths, and boundary conditions.
+- Testing is mandatory for: schema contracts, dataset validation, and report
+  generation. These three areas MUST NOT ship without tests.
 - CI MUST gate on: `agenteval-validate-dataset`, `ruff check`, `ruff format --check`,
   `mypy --strict`, and `pytest`.
 - Rubric changes MUST be versioned (e.g., `v2_agent_general`) rather than mutating
@@ -95,6 +107,53 @@ The runtime dependency surface MUST be kept as small as possible.
 **Rationale**: Every dependency is an attack surface, a compatibility risk, and a
 maintenance burden. For a security-focused evaluation tool, a minimal footprint is
 a feature.
+
+### VI. Dataset Completeness (NON-NEGOTIABLE)
+
+All dataset cases MUST be complete and valid before commit.
+
+- Every case directory under `data/cases/` MUST contain exactly three files:
+  `prompt.txt`, `trace.json`, and `expected_outcome.md`.
+- No partial or placeholder cases are permitted in the repository.
+- The dataset validator enforces completeness; incomplete cases MUST NOT be
+  committed even with `--no-verify`.
+
+**Rationale**: Incomplete cases produce misleading evaluation results and break
+downstream tooling (runner, report, calibration). The three-file contract is the
+atomic unit of the benchmark.
+
+### VII. Backward-Compatible Evolution
+
+Features MUST preserve backward compatibility for the evaluation runner.
+
+- New features MUST NOT break existing `agenteval-eval-runner` or
+  `agenteval-eval-report` workflows.
+- Trace schema evolution MUST be additive: new optional fields only, never remove
+  or rename existing fields.
+- Rubric versions MUST be immutable once published; create new versions (e.g.,
+  `v2_agent_general`) instead of mutating existing ones.
+- CLI entry points MUST maintain their existing argument contracts; new arguments
+  MUST default to preserving prior behavior.
+
+**Rationale**: Evaluation pipelines depend on stable interfaces. Breaking the
+runner or report CLI invalidates in-progress evaluations and erodes trust in
+the framework.
+
+### VIII. Library-First Architecture
+
+UI features MUST remain thin wrappers over library code in `src/`.
+
+- All business logic MUST live in `src/agenteval/` as importable library code.
+- CLI entry points MUST be thin wrappers that parse arguments, call library
+  functions, and format output.
+- Scripts in `scripts/` are convenience utilities; they MUST delegate to library
+  code rather than duplicating logic.
+- No evaluation logic may exist solely in a CLI or script without a corresponding
+  library function.
+
+**Rationale**: Library-first architecture enables testing without subprocess
+overhead, supports programmatic integration, and prevents logic from being
+trapped behind CLI argument parsing.
 
 ## Security Constraints
 
@@ -157,4 +216,4 @@ It supersedes ad-hoc decisions and informal conventions.
 - **Guidance**: Runtime development guidance lives in `CLAUDE.md`; this constitution
   defines the non-negotiable constraints that `CLAUDE.md` implements.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-21
+**Version**: 1.1.0 | **Ratified**: 2026-03-21 | **Last Amended**: 2026-03-21
