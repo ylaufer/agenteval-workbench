@@ -10,6 +10,7 @@ src/agenteval/core/runner.py
 src/agenteval/core/tagger.py
 src/agenteval/core/types.py
 src/agenteval/dataset/__init__.py
+src/agenteval/dataset/generator.py
 src/agenteval/dataset/validator.py
 src/agenteval/schemas/__init__.py
 src/agenteval/schemas/rubric.py
@@ -21,6 +22,7 @@ src/agenteval_workbench.egg-info/entry_points.txt
 src/agenteval_workbench.egg-info/requires.txt
 src/agenteval_workbench.egg-info/top_level.txt
 tests/test_calibration.py
+tests/test_generator.py
 tests/test_loader.py
 tests/test_report.py
 tests/test_runner.py

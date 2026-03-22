@@ -2,17 +2,18 @@
 
 **Branch**: `002-streamlit-ui` | **Date**: 2026-03-22 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/002-streamlit-ui/spec.md`
+**Revised**: 2026-03-23 — service layer architecture, app/ at repo root
 
 ## Summary
 
-Build a thin Streamlit UI layer over the existing AgentEval library modules. The UI provides four pages (Generate, Evaluate, Inspect, Report) with sidebar navigation. All business logic delegates to existing library functions in `src/agenteval/`. Small wrapper functions are added to `runner.py` and `report.py` to expose programmatic APIs that return data structures instead of writing files directly. Streamlit is added as an optional dependency under `[project.optional-dependencies.ui]` to preserve the minimal-dependency core.
+Build a thin Streamlit UI layer over the existing AgentEval library modules. The UI provides four pages (Generate, Evaluate, Inspect, Report) with sidebar navigation. A new service layer (`src/agenteval/core/service.py`) provides UI-facing orchestration functions that compose existing library APIs — runner.py and report.py remain untouched. The Streamlit app lives outside the library package in `app/` at the repository root. Streamlit is added as an optional dependency under `[project.optional-dependencies.ui]` to preserve the minimal-dependency core.
 
 ## Technical Context
 
 **Language/Version**: Python 3.10+ (consistent with existing project)
 **Primary Dependencies**: Streamlit (UI framework, optional `[ui]` extra), existing `jsonschema` (runtime)
 **Storage**: Local filesystem — `data/cases/` for cases, `reports/` for evaluation outputs
-**Testing**: pytest (unit tests for wrapper functions; manual testing for Streamlit pages)
+**Testing**: pytest (unit tests for service layer; manual testing for Streamlit pages)
 **Target Platform**: Local development machine (Windows/macOS/Linux)
 **Project Type**: Library with thin UI layer
 **Performance Goals**: N/A — single-user local tool
@@ -28,11 +29,11 @@ Build a thin Streamlit UI layer over the existing AgentEval library modules. The
 | I. Security First | PASS | UI delegates to existing path-safe library functions; no new file I/O outside repo root |
 | II. Schema-First Contracts | PASS | No schema changes; UI reads existing trace/rubric schemas via library loaders |
 | III. Offline & Sandboxed | PASS | No network calls; Streamlit runs locally; all file ops use `_get_repo_root()` |
-| IV. Test-Driven Quality | PASS | Wrapper functions will have pytest tests; Streamlit pages tested manually |
+| IV. Test-Driven Quality | PASS | Service layer has pytest tests; Streamlit pages tested manually |
 | V. Minimal Dependencies | JUSTIFIED | Streamlit is added as optional `[ui]` extra, not a core runtime dependency. Core library remains jsonschema-only |
 | VI. Dataset Completeness | PASS | No changes to dataset structure; generator and validator unchanged |
-| VII. Backward-Compatible | PASS | Existing CLI entry points unchanged; wrapper functions are additive |
-| VIII. Library-First | PASS | UI is a thin display layer; all logic in `src/agenteval/` library modules |
+| VII. Backward-Compatible | PASS | runner.py, report.py, and all CLI entry points are completely untouched |
+| VIII. Library-First | PASS | Service layer lives in `src/agenteval/core/`; UI is a thin display layer in `app/` |
 
 ## Project Structure
 
@@ -53,58 +54,72 @@ specs/002-streamlit-ui/
 ```text
 src/agenteval/
 ├── core/
-│   ├── runner.py        # MODIFIED — add run_evaluation() wrapper function
-│   ├── report.py        # MODIFIED — add generate_summary_report() wrapper function
-│   ├── loader.py         # unchanged
-│   ├── tagger.py         # unchanged
-│   ├── types.py          # unchanged
-│   └── calibration.py    # unchanged
+│   ├── service.py       # NEW — service layer for UI-facing orchestration
+│   ├── runner.py        # UNCHANGED
+│   ├── report.py        # UNCHANGED
+│   ├── loader.py        # unchanged
+│   ├── tagger.py        # unchanged
+│   ├── types.py         # unchanged
+│   └── calibration.py   # unchanged
 ├── dataset/
-│   ├── validator.py      # unchanged (already has validate_dataset() API)
-│   ├── generator.py      # unchanged (already has generate_case() API)
-│   └── __init__.py       # unchanged
-├── ui/
-│   ├── __init__.py       # NEW — package init
-│   ├── app.py            # NEW — Streamlit app entry point + sidebar navigation
-│   ├── page_generate.py  # NEW — Generate & Validate page
-│   ├── page_evaluate.py  # NEW — Evaluate page
-│   ├── page_inspect.py   # NEW — Inspect page
-│   └── page_report.py    # NEW — Report page
-└── __init__.py            # unchanged
+│   ├── validator.py     # unchanged (already has validate_dataset() API)
+│   ├── generator.py     # unchanged (already has generate_case() API)
+│   └── __init__.py      # unchanged
+└── __init__.py          # unchanged
+
+app/
+├── app.py               # NEW — Streamlit entry point + sidebar navigation
+├── page_generate.py     # NEW — Generate & Validate page
+├── page_evaluate.py     # NEW — Evaluate page
+├── page_inspect.py      # NEW — Inspect page
+└── page_report.py       # NEW — Report page
 
 tests/
-├── test_runner.py        # MODIFIED — add tests for run_evaluation() wrapper
-├── test_report.py        # MODIFIED — add tests for generate_summary_report() wrapper
-└── ...                    # existing tests unchanged
+├── test_service.py      # NEW — tests for service layer
+└── ...                  # existing tests unchanged
 ```
 
-**Structure Decision**: Single project layout extending `src/agenteval/` with a new `ui/` subpackage. UI pages are separate modules for maintainability. Wrapper functions are added directly to existing `runner.py` and `report.py` modules rather than creating a separate wrapper module, keeping related logic together.
+**Structure Decision**: The service layer lives inside the library (`src/agenteval/core/service.py`) because it is reusable orchestration logic that any consumer (UI, scripts, notebooks) can import. The Streamlit app lives outside the library in `app/` at the repo root because it is a consumer of the library, not part of it. This keeps the library independent of Streamlit.
 
 ## Key Design Decisions
 
-### 1. Wrapper Functions Over CLI Subprocess Calls
+### 1. Service Layer Instead of Modifying Runner/Report
 
-The existing `runner.main()` and `report.main()` functions parse CLI arguments, process data, and write files. The UI needs programmatic access to intermediate results. Rather than calling CLI entry points via subprocess (fragile, loses type safety), we extract the core logic into new library functions:
+runner.py and report.py are not modified. A new `service.py` module provides orchestration functions that compose existing public APIs:
 
-- `runner.run_evaluation()` → returns `list[CaseEvaluationTemplate]` and optionally writes files
-- `report.generate_summary_report()` → returns `dict` and optionally writes files
+- `service.run_evaluation()` → calls `runner.main()` with constructed argv, then reads generated JSON files from disk to return structured data
+- `service.generate_summary_report()` → calls `report.main()` with constructed argv, then reads generated summary JSON
+- `service.generate_case()` → delegates to `dataset.generator.generate_case()`
+- `service.validate_dataset()` → delegates to `dataset.validator.validate_dataset()`
+- `service.list_cases()` → lists case directories in dataset dir
+- `service.load_case_metadata()` → parses expected_outcome.md YAML header
+- `service.load_trace()` → delegates to `core.loader.load_trace()`
+- `service.load_evaluation_template()` → reads evaluation JSON from reports/
 
-The existing `main()` functions are refactored to call these new functions, preserving backward compatibility.
+This approach is the smallest safe change: zero risk of breaking existing CLI behavior since runner.py and report.py are never touched.
 
-### 2. Streamlit as Optional Dependency
+### 2. Streamlit App Outside Library Package
+
+The Streamlit app lives in `app/` at the repo root, not inside `src/agenteval/`. This:
+- Keeps the library package clean and independent of Streamlit
+- Avoids Streamlit as a transitive dependency for library importers
+- Makes the app a consumer of the library, same as CLI entry points
+- Allows running via `streamlit run app/app.py` without package concerns
+
+### 3. Streamlit as Optional Dependency
 
 Streamlit is added under `[project.optional-dependencies.ui]` in pyproject.toml. This keeps the core library dependency-free (jsonschema only) while allowing `pip install -e ".[ui]"` for UI users. Constitution V compliance is maintained.
 
-### 3. Multi-Page Streamlit App
+### 4. Multi-Page Streamlit App
 
-The app uses Streamlit's native multi-page pattern with sidebar navigation. Each page is a self-contained module that imports and calls library functions. No business logic in UI code — pages handle only:
+The app uses Streamlit's page-based pattern with sidebar navigation. Each page is a self-contained module that imports service layer functions. No business logic in UI code — pages handle only:
 - Input collection (forms, dropdowns, buttons)
-- Library function calls
+- Service layer function calls
 - Output display (tables, expandable sections, success/error messages)
 
-### 4. Validation Display Pattern
+### 5. Validation Display Pattern
 
-After case generation, the UI calls `validate_dataset()` and partitions the returned `ValidationIssue` list by matching the `case_id` field against the newly generated case ID. New-case issues are shown prominently; other-case issues go in a collapsed expander.
+After case generation, the UI calls `service.validate_dataset()` and partitions the returned `ValidationIssue` list by matching the `case_id` field against the newly generated case ID. New-case issues are shown prominently; other-case issues go in a collapsed expander.
 
 ## Complexity Tracking
 

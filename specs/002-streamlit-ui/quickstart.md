@@ -10,7 +10,7 @@ pip install -e ".[ui]"
 ## Launch the UI
 
 ```bash
-streamlit run src/agenteval/ui/app.py
+streamlit run app/app.py
 ```
 
 The app opens in your default browser at `http://localhost:8501`.
@@ -97,4 +97,4 @@ agenteval-eval-runner --dataset-dir data/cases --output-dir reports
 agenteval-eval-report --input-dir reports
 ```
 
-All commands MUST produce identical output to before the UI changes.
+All commands MUST produce identical output to before the UI changes — runner.py and report.py are never modified.

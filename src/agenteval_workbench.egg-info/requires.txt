@@ -7,3 +7,6 @@ typing-extensions>=4.0.0
 pytest>=8.0.0
 pytest-cov>=5.0.0
 pre-commit>=3.0.0
+
+[ui]
+streamlit>=1.30.0

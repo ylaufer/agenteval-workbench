@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from . import calibration, loader, report, runner, tagger, types  # noqa: F401
+from . import calibration, loader, report, runner, service, tagger, types  # noqa: F401
 
 """
 Core evaluation engine for AgentEval.
@@ -13,4 +13,4 @@ This package provides:
 - Inter-reviewer calibration and agreement metrics
 """
 
-__all__ = ["calibration", "loader", "report", "runner", "tagger", "types"]
+__all__ = ["calibration", "loader", "report", "runner", "service", "tagger", "types"]

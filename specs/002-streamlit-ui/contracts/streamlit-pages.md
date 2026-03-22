@@ -2,11 +2,11 @@
 
 ## Page Structure
 
-Each page is a Python module in `src/agenteval/ui/` with a single `render()` function called by the main app. Pages import only from `src/agenteval/` public APIs.
+Each page is a Python module in `app/` with a single `render()` function called by the main app. Pages import only from `agenteval.core.service` — never directly from runner, report, validator, or generator modules.
 
 ---
 
-## Generate Page (`page_generate.py`)
+## Generate Page (`app/page_generate.py`)
 
 ### User Inputs
 
@@ -18,10 +18,10 @@ Each page is a Python module in `src/agenteval/ui/` with a single `render()` fun
 
 ### Actions
 
-| Button | Library Call | Output |
+| Button | Service Call | Output |
 |--------|-------------|--------|
-| Generate Case | `dataset.generate_case(case_id, failure_type, output_dir, overwrite)` | Success message with case path, or error message |
-| Validate Dataset | `dataset.validate_dataset()` | Validation result display |
+| Generate Case | `service.generate_case(case_id, failure_type, output_dir, overwrite)` | Success message with case path, or error message |
+| Validate Dataset | `service.validate_dataset()` | Validation result display |
 
 ### Display After Generation
 
@@ -42,7 +42,7 @@ Each page is a Python module in `src/agenteval/ui/` with a single `render()` fun
 
 ---
 
-## Evaluate Page (`page_evaluate.py`)
+## Evaluate Page (`app/page_evaluate.py`)
 
 ### User Inputs
 
@@ -50,16 +50,16 @@ None — uses default paths.
 
 ### Actions
 
-| Button | Library Call | Output |
+| Button | Service Call | Output |
 |--------|-------------|--------|
-| Run Evaluation | `core.runner.run_evaluation()` | Per-case summary table |
+| Run Evaluation | `service.run_evaluation()` | Per-case summary table |
 
 ### Display After Evaluation
 
 1. Summary: "Processed N cases, M evaluation templates generated"
 2. Per-case table:
    - Columns: Case ID, Primary Failure, Severity, Dimensions (scored/unscored count), Auto Tags
-   - Rows: one per CaseEvaluationTemplate returned
+   - Rows: one per evaluation template dict returned
 
 ### Error Display
 
@@ -71,25 +71,25 @@ None — uses default paths.
 
 ---
 
-## Inspect Page (`page_inspect.py`)
+## Inspect Page (`app/page_inspect.py`)
 
 ### User Inputs
 
 | Input | Type | Required |
 |-------|------|----------|
-| Case selector | dropdown | Yes (populated from existing case directories) |
+| Case selector | dropdown | Yes (populated via `service.list_cases()`) |
 
 ### Display Sections
 
-1. **Case Metadata** — YAML header fields from expected_outcome.md:
+1. **Case Metadata** — via `service.load_case_metadata()`:
    - Case ID, Primary Failure, Secondary Failures, Severity, case_version
 
-2. **Trace Viewer** — steps from trace.json displayed sequentially:
+2. **Trace Viewer** — via `service.load_trace()`:
    - Each step shows: step_id, type (color-coded badge), actor_id, content
    - Tool call steps additionally show: tool_name, tool_input (formatted JSON)
    - Observation steps show: tool_output
 
-3. **Evaluation Template** (if exists in reports/):
+3. **Evaluation Template** — via `service.load_evaluation_template()`:
    - Per-dimension display: title, scale, weight, current score or "Not yet scored"
    - Scoring guide text for each dimension
    - Overall notes and auto-tags
@@ -104,7 +104,7 @@ None — uses default paths.
 
 ---
 
-## Report Page (`page_report.py`)
+## Report Page (`app/page_report.py`)
 
 ### User Inputs
 
@@ -112,9 +112,9 @@ None — uses default paths.
 
 ### Actions
 
-| Button | Library Call | Output |
+| Button | Service Call | Output |
 |--------|-------------|--------|
-| Generate Report | `core.report.generate_summary_report()` | Summary display |
+| Generate Report | `service.generate_summary_report()` | Summary display |
 
 ### Display After Report Generation
 
