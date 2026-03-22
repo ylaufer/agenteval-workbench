@@ -77,16 +77,23 @@ Every push and pull request automatically validates:
 
 ```text
 agenteval-workbench/
+├── app/                        # Streamlit UI (thin presentation layer)
+│   ├── app.py                  # Entry point — sidebar navigation, page routing
+│   ├── page_generate.py        # Generate & Validate page
+│   ├── page_evaluate.py        # Run Evaluation page
+│   ├── page_inspect.py         # Inspect Trace & Evaluation page
+│   └── page_report.py          # Aggregated Report page
 ├── src/agenteval/
 │   ├── dataset/
-│   │   ├── validator.py       # Dataset validation (structure, schema, security, headers)
-│   │   └── generator.py       # Case generation with failure-type presets
+│   │   ├── validator.py        # Dataset validation (structure, schema, security, headers)
+│   │   └── generator.py        # Case generation with failure-type presets
 │   ├── core/
 │   │   ├── calibration.py
 │   │   ├── execution.py
 │   │   ├── loader.py
 │   │   ├── report.py
 │   │   ├── runner.py
+│   │   ├── service.py          # UI-facing orchestration layer (composes existing APIs)
 │   │   ├── tagger.py
 │   │   └── types.py
 │   ├── schemas/
@@ -100,6 +107,7 @@ agenteval-workbench/
 │   ├── test_loader.py
 │   ├── test_report.py
 │   ├── test_runner.py
+│   ├── test_service.py
 │   ├── test_tagger.py
 │   ├── test_types.py
 │   └── test_validator.py
@@ -142,10 +150,50 @@ Optional (development tools — includes ruff, mypy, pytest, pre-commit):
 pip install -e ".[dev]"
 ```
 
+Optional (Streamlit UI):
+
+```bash
+pip install -e ".[ui]"
+```
+
 Activate pre-commit hooks (one-time per clone):
 
 ```bash
 pre-commit install
+```
+
+---
+
+## Key Commands
+
+```bash
+# Dataset validation (must pass before every commit)
+agenteval-validate-dataset --repo-root .
+
+# Generate a benchmark case
+agenteval-generate-case --case-id my_case --failure-type tool_hallucination
+
+# Run evaluation pipeline
+agenteval-eval-runner --dataset-dir data/cases --output-dir reports
+
+# Generate aggregated report
+agenteval-eval-report --input-dir reports
+
+# Inter-reviewer calibration
+agenteval-eval-calibration --scores-dir scores
+
+# Linting
+ruff check src/
+ruff format --check src/
+
+# Type checking
+mypy src/
+
+# Run tests
+pytest tests/ -v
+
+# Launch Streamlit UI (requires pip install -e ".[ui]")
+streamlit run app/app.py
 ```
 
 ---
@@ -357,6 +405,39 @@ Reviewer score files are validated against `schemas/reviewer_score_schema.json`.
 
 ---
 
+## Streamlit UI
+
+AgentEval Workbench includes an optional Streamlit-based web interface for interactive use.
+The UI is a thin presentation layer — all logic flows through `src/agenteval/core/service.py`,
+which composes the existing library APIs without modifying any CLI modules.
+
+### Launch
+
+```bash
+pip install -e ".[ui]"
+streamlit run app/app.py
+```
+
+The app opens at `http://localhost:8501` with four pages accessible via sidebar navigation.
+
+### Pages
+
+| Page | What it does |
+|------|-------------|
+| **Generate** | Create benchmark cases (case ID, failure type, overwrite toggle). Auto-validates the dataset after generation. Includes a standalone "Validate Dataset" button. |
+| **Evaluate** | Run the evaluation pipeline on all cases. Displays a per-case summary table with case ID, primary failure, severity, scored dimensions, and auto-detected tags. |
+| **Inspect** | Browse cases from a dropdown. View case metadata, trace steps (with color-coded type badges), and evaluation template dimensions with scores. |
+| **Report** | Generate aggregated summary reports. Shows dimension statistics, failure frequency counts, severity distribution, and improvement recommendations. |
+
+### Architecture
+
+- **`app/`** lives outside the library package — Streamlit is an optional dependency, not a core requirement.
+- **`service.py`** orchestrates calls to `generator.generate_case()`, `validator.validate_dataset()`, `runner.main()`, and `report.main()` without modifying any of those modules.
+- UI pages import only from `agenteval.core.service` — never directly from runner, report, validator, or generator.
+- All existing CLI commands remain fully backward-compatible.
+
+---
+
 ## Running Tests
 
 The project uses pytest with strict markers and fail-fast mode:
@@ -369,7 +450,7 @@ pytest tests/ -v
 pytest tests/ --cov=agenteval --cov-report=term-missing
 ```
 
-The test suite covers all modules (157 tests):
+The test suite covers all modules (175 tests):
 
 - `test_types.py` — frozen dataclass construction, defaults, immutability
 - `test_validator.py` — path safety, security scanning, structure checks, schema validation, header validation, severity model, batch reporting, version-bump detection, CLI
@@ -379,6 +460,7 @@ The test suite covers all modules (157 tests):
 - `test_report.py` — scale parsing, dimension stats, overall scores, recommendations, CLI
 - `test_tagger.py` — all four failure tag detectors and trace-level tagging
 - `test_calibration.py` — percent agreement, Cohen's kappa, calibration report, CLI
+- `test_service.py` — service layer delegation, list/load/run orchestration, error handling
 
 ---
 
