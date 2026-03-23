@@ -86,7 +86,7 @@ As a developer, I want to list and inspect runs from the command line so that I 
 - **FR-004**: System MUST record the evaluation configuration used for each run (rubric path, output settings).
 - **FR-005**: System MUST persist all per-case evaluation templates exclusively under the run record (not in `reports/`) so they are not overwritten by subsequent runs.
 - **FR-006**: System MUST persist the aggregated summary report exclusively under the run record.
-- **FR-007**: System MUST record the completion status of each run (completed, failed, incomplete).
+- **FR-007**: System MUST record the completion status of each run (running, completed, failed). A run that remains in "running" status with no active process is treated as incomplete.
 - **FR-008**: System MUST provide a way to list all past runs in reverse chronological order.
 - **FR-009**: System MUST provide a way to inspect a specific run by its identifier, showing full metadata, per-case results, and summary.
 - **FR-010**: System MUST provide CLI commands for listing runs and inspecting a specific run.

@@ -93,6 +93,7 @@ agenteval-workbench/
 │   │   ├── loader.py
 │   │   ├── report.py
 │   │   ├── runner.py
+│   │   ├── runs.py             # Run tracking (create, complete, fail, list, inspect)
 │   │   ├── service.py          # UI-facing orchestration layer (composes existing APIs)
 │   │   ├── tagger.py
 │   │   └── types.py
@@ -107,6 +108,7 @@ agenteval-workbench/
 │   ├── test_loader.py
 │   ├── test_report.py
 │   ├── test_runner.py
+│   ├── test_runs.py
 │   ├── test_service.py
 │   ├── test_tagger.py
 │   ├── test_types.py
@@ -116,6 +118,7 @@ agenteval-workbench/
 ├── schemas/
 ├── docs/
 ├── reports/
+├── runs/                       # Tracked evaluation runs (auto-generated, gitignored)
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
 └── .github/workflows/
@@ -178,6 +181,12 @@ agenteval-eval-runner --dataset-dir data/cases --output-dir reports
 
 # Generate aggregated report
 agenteval-eval-report --input-dir reports
+
+# List past evaluation runs
+agenteval-list-runs
+
+# Inspect a specific run
+agenteval-inspect-run <run_id>
 
 # Inter-reviewer calibration
 agenteval-eval-calibration --scores-dir scores
@@ -450,7 +459,7 @@ pytest tests/ -v
 pytest tests/ --cov=agenteval --cov-report=term-missing
 ```
 
-The test suite covers all modules (175 tests):
+The test suite covers all modules (206 tests):
 
 - `test_types.py` — frozen dataclass construction, defaults, immutability
 - `test_validator.py` — path safety, security scanning, structure checks, schema validation, header validation, severity model, batch reporting, version-bump detection, CLI
@@ -460,7 +469,8 @@ The test suite covers all modules (175 tests):
 - `test_report.py` — scale parsing, dimension stats, overall scores, recommendations, CLI
 - `test_tagger.py` — all four failure tag detectors and trace-level tagging
 - `test_calibration.py` — percent agreement, Cohen's kappa, calibration report, CLI
-- `test_service.py` — service layer delegation, list/load/run orchestration, error handling
+- `test_runs.py` — run lifecycle (create/complete/fail), listing, results, summary, CLI entry points
+- `test_service.py` — service layer delegation, list/load/run orchestration, run tracking integration
 
 ---
 

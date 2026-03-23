@@ -112,43 +112,99 @@ def run_evaluation(
     dataset_dir: Path | None = None,
     output_dir: Path | None = None,
 ) -> list[dict[str, Any]]:
-    """Run the evaluation pipeline by calling runner.main() with constructed argv.
+    """Run the evaluation pipeline with automatic run tracking.
+
+    Creates a tracked run, directs output to the run directory, generates
+    the summary report, and marks the run as completed or failed.
 
     Returns list of evaluation template dicts (one per case).
     Raises RuntimeError if runner returns non-zero.
     """
+    from agenteval.core.report import main as report_main
     from agenteval.core.runner import main as runner_main
+    from agenteval.core.runs import (
+        complete_run,
+        create_run,
+        fail_run,
+        get_run_dir,
+        get_run_results as _get_run_results,
+    )
 
     repo_root = _get_repo_root()
     if dataset_dir is None:
         dataset_dir = repo_root / "data" / "cases"
-    if output_dir is None:
-        output_dir = repo_root / "reports"
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    rubric_path = repo_root / "rubrics" / "v1_agent_general.json"
+
+    # Create tracked run
+    record = create_run(dataset_dir=dataset_dir, rubric_path=rubric_path)
+    run_dir = get_run_dir(record.run_id)
+
+    # If caller specified output_dir, use it; otherwise use the run directory
+    effective_output = output_dir if output_dir is not None else run_dir
 
     argv = [
         "--dataset-dir",
         str(dataset_dir),
         "--output-dir",
-        str(output_dir),
+        str(effective_output),
     ]
 
-    exit_code = runner_main(argv)
-    if exit_code != 0:
-        msg = f"Evaluation runner failed with exit code {exit_code}"
-        raise RuntimeError(msg)
+    try:
+        exit_code = runner_main(argv)
+        if exit_code != 0:
+            fail_run(record.run_id, f"Runner exited with code {exit_code}")
+            msg = f"Evaluation runner failed with exit code {exit_code}"
+            raise RuntimeError(msg)
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        fail_run(record.run_id, str(exc))
+        raise
 
-    # Read all generated evaluation JSON files
-    results: list[dict[str, Any]] = []
-    for path in sorted(output_dir.iterdir(), key=lambda p: p.name):
-        if (
-            path.is_file()
-            and path.name.endswith(".evaluation.json")
-            and not path.name.startswith("summary")
-        ):
-            text = path.read_text(encoding="utf-8")
-            results.append(json.loads(text))
+    # Count evaluation files produced
+    results = _get_run_results(record.run_id) if output_dir is None else []
+    if output_dir is None:
+        num_cases = len(results)
+    else:
+        num_cases = sum(
+            1
+            for p in effective_output.iterdir()
+            if p.is_file()
+            and p.name.endswith(".evaluation.json")
+            and not p.name.startswith("summary")
+        )
+
+    # Generate summary report in the run directory
+    if output_dir is None:
+        try:
+            summary_json = effective_output / "summary.evaluation.json"
+            summary_md = effective_output / "summary.evaluation.md"
+            report_argv = [
+                "--input-dir",
+                str(effective_output),
+                "--output-json",
+                str(summary_json),
+                "--output-md",
+                str(summary_md),
+            ]
+            report_main(report_argv)
+        except (SystemExit, Exception):
+            pass  # Summary generation is best-effort; don't fail the run
+
+    complete_run(record.run_id, num_cases=num_cases)
+
+    # Read results from effective output
+    if not results:
+        for path in sorted(effective_output.iterdir(), key=lambda p: p.name):
+            if (
+                path.is_file()
+                and path.name.endswith(".evaluation.json")
+                and not path.name.startswith("summary")
+            ):
+                text = path.read_text(encoding="utf-8")
+                results.append(json.loads(text))
+
     return results
 
 
@@ -198,3 +254,41 @@ def generate_summary_report(
     text = output_json.read_text(encoding="utf-8")
     result: dict[str, Any] = json.loads(text)
     return result
+
+
+# ---------------------------------------------------------------------------
+# Run management
+# ---------------------------------------------------------------------------
+
+
+def list_runs() -> list[dict[str, Any]]:
+    """List all runs in reverse chronological order. Returns list of dicts."""
+    from agenteval.core.runs import list_runs as _list_runs
+    from dataclasses import asdict
+
+    return [asdict(r) for r in _list_runs()]
+
+
+def get_run(run_id: str) -> dict[str, Any] | None:
+    """Retrieve a specific run by ID. Returns dict or None."""
+    from agenteval.core.runs import get_run as _get_run
+    from dataclasses import asdict
+
+    record = _get_run(run_id)
+    if record is None:
+        return None
+    return asdict(record)
+
+
+def get_run_results(run_id: str) -> list[dict[str, Any]]:
+    """Load all per-case evaluation templates from a run."""
+    from agenteval.core.runs import get_run_results as _get_run_results
+
+    return _get_run_results(run_id)
+
+
+def get_run_summary(run_id: str) -> dict[str, Any] | None:
+    """Load the summary report from a run."""
+    from agenteval.core.runs import get_run_summary as _get_run_summary
+
+    return _get_run_summary(run_id)

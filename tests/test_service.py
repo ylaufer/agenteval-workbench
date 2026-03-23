@@ -217,3 +217,94 @@ class TestGenerateSummaryReport:
             service.generate_summary_report(
                 input_dir=reports_dir, output_dir=reports_dir
             )
+
+
+# ---------------------------------------------------------------------------
+# Run tracking integration tests
+# ---------------------------------------------------------------------------
+
+
+class TestRunTrackingEvaluation:
+    def test_creates_tracked_run(self, sample_case_dir: Path) -> None:
+        """run_evaluation() without output_dir creates a tracked run."""
+        result = service.run_evaluation()
+        assert isinstance(result, list)
+        assert len(result) >= 1
+
+        # Verify a run was created
+        runs = service.list_runs()
+        assert len(runs) >= 1
+        latest_run = runs[0]
+        assert latest_run["status"] == "completed"
+        assert latest_run["num_cases"] >= 1
+
+    def test_run_results_persisted_in_run_dir(self, sample_case_dir: Path) -> None:
+        """Evaluation files are persisted under the run directory."""
+        service.run_evaluation()
+
+        runs = service.list_runs()
+        run_id = runs[0]["run_id"]
+
+        results = service.get_run_results(run_id)
+        assert len(results) >= 1
+        assert results[0]["case_id"] == "case_001"
+
+    def test_with_explicit_output_dir_still_tracks(self, sample_case_dir: Path) -> None:
+        """run_evaluation() with explicit output_dir still creates a run record."""
+        repo_root = sample_case_dir.parent.parent.parent
+        output_dir = repo_root / "reports"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        result = service.run_evaluation(output_dir=output_dir)
+        assert len(result) >= 1
+
+        runs = service.list_runs()
+        assert len(runs) >= 1
+
+    def test_empty_dataset_creates_run(self, repo_root_env: Path) -> None:
+        """Empty dataset still creates a run record with 0 cases."""
+        dataset_dir = repo_root_env / "data" / "cases"
+        dataset_dir.mkdir(parents=True, exist_ok=True)
+
+        result = service.run_evaluation(dataset_dir=dataset_dir)
+        assert result == []
+
+        runs = service.list_runs()
+        assert len(runs) >= 1
+        assert runs[0]["status"] == "completed"
+        assert runs[0]["num_cases"] == 0
+
+
+class TestServiceListRuns:
+    def test_returns_empty_list(self, repo_root_env: Path) -> None:
+        result = service.list_runs()
+        assert result == []
+
+    def test_returns_dicts(self, sample_case_dir: Path) -> None:
+        service.run_evaluation()
+        runs = service.list_runs()
+        assert len(runs) >= 1
+        assert isinstance(runs[0], dict)
+        assert "run_id" in runs[0]
+        assert "status" in runs[0]
+
+
+class TestServiceGetRun:
+    def test_returns_none_for_missing(self, repo_root_env: Path) -> None:
+        result = service.get_run("nonexistent")
+        assert result is None
+
+    def test_returns_dict(self, sample_case_dir: Path) -> None:
+        service.run_evaluation()
+        runs = service.list_runs()
+        run_id = runs[0]["run_id"]
+
+        result = service.get_run(run_id)
+        assert result is not None
+        assert result["run_id"] == run_id
+
+
+class TestServiceGetRunSummary:
+    def test_returns_none_for_missing(self, repo_root_env: Path) -> None:
+        result = service.get_run_summary("nonexistent")
+        assert result is None
