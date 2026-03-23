@@ -11,6 +11,7 @@ from agenteval.core.report import (
     _compute_case_overall_scores,
     _generate_recommendations,
     _inject_reviewer_scores_into_stats,
+    _iter_evaluation_files,
     _parse_scale,
     _summarize_failures,
     main,
@@ -269,3 +270,103 @@ class TestReportMain:
         assert exit_code == 0
         assert (reports_dir / "summary.evaluation.json").exists()
         assert (reports_dir / "summary.evaluation.md").exists()
+
+
+# ---------------------------------------------------------------------------
+# Auto-score aggregation tests (T025)
+# ---------------------------------------------------------------------------
+
+
+def _auto_eval(
+    case_id: str = "case_001",
+    accuracy: int | None = 2,
+    safety: int | None = 1,
+) -> Dict[str, Any]:
+    """Build an auto-evaluation dict with _scoring_source tag."""
+    dims: Dict[str, Any] = {}
+    dims["accuracy"] = {"score": accuracy, "weight": 1.0, "scale": "0-2"}
+    dims["safety"] = {"score": safety, "weight": 1.5, "scale": "0-2"}
+    return {
+        "case_id": case_id,
+        "scoring_type": "auto",
+        "dimensions": dims,
+        "auto_tags": [],
+        "_scoring_source": "auto",
+    }
+
+
+class TestAutoScoreAggregation:
+    def test_combined_report_includes_both(self) -> None:
+        """Combined report aggregates manual and auto evaluations."""
+        info = _default_rubric_info()
+        manual = _scored_eval(1, 2)
+        manual["_scoring_source"] = "manual"
+        auto = _auto_eval("case_002", 2, 1)
+
+        evals = [manual, auto]
+        stats = _collect_dimension_stats(evals, info)
+        aggs = _compute_case_overall_scores(evals, info)
+        failures = _summarize_failures(evals)
+        report = _build_json_report(evals, stats, aggs, failures)
+
+        assert report["summary"]["num_cases"] == 2
+        assert report["summary"]["num_auto_scored"] == 1
+        assert report["summary"]["num_manual_scored"] == 1
+
+    def test_source_attribution_in_failed_cases(self) -> None:
+        """Failed case entries include scoring_source field."""
+        info = _default_rubric_info()
+        auto = _auto_eval("case_001", 0, 0)
+
+        evals = [auto]
+        stats = _collect_dimension_stats(evals, info)
+        aggs = _compute_case_overall_scores(evals, info)
+        failures = _summarize_failures(evals)
+        report = _build_json_report(evals, stats, aggs, failures)
+
+        assert len(report["failed_cases"]) == 1
+        assert report["failed_cases"][0]["scoring_source"] == "auto"
+
+    def test_iter_evaluation_files_manual_only(self, tmp_path: Path) -> None:
+        """Scoring type 'manual' excludes auto evaluation files."""
+        import json as _json
+
+        (tmp_path / "case_001.evaluation.json").write_text(
+            _json.dumps({"case_id": "case_001"}), encoding="utf-8"
+        )
+        (tmp_path / "case_002.auto_evaluation.json").write_text(
+            _json.dumps({"case_id": "case_002"}), encoding="utf-8"
+        )
+
+        files = list(_iter_evaluation_files(tmp_path, scoring_type="manual"))
+        assert len(files) == 1
+        assert files[0].name == "case_001.evaluation.json"
+
+    def test_iter_evaluation_files_auto_only(self, tmp_path: Path) -> None:
+        """Scoring type 'auto' excludes manual evaluation files."""
+        import json as _json
+
+        (tmp_path / "case_001.evaluation.json").write_text(
+            _json.dumps({"case_id": "case_001"}), encoding="utf-8"
+        )
+        (tmp_path / "case_002.auto_evaluation.json").write_text(
+            _json.dumps({"case_id": "case_002"}), encoding="utf-8"
+        )
+
+        files = list(_iter_evaluation_files(tmp_path, scoring_type="auto"))
+        assert len(files) == 1
+        assert files[0].name == "case_002.auto_evaluation.json"
+
+    def test_iter_evaluation_files_combined(self, tmp_path: Path) -> None:
+        """Scoring type 'combined' includes both."""
+        import json as _json
+
+        (tmp_path / "case_001.evaluation.json").write_text(
+            _json.dumps({"case_id": "case_001"}), encoding="utf-8"
+        )
+        (tmp_path / "case_002.auto_evaluation.json").write_text(
+            _json.dumps({"case_id": "case_002"}), encoding="utf-8"
+        )
+
+        files = list(_iter_evaluation_files(tmp_path, scoring_type="combined"))
+        assert len(files) == 2

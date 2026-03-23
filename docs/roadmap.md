@@ -328,6 +328,101 @@ Turn evaluation into a continuous improvement system.
 
 ---
 
+## 2.7 Auto-Scoring Engine (LLM-as-Judge / Rule-based Evaluation) ✅ COMPLETED
+
+Automated scoring to complement manual reviewer evaluation.
+
+### 🎯 Goal
+Enable automatic generation of evaluation scores from traces, reducing reliance on manual reviewers and enabling scalable evaluation workflows.
+
+### Implementation
+- CLI: `agenteval-auto-score` — scores all cases, writes `*.auto_evaluation.json`
+- Rule-based evaluators: `ToolUseEvaluator` (tool_use), `SecurityEvaluator` (security_safety)
+- LLM-based evaluators: `LLMEvaluator` (optional, activated via API key env var)
+- Report integration: `--scoring-type` filter (manual/auto/combined)
+- Service layer: `run_auto_scoring()` with run tracking
+
+---
+
+### Capabilities
+
+#### Automatic Dimension Scoring
+- Compute scores per rubric dimension using:
+  - rule-based evaluators
+  - LLM-as-judge evaluators
+- Use trace steps as input (not only final output)
+
+---
+
+#### Hybrid Evaluation Model
+Support both:
+- Manual reviewer scoring (existing)
+- Automated scoring (new)
+
+Allow:
+- comparison between manual vs auto scores
+- calibration workflows
+
+---
+
+#### Scoring Strategies
+Support pluggable scoring strategies:
+
+- Rule-based:
+  - deterministic checks
+  - schema validation
+  - tool usage validation
+
+- LLM-based:
+  - rubric-guided scoring
+  - reasoning evaluation
+  - semantic correctness
+
+---
+
+#### Output Artifacts
+
+Generate:
+
+reports/
+case_id.auto_evaluation.json
+
+
+Structure:
+- dimension scores
+- evidence references
+- reasoning (for LLM-based scoring)
+- confidence (optional)
+
+---
+
+#### Aggregation Support
+- Include auto-scored cases in summary reports
+- Allow filtering:
+  - manual only
+  - auto only
+  - hybrid
+
+---
+
+### 🧠 Outcome
+
+System evolves from:
+
+template → manual scoring
+
+to:
+
+trace → auto scoring → report → improvement loop
+
+---
+
+### 🚀 Future Extensions
+
+- Auto-suggest new test cases from failures
+- Confidence-weighted scoring
+- Ensemble evaluators (multiple judges)
+
 ## 3.1 Experiment Layer
 
 Define experiments:

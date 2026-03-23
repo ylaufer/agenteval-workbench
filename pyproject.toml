@@ -41,6 +41,7 @@ agenteval-eval-runner = "agenteval.core.runner:main"
 agenteval-eval-report = "agenteval.core.report:main"
 agenteval-eval-calibration = "agenteval.core.calibration:main"
 agenteval-generate-case = "agenteval.dataset.generator:main"
+agenteval-auto-score = "agenteval.core.scorer:main"
 agenteval-list-runs = "agenteval.core.runs:main_list"
 agenteval-inspect-run = "agenteval.core.runs:main_inspect"
 

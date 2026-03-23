@@ -89,11 +89,19 @@ agenteval-workbench/
 │   │   └── generator.py        # Case generation with failure-type presets
 │   ├── core/
 │   │   ├── calibration.py
+│   │   ├── evaluators/         # Pluggable evaluator framework for auto-scoring
+│   │   │   ├── __init__.py     # EvaluatorRegistry
+│   │   │   ├── base.py         # Evaluator protocol
+│   │   │   ├── tool_use.py     # Rule-based tool_use evaluator
+│   │   │   ├── security.py     # Rule-based security_safety evaluator
+│   │   │   ├── llm_evaluator.py # LLM-based evaluator (optional)
+│   │   │   └── llm_provider.py # LLM API provider adapters
 │   │   ├── execution.py
 │   │   ├── loader.py
 │   │   ├── report.py
 │   │   ├── runner.py
 │   │   ├── runs.py             # Run tracking (create, complete, fail, list, inspect)
+│   │   ├── scorer.py           # Auto-scoring orchestrator and CLI
 │   │   ├── service.py          # UI-facing orchestration layer (composes existing APIs)
 │   │   ├── tagger.py
 │   │   └── types.py
@@ -109,6 +117,8 @@ agenteval-workbench/
 │   ├── test_report.py
 │   ├── test_runner.py
 │   ├── test_runs.py
+│   ├── test_scorer.py
+│   ├── test_evaluators.py
 │   ├── test_service.py
 │   ├── test_tagger.py
 │   ├── test_types.py
@@ -184,6 +194,9 @@ agenteval-eval-report --input-dir reports
 
 # List past evaluation runs
 agenteval-list-runs
+
+# Auto-score benchmark cases (rule-based)
+agenteval-auto-score --dataset-dir data/cases --output-dir reports
 
 # Inspect a specific run
 agenteval-inspect-run <run_id>
@@ -459,7 +472,7 @@ pytest tests/ -v
 pytest tests/ --cov=agenteval --cov-report=term-missing
 ```
 
-The test suite covers all modules (206 tests):
+The test suite covers all modules (245 tests):
 
 - `test_types.py` — frozen dataclass construction, defaults, immutability
 - `test_validator.py` — path safety, security scanning, structure checks, schema validation, header validation, severity model, batch reporting, version-bump detection, CLI
@@ -470,6 +483,8 @@ The test suite covers all modules (206 tests):
 - `test_tagger.py` — all four failure tag detectors and trace-level tagging
 - `test_calibration.py` — percent agreement, Cohen's kappa, calibration report, CLI
 - `test_runs.py` — run lifecycle (create/complete/fail), listing, results, summary, CLI entry points
+- `test_scorer.py` — evaluator registry, score_case, score_dataset, schema validation, CLI entry point
+- `test_evaluators.py` — ToolUseEvaluator, SecurityEvaluator, LLMEvaluator (mocked provider)
 - `test_service.py` — service layer delegation, list/load/run orchestration, run tracking integration
 
 ---
