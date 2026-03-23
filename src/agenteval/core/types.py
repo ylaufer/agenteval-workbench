@@ -1,7 +1,30 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Mapping, Sequence
+
+
+class RunStatus(str, Enum):
+    """Lifecycle state of an evaluation run."""
+
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+@dataclass(frozen=True)
+class RunRecord:
+    """Metadata for a single evaluation run. Persisted as runs/<run_id>/run.json."""
+
+    run_id: str
+    status: str
+    started_at: str
+    dataset_dir: str
+    rubric_path: str
+    num_cases: int = 0
+    completed_at: str | None = None
+    error: str | None = None
 
 
 @dataclass(frozen=True)
