@@ -280,11 +280,46 @@ Replace demo agent with real execution:
 
 ---
 
+
 ## 🧠 Outcome
 
 System evolves from a tool into a **usable evaluation workflow platform**.
 
 ---
+
+## 2.6 Guided Onboarding / UI Tutorial
+
+Provide an in-app tutorial that helps first-time users understand how to use AgentEval Workbench end to end.
+
+### Capabilities
+- Explain the purpose of each page:
+  - Generate
+  - Evaluate
+  - Inspect
+  - Report
+- Guide users through the expected workflow:
+  - create a case
+  - validate it
+  - inspect the trace
+  - run evaluation
+  - review the report
+- Highlight key UI elements and expected outputs
+- Provide example prompts and demo cases
+- Include contextual help for:
+  - trace steps
+  - evaluation templates
+  - aggregated report sections
+- Support a “first run” onboarding mode and an always-available help mode
+
+### Possible UX Modes
+- Welcome page with a quick walkthrough
+- Inline expandable help sections
+- Step-by-step guided tutorial mode
+- “Learn by example” demo flow
+
+## 🧠 Outcome
+
+The system becomes easier to adopt for new users and more suitable for demos, onboarding, and stakeholder presentations.
 
 # 🔵 Phase 3 — Evaluation Intelligence
 
