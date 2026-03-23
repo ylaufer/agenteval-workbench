@@ -292,3 +292,54 @@ def get_run_summary(run_id: str) -> dict[str, Any] | None:
     from agenteval.core.runs import get_run_summary as _get_run_summary
 
     return _get_run_summary(run_id)
+
+
+# ---------------------------------------------------------------------------
+# Auto-scoring
+# ---------------------------------------------------------------------------
+
+
+def run_auto_scoring(
+    dataset_dir: Path | None = None,
+    output_dir: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Run auto-scoring pipeline with run tracking.
+
+    Creates a tracked run, scores all cases using rule-based (and optionally
+    LLM-based) evaluators, writes auto_evaluation.json files, and marks the
+    run as completed or failed.
+
+    Returns list of auto-evaluation dicts.
+    """
+    from agenteval.core.runs import (
+        complete_run,
+        create_run,
+        fail_run,
+        get_run_dir,
+    )
+    from agenteval.core.scorer import score_dataset
+
+    repo_root = _get_repo_root()
+    if dataset_dir is None:
+        dataset_dir = repo_root / "data" / "cases"
+
+    rubric_path = repo_root / "rubrics" / "v1_agent_general.json"
+
+    # Create tracked run
+    record = create_run(dataset_dir=dataset_dir, rubric_path=rubric_path)
+    run_dir = get_run_dir(record.run_id)
+
+    effective_output = output_dir if output_dir is not None else run_dir
+
+    try:
+        results = score_dataset(
+            dataset_dir=dataset_dir,
+            output_dir=effective_output,
+            rubric_path=rubric_path,
+        )
+    except Exception as exc:
+        fail_run(record.run_id, str(exc))
+        raise
+
+    complete_run(record.run_id, num_cases=len(results))
+    return results

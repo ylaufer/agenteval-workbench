@@ -53,15 +53,39 @@ def _parse_scale(scale: str) -> Tuple[Numeric, Numeric]:
         raise ValueError(msg) from exc
 
 
-def _iter_evaluation_files(input_dir: Path) -> Iterable[Path]:
+def _iter_evaluation_files(
+    input_dir: Path,
+    scoring_type: str = "combined",
+) -> Iterable[Path]:
+    """Discover evaluation files in input_dir.
+
+    scoring_type controls which files are included:
+    - "manual": only *.evaluation.json (excluding *.auto_evaluation.json)
+    - "auto": only *.auto_evaluation.json
+    - "combined": both manual and auto evaluation files
+    """
     for path in sorted(input_dir.iterdir(), key=lambda p: p.name):
-        if path.is_file() and path.name.endswith(".evaluation.json"):
+        if not path.is_file():
+            continue
+        is_auto = path.name.endswith(".auto_evaluation.json")
+        is_manual = path.name.endswith(".evaluation.json") and not is_auto
+
+        if scoring_type == "manual" and is_manual:
+            yield path
+        elif scoring_type == "auto" and is_auto:
+            yield path
+        elif scoring_type == "combined" and (is_manual or is_auto):
             yield path
 
 
-def _load_evaluation(path: Path) -> Mapping[str, Any]:
+def _load_evaluation(path: Path) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8")
-    result: Mapping[str, Any] = json.loads(text)
+    result: dict[str, Any] = json.loads(text)
+    # Tag with scoring source based on filename
+    if path.name.endswith(".auto_evaluation.json"):
+        result["_scoring_source"] = "auto"
+    else:
+        result["_scoring_source"] = "manual"
     return result
 
 
@@ -297,6 +321,8 @@ def _build_json_report(
 ) -> Dict[str, Any]:
     num_cases = len(evaluations)
     num_scored_cases = sum(1 for agg in case_aggregates if agg.overall_score is not None)
+    num_auto = sum(1 for e in evaluations if e.get("_scoring_source") == "auto")
+    num_manual = sum(1 for e in evaluations if e.get("_scoring_source") == "manual")
 
     dim_section: Dict[str, Any] = {}
     for name, stats in sorted(dimension_stats.items()):
@@ -314,6 +340,13 @@ def _build_json_report(
         case_aggregates,
         key=lambda c: (c.overall_score is None, c.overall_score),
     )
+    # Build case_id -> scoring_source map
+    source_by_case: Dict[str, str] = {}
+    for e in evaluations:
+        cid = str(e.get("case_id", ""))
+        if cid:
+            source_by_case[cid] = e.get("_scoring_source", "manual")
+
     failed_cases: list[Dict[str, Any]] = []
     for agg in sorted_cases:
         if agg.overall_score is None:
@@ -326,6 +359,7 @@ def _build_json_report(
                 "overall_score_normalized": round(agg.overall_score, 3),
                 "primary_failure": agg.primary_failure,
                 "severity": agg.severity,
+                "scoring_source": source_by_case.get(agg.case_id, "manual"),
             }
         )
 
@@ -335,6 +369,8 @@ def _build_json_report(
         "summary": {
             "num_cases": num_cases,
             "num_scored_cases": num_scored_cases,
+            "num_auto_scored": num_auto,
+            "num_manual_scored": num_manual,
         },
         "dimensions": dim_section,
         "failure_summary": failure_summary,
@@ -490,6 +526,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=str(repo_root / "scores"),
         help="Directory containing reviewer score files (default: scores/).",
     )
+    parser.add_argument(
+        "--scoring-type",
+        type=str,
+        choices=["manual", "auto", "combined"],
+        default="combined",
+        help=(
+            "Filter evaluation files by scoring source: "
+            "'manual' (*.evaluation.json only), "
+            "'auto' (*.auto_evaluation.json only), "
+            "'combined' (both). Default: combined."
+        ),
+    )
 
     args = parser.parse_args(argv)
 
@@ -507,9 +555,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         dim.name: (dim.scale, dim.weight) for dim in rubric.dimensions
     }
 
-    evaluation_files = list(_iter_evaluation_files(input_dir))
+    scoring_type: str = args.scoring_type
+    evaluation_files = list(_iter_evaluation_files(input_dir, scoring_type=scoring_type))
     if not evaluation_files:
-        msg = f"No *.evaluation.json files found in {input_dir}"
+        msg = f"No evaluation files found in {input_dir} (scoring_type={scoring_type})"
         raise SystemExit(msg)
 
     evaluations: list[Mapping[str, Any]] = []

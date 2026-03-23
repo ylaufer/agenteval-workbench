@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 
 class RunStatus(str, Enum):
@@ -95,3 +95,30 @@ class CaseEvaluationTemplate:
     dimensions: Mapping[str, DimensionEvaluationTemplate]
     labels: Sequence[str]
     case_version: str | None = None
+
+
+@dataclass(frozen=True)
+class DimensionScoreResult:
+    """Output of a single evaluator for one rubric dimension."""
+
+    dimension_name: str
+    score: int | None
+    weight: float
+    scale: str
+    evidence_step_ids: tuple[str, ...]
+    notes: str
+    evaluator_type: str  # "rule" or "llm"
+    confidence: float | None = None
+    error: str | None = None
+
+
+@dataclass(frozen=True)
+class AutoEvaluation:
+    """Complete auto-scoring result for a single benchmark case."""
+
+    case_id: str
+    scoring_type: str  # always "auto"
+    rubric_version: str
+    dimensions: Mapping[str, DimensionScoreResult]
+    auto_tags: tuple[str, ...]
+    metadata: Mapping[str, Any]
