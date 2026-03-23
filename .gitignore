@@ -9,6 +9,7 @@ scores/
 **/__pycache__/
 __pycache__/
 *.pyc
+*.egg-info/
 .DS_Store
 .coverage
 .pytest_cache/
