@@ -1,30 +1,29 @@
-# 🧭 AgentEval Workbench — Product Roadmap
+# AgentEval Workbench — Product Roadmap
 
-## 🎯 Vision
+## Vision
 
 Build a **schema-first AI evaluation platform** that enables reproducible, trace-based evaluation of LLM agents, with actionable insights and continuous improvement loops.
 
 ---
 
-# 🧱 System Pillars
+# System Pillars
 
 The system is structured around the following layers:
 
 Dataset Layer → Trace Layer → Evaluation Layer → Reporting Layer → UI Layer → Experimentation Layer
 
-
 Each phase of the roadmap strengthens one or more of these pillars.
 
 ---
 
-# 🟢 Phase 1 — Foundations (COMPLETED ✅)
+# Phase 1 — Foundations (COMPLETED)
 
-## 🎯 Goal
+## Goal
 Establish a reproducible, schema-driven evaluation pipeline.
 
-## 🔧 Capabilities
+## Capabilities
 
-### Dataset & Contracts
+### Dataset & Contracts (COMPLETED)
 - Standardized dataset structure:
   - `prompt.txt`
   - `trace.json`
@@ -32,18 +31,18 @@ Establish a reproducible, schema-driven evaluation pipeline.
 - Dataset validation (fail-fast)
 - Schema-first design
 
-### Trace Layer
+### Trace Layer (COMPLETED)
 - Structured trace schema:
   - step types (`thought`, `tool_call`, `observation`, `final_answer`)
   - metadata (timestamps, latency, tokens)
 - Deterministic trace format
 
-### Evaluation Engine
+### Evaluation Engine (COMPLETED)
 - Evaluation runner
 - Rubric-based scoring
 - Case-level evaluation outputs
 
-### Reporting
+### Reporting (COMPLETED)
 - Per-case evaluation reports
 - Aggregated summary reports:
   - dimension statistics
@@ -51,12 +50,12 @@ Establish a reproducible, schema-driven evaluation pipeline.
   - severity distribution
   - recommendations
 
-### Generation
+### Generation (COMPLETED)
 - Demo case generation:
   - auto-create full dataset unit
   - reproducible inputs
 
-### Architecture
+### Architecture (COMPLETED)
 - Service layer abstraction (`service.py`)
 - CLI compatibility preserved
 - Separation of concerns:
@@ -64,30 +63,33 @@ Establish a reproducible, schema-driven evaluation pipeline.
   - orchestration
   - UI
 
-### UI (Streamlit)
+### Schemas Module (COMPLETED)
+- Python type bindings for trace and rubric schemas
+- Typed representations in `src/agenteval/schemas/`
+
+### Testing (COMPLETED)
+- Full pytest suite (245 tests across 14 modules)
+- Spec-aligned tests
+- Dataset contract enforcement
+
+### UI (Streamlit) (COMPLETED)
 - Generate cases
 - Validate dataset
 - Inspect traces
 - Run evaluation
 - View aggregated reports
 
-### Testing
-- Full pytest suite
-- Spec-aligned tests
-- Dataset contract enforcement
-
-## 🧠 Outcome
+## Outcome
 
 End-to-end evaluation pipeline:
 
 prompt → trace → evaluate → report
 
-
 ---
 
-# 🟡 Phase 2 — Usability & Experimentation (NEXT 🚀)
+# Phase 2 — Usability & Experimentation (NEXT)
 
-## 🎯 Goal
+## Goal
 Make the system usable for iterative evaluation and experimentation workflows.
 
 ---
@@ -105,42 +107,14 @@ Enable running evaluation on subsets:
 
 ---
 
-## 2.2 Run Management
+## 2.2 Run Management (COMPLETED)
 
 Introduce explicit run tracking:
 
-
----
-
-# 🟡 Phase 2 — Usability & Experimentation (NEXT 🚀)
-
-## 🎯 Goal
-Make the system usable for iterative evaluation and experimentation workflows.
-
----
-
-## 2.1 Selective Evaluation
-
-Enable running evaluation on subsets:
-
-- Single case
-- Multiple selected cases
-- Filtered dataset:
-  - by failure type
-  - by tags
-  - by severity
-
----
-
-## 2.2 Run Management
-
-Introduce explicit run tracking:
-
-run_id
-timestamp
-dataset snapshot
-configuration
-
+- run_id
+- timestamp
+- dataset snapshot
+- configuration
 
 ### Capabilities
 - List runs
@@ -150,26 +124,12 @@ configuration
 
 ---
 
-## 2.3 Run Comparison (🔥 Key Feature)
-
-Compare two evaluation runs:
-
-
-### Capabilities
-- List runs
-- Inspect runs
-- Persist run results
-- Track evaluation history
-
----
-
-## 2.3 Run Comparison (🔥 Key Feature)
+## 2.3 Run Comparison (Key Feature)
 
 Compare two evaluation runs:
 
 Run A vs Run B
 
-
 ### Metrics
 - Score differences per dimension
 - Failure distribution changes
@@ -196,9 +156,9 @@ Run A vs Run B
   - error states
   - inline feedback
 - Contextual actions:
-  - “View case”
-  - “Inspect trace”
-  - “Open report”
+  - "View case"
+  - "Inspect trace"
+  - "Open report"
 
 ---
 
@@ -213,77 +173,6 @@ Replace demo agent with real execution:
 ### Result
 - Real traces
 - Real evaluation scenarios
-
----
-
-## 🧠 Outcome
-
-System evolves from a tool into a **usable evaluation workflow platform**.
-
----
-
-# 🔵 Phase 3 — Evaluation Intelligence
-
-## 🎯 Goal
-Turn evaluation into a continuous improvement system.
-
----
-
-## 3.1 Experiment Layer
-
-Define experiments:
-
-
-### Metrics
-- Score differences per dimension
-- Failure distribution changes
-- Regression detection
-
-### UI
-- Side-by-side comparison
-- Highlight:
-  - improvements
-  - regressions
-  - unchanged metrics
-
----
-
-## 2.4 UI Improvements
-
-- Navigation flow:
-  - Generate → Inspect → Evaluate → Report
-- Case filtering:
-  - by case_id
-  - by failure type
-- Better UX:
-  - empty states
-  - error states
-  - inline feedback
-- Contextual actions:
-  - “View case”
-  - “Inspect trace”
-  - “Open report”
-
----
-
-## 2.5 Real Model Integration
-
-Replace demo agent with real execution:
-
-- OpenAI APIs
-- Local models
-- External agent systems
-
-### Result
-- Real traces
-- Real evaluation scenarios
-
----
-
-
-## 🧠 Outcome
-
-System evolves from a tool into a **usable evaluation workflow platform**.
 
 ---
 
@@ -309,30 +198,21 @@ Provide an in-app tutorial that helps first-time users understand how to use Age
   - trace steps
   - evaluation templates
   - aggregated report sections
-- Support a “first run” onboarding mode and an always-available help mode
+- Support a "first run" onboarding mode and an always-available help mode
 
 ### Possible UX Modes
 - Welcome page with a quick walkthrough
 - Inline expandable help sections
 - Step-by-step guided tutorial mode
-- “Learn by example” demo flow
-
-## 🧠 Outcome
-
-The system becomes easier to adopt for new users and more suitable for demos, onboarding, and stakeholder presentations.
-
-# 🔵 Phase 3 — Evaluation Intelligence
-
-## 🎯 Goal
-Turn evaluation into a continuous improvement system.
+- "Learn by example" demo flow
 
 ---
 
-## 2.7 Auto-Scoring Engine (LLM-as-Judge / Rule-based Evaluation) ✅ COMPLETED
+## 2.7 Auto-Scoring Engine (LLM-as-Judge / Rule-based Evaluation) (COMPLETED)
 
 Automated scoring to complement manual reviewer evaluation.
 
-### 🎯 Goal
+### Goal
 Enable automatic generation of evaluation scores from traces, reducing reliance on manual reviewers and enabling scalable evaluation workflows.
 
 ### Implementation
@@ -342,8 +222,6 @@ Enable automatic generation of evaluation scores from traces, reducing reliance 
 - Report integration: `--scoring-type` filter (manual/auto/combined)
 - Service layer: `run_auto_scoring()` with run tracking
 
----
-
 ### Capabilities
 
 #### Automatic Dimension Scoring
@@ -351,8 +229,6 @@ Enable automatic generation of evaluation scores from traces, reducing reliance 
   - rule-based evaluators
   - LLM-as-judge evaluators
 - Use trace steps as input (not only final output)
-
----
 
 #### Hybrid Evaluation Model
 Support both:
@@ -362,8 +238,6 @@ Support both:
 Allow:
 - comparison between manual vs auto scores
 - calibration workflows
-
----
 
 #### Scoring Strategies
 Support pluggable scoring strategies:
@@ -378,23 +252,17 @@ Support pluggable scoring strategies:
   - reasoning evaluation
   - semantic correctness
 
----
-
 #### Output Artifacts
 
 Generate:
 
-reports/
-case_id.auto_evaluation.json
-
+reports/case_id.auto_evaluation.json
 
 Structure:
 - dimension scores
 - evidence references
 - reasoning (for LLM-based scoring)
 - confidence (optional)
-
----
 
 #### Aggregation Support
 - Include auto-scored cases in summary reports
@@ -403,9 +271,7 @@ Structure:
   - auto only
   - hybrid
 
----
-
-### 🧠 Outcome
+### Outcome
 
 System evolves from:
 
@@ -415,23 +281,35 @@ to:
 
 trace → auto scoring → report → improvement loop
 
----
-
-### 🚀 Future Extensions
+### Future Extensions
 
 - Auto-suggest new test cases from failures
 - Confidence-weighted scoring
 - Ensemble evaluators (multiple judges)
 
+---
+
+## Outcome
+
+System evolves from a tool into a **usable evaluation workflow platform**.
+
+---
+
+# Phase 3 — Evaluation Intelligence
+
+## Goal
+Turn evaluation into a continuous improvement system.
+
+---
+
 ## 3.1 Experiment Layer
 
 Define experiments:
 
-experiment_id
-model_version
-prompt_variant
-tool_config
-
+- experiment_id
+- model_version
+- prompt_variant
+- tool_config
 
 ### Capabilities
 - Group runs by experiment
@@ -445,7 +323,6 @@ tool_config
 Generate new test cases from failures:
 
 failure → generate new test cases
-
 
 ### Examples
 - Hallucination → adversarial prompts
@@ -479,18 +356,17 @@ Integrate evaluation into development workflow:
 
 ---
 
-## 🧠 Outcome
+## Outcome
 
 Continuous evaluation loop:
 
 evaluate → detect → generate tests → improve → re-evaluate
 
-
 ---
 
-# 🟣 Phase 4 — Platform & Scale
+# Phase 4 — Platform & Scale
 
-## 🎯 Goal
+## Goal
 Evolve into a scalable, multi-user evaluation platform.
 
 ---
@@ -538,35 +414,30 @@ Support complex agent systems:
 
 ---
 
-## 🧠 Outcome
+## Outcome
 
 Full **AI evaluation platform**.
 
 ---
 
-# 📊 Roadmap Overview
+# Roadmap Overview
 
 Phase 1 → Foundations (COMPLETED)
 ↓
-Phase 2 → Usability & Experimentation
+Phase 2 → Usability & Experimentation (IN PROGRESS — 2/7 features completed)
 ↓
 Phase 3 → Evaluation Intelligence
 ↓
 Phase 4 → Platform & Scale
 
-
 ---
 
-# 🎯 Strategic Priorities (Recommended)
+# Strategic Priorities (Recommended)
 
-## 🔥 Next 3 Moves
+## Next 3 Moves
 
 1. Run Comparison
 2. Selective Evaluation
-3. Run Tracking (run_id + history)
+3. UI Improvements
 
 These deliver the highest value with minimal architectural changes.
-
----
-
-
