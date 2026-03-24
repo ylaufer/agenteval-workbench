@@ -460,9 +460,62 @@ The UI feels like a product, not a prototype.
 
 ---
 
+## 2.8 Ingestion UI
+
+### Problem
+
+The `agenteval-ingest` CLI works, but requires users to know the right command syntax, manage file paths, and understand adapter options. Non-technical team members — reviewers, product managers, QA engineers — cannot ingest traces without CLI access. Real-world adoption requires a UI path.
+
+### Capabilities
+
+#### File Upload
+
+- Upload a single trace file via drag-and-drop or file picker
+- Support JSON input (all adapters)
+- Show file name, size, and detected format before converting
+
+#### Adapter Selection
+
+- Auto-detect format from uploaded file content
+- Allow manual override: OTel, LangChain, CrewAI, OpenAI, Generic
+- For Generic adapter: upload a mapping config file (YAML or JSON)
+
+#### Conversion Preview
+
+- Show a summary of the converted trace before saving:
+  - number of steps extracted
+  - step type breakdown (thought / tool_call / observation / final_answer)
+  - any mapping warnings
+- Allow the user to cancel before writing to disk
+
+#### Output Configuration
+
+- Choose the target case directory (new or existing)
+- Suggest next available case ID (e.g. `case_013`)
+- Confirm save, then link directly to the Inspect page for the new case
+
+#### Bulk Upload
+
+- Upload a ZIP of multiple trace files
+- Process each file, show per-file status (converted / failed)
+- Summary: N converted, M failed, with per-file error details
+
+### Architecture
+
+```
+app/page_ingest.py                     — Streamlit ingestion page
+src/agenteval/core/service.py          — ingest_trace() / ingest_bulk() additions
+```
+
+### Outcome
+
+Any team member can ingest a real trace into AgentEval without touching the CLI.
+
+---
+
 ## Phase 2 Outcome
 
-The system becomes usable with real agent traces from real frameworks, with an intuitive onboarding experience and a review workflow that connects traces to evaluation results. Teams can adopt AgentEval and get value within their first session.
+The system becomes usable with real agent traces from real frameworks, with an intuitive onboarding experience and a review workflow that connects traces to evaluation results. Teams can adopt AgentEval and get value within their first session — via CLI or UI.
 
 ---
 
