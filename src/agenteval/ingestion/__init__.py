@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from agenteval.ingestion.base import TraceAdapter
+from agenteval.ingestion.crewai import CrewAIAdapter
+from agenteval.ingestion.langchain import LangChainAdapter
+from agenteval.ingestion.openai_raw import OpenAIRawAdapter
 from agenteval.ingestion.otel import OTelAdapter
 
 # Adapter registry will be populated as adapters are implemented
@@ -79,3 +82,6 @@ __all__ = [
 
 # Register built-in adapters
 register_adapter(OTelAdapter())
+register_adapter(LangChainAdapter())
+register_adapter(CrewAIAdapter())
+register_adapter(OpenAIRawAdapter())

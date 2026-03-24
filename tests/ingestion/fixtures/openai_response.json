@@ -1,0 +1,81 @@
+{
+  "id": "chatcmpl-123456",
+  "object": "chat.completion",
+  "created": 1705320000,
+  "model": "gpt-4-turbo-2024-04-09",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+          {
+            "id": "call_abc123",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"location\": \"Boston\", \"unit\": \"celsius\"}"
+            }
+          },
+          {
+            "id": "call_def456",
+            "type": "function",
+            "function": {
+              "name": "get_time",
+              "arguments": "{\"timezone\": \"America/New_York\"}"
+            }
+          }
+        ]
+      },
+      "finish_reason": "tool_calls"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 50,
+    "completion_tokens": 25,
+    "total_tokens": 75
+  },
+  "messages": [
+    {
+      "role": "user",
+      "content": "What's the weather and time in Boston?"
+    },
+    {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [
+        {
+          "id": "call_abc123",
+          "type": "function",
+          "function": {
+            "name": "get_weather",
+            "arguments": "{\"location\": \"Boston\", \"unit\": \"celsius\"}"
+          }
+        },
+        {
+          "id": "call_def456",
+          "type": "function",
+          "function": {
+            "name": "get_time",
+            "arguments": "{\"timezone\": \"America/New_York\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_abc123",
+      "content": "{\"temperature\": 15, \"condition\": \"partly cloudy\"}"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_def456",
+      "content": "{\"time\": \"2024-01-15T10:00:00-05:00\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "In Boston, it's currently 15°C and partly cloudy. The time is 10:00 AM EST."
+    }
+  ]
+}

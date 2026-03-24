@@ -1,0 +1,79 @@
+{
+  "id": "abc123-456-789",
+  "name": "AgentExecutor",
+  "run_type": "chain",
+  "start_time": "2024-01-15T10:00:00.000000Z",
+  "end_time": "2024-01-15T10:00:05.500000Z",
+  "inputs": {
+    "input": "What is the weather in San Francisco?"
+  },
+  "outputs": {
+    "output": "The weather in San Francisco is 65°F and sunny."
+  },
+  "child_runs": [
+    {
+      "id": "llm-001",
+      "name": "ChatOpenAI",
+      "run_type": "llm",
+      "start_time": "2024-01-15T10:00:00.100000Z",
+      "end_time": "2024-01-15T10:00:01.200000Z",
+      "inputs": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What is the weather in San Francisco?"
+          }
+        ]
+      },
+      "outputs": {
+        "generations": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "I need to check the weather API."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "tool-001",
+      "name": "weather_api",
+      "run_type": "tool",
+      "start_time": "2024-01-15T10:00:01.300000Z",
+      "end_time": "2024-01-15T10:00:03.500000Z",
+      "inputs": {
+        "location": "San Francisco"
+      },
+      "outputs": {
+        "temperature": "65°F",
+        "condition": "sunny"
+      }
+    },
+    {
+      "id": "llm-002",
+      "name": "ChatOpenAI",
+      "run_type": "llm",
+      "start_time": "2024-01-15T10:00:03.600000Z",
+      "end_time": "2024-01-15T10:00:05.400000Z",
+      "inputs": {
+        "messages": [
+          {
+            "role": "assistant",
+            "content": "Based on the weather data, I can provide an answer."
+          }
+        ]
+      },
+      "outputs": {
+        "generations": [
+          {
+            "message": {
+              "role": "assistant",
+              "content": "The weather in San Francisco is 65°F and sunny."
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

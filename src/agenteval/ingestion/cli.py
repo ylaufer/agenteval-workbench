@@ -140,6 +140,37 @@ def ingest_single_file(
                 return 3  # No adapter can handle input
             if verbose:
                 print(f"[OK] Detected format: {adapter.__class__.__name__}")
+        elif adapter_name == "generic":
+            # Generic adapter requires mapping config
+            if not mapping_path:
+                print("ERROR: --mapping is required for generic adapter", file=sys.stderr)
+                return 1
+
+            # Load mapping config
+            try:
+                from agenteval.ingestion.generic import GenericAdapter
+
+                # Try to load YAML mapping
+                try:
+                    import yaml
+
+                    with open(mapping_path, "r", encoding="utf-8") as f:
+                        mapping = yaml.safe_load(f)
+                except ImportError:
+                    # Fall back to JSON
+                    with open(mapping_path, "r", encoding="utf-8") as f:
+                        mapping = json.load(f)
+
+                adapter = GenericAdapter(mapping)
+                if verbose:
+                    print(f"[OK] Loaded mapping config: {mapping_path}")
+                    print("[OK] Using adapter: GenericAdapter")
+            except FileNotFoundError:
+                print(f"ERROR: Mapping file not found: {mapping_path}", file=sys.stderr)
+                return 2
+            except ValueError as e:
+                print(f"ERROR: Invalid mapping config: {e}", file=sys.stderr)
+                return 4
         else:
             adapter = get_adapter_by_name(adapter_name)
             if not adapter:
@@ -254,7 +285,9 @@ def ingest_bulk(
             print(f"[FAIL] Failed {input_file.name}")
 
     # Print summary
-    print(f"\nSummary: [OK] {success_count}/{len(json_files)} traces converted successfully. {failure_count} failed.")
+    print(
+        f"\nSummary: [OK] {success_count}/{len(json_files)} traces converted successfully. {failure_count} failed."
+    )
 
     return 0 if failure_count == 0 else 1
 

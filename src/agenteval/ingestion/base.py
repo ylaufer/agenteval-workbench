@@ -57,7 +57,9 @@ class TraceAdapter(Protocol):
         ...
 
 
-def check_file_size(file_path: Path, soft_limit_mb: int = 10, hard_limit_mb: int = 50) -> tuple[bool, str | None]:
+def check_file_size(
+    file_path: Path, soft_limit_mb: int = 10, hard_limit_mb: int = 50
+) -> tuple[bool, str | None]:
     """Check file size against soft and hard limits.
 
     Args:
@@ -83,7 +85,10 @@ def check_file_size(file_path: Path, soft_limit_mb: int = 10, hard_limit_mb: int
     if size_mb >= hard_limit_mb:
         return (False, f"File size {size_mb:.1f} MB exceeds hard limit of {hard_limit_mb} MB")
     elif size_mb >= soft_limit_mb:
-        return (True, f"Warning: File size {size_mb:.1f} MB exceeds soft limit of {soft_limit_mb} MB")
+        return (
+            True,
+            f"Warning: File size {size_mb:.1f} MB exceeds soft limit of {soft_limit_mb} MB",
+        )
     else:
         return (True, None)
 
@@ -137,8 +142,7 @@ def map_step_type(source_type: str, mapping: dict[str, str]) -> str:
     """
     if source_type not in mapping:
         raise ValueError(
-            f"Unknown step type '{source_type}'. "
-            f"Expected one of: {', '.join(mapping.keys())}"
+            f"Unknown step type '{source_type}'. Expected one of: {', '.join(mapping.keys())}"
         )
     return mapping[source_type]
 

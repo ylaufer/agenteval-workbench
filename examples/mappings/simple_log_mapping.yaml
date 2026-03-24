@@ -1,0 +1,42 @@
+# Simple agent log mapping
+#
+# Maps simple agent log format to AgentEval trace format
+#
+# Example format:
+# {
+#   "session_id": "sess-123",
+#   "query": "What is the weather?",
+#   "agent_version": "v1.0",
+#   "log_entries": [
+#     {
+#       "entry_id": "001",
+#       "entry_type": "reasoning",
+#       "message": "I need to check the weather API",
+#       "created": "2024-01-15T10:00:00Z"
+#     },
+#     ...
+#   ]
+# }
+
+task_id: "session_id"
+user_prompt: "query"
+model_version: "agent_version"
+
+steps_path: "log_entries"
+
+step_mappings:
+  step_id: "entry_id"
+  type:
+    path: "entry_type"
+    transform: "map"
+    mapping:
+      "reasoning": "thought"
+      "action": "tool_call"
+      "result": "observation"
+      "response": "final_answer"
+  content: "message"
+  timestamp:
+    path: "created"
+    transform: "iso8601"
+
+metadata_source: "simple_log"

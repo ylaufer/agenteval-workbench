@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from agenteval.ingestion.base import TraceAdapter, map_step_type, parse_timestamp
+from agenteval.ingestion.base import map_step_type, parse_timestamp
 from agenteval.schemas.trace import Trace
 
 # Mapping from OTel span kinds to AgentEval step types

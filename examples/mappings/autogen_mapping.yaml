@@ -1,0 +1,43 @@
+# AutoGen conversation log mapping
+#
+# Maps AutoGen multi-agent conversation logs to AgentEval trace format
+#
+# Example AutoGen format:
+# {
+#   "chat_id": "...",
+#   "user_query": "...",
+#   "messages": [
+#     {
+#       "id": "msg-001",
+#       "sender": "user_proxy",
+#       "content": "...",
+#       "timestamp": 1234567890,
+#       "role": "user"
+#     },
+#     ...
+#   ]
+# }
+
+task_id: "chat_id"
+user_prompt: "user_query"
+model_version: "autogen"  # AutoGen doesn't track model version
+
+steps_path: "messages"
+
+step_mappings:
+  step_id: "id"
+  type:
+    path: "role"
+    transform: "map"
+    mapping:
+      "assistant": "thought"
+      "function": "tool_call"
+      "function_result": "observation"
+      "user": "thought"  # User proxy agent messages
+  content: "content"
+  timestamp:
+    path: "timestamp"
+    transform: "iso8601"
+  actor_id: "sender"
+
+metadata_source: "autogen"

@@ -1,0 +1,32 @@
+# Custom mapping configuration for generic JSON adapter
+# Maps custom JSON structure to AgentEval trace format
+
+# Required field mappings
+task_id: "execution.run_id"
+user_prompt: "execution.input_query"
+model_version: "execution.model_name"
+
+# Steps array path
+steps_path: "execution.events"
+
+# Step field mappings
+step_mappings:
+  step_id: "event_id"
+  type:
+    path: "event_type"
+    transform: "map"
+    mapping:
+      "think": "thought"
+      "call_tool": "tool_call"
+      "tool_result": "observation"
+      "answer": "final_answer"
+  content: "event_data.text"
+  timestamp:
+    path: "created_at"
+    transform: "iso8601"
+  tool_name: "event_data.tool_id"
+  actor_id: "event_data.agent_name"
+
+# Optional metadata
+metadata_timestamp: "execution.started_at"
+metadata_source: "custom"

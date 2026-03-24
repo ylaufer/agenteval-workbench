@@ -77,21 +77,21 @@
 
 ### Tests for LangChain Adapter
 
-- [ ] T023 [P] [US2] Create LangChain fixture at tests/ingestion/fixtures/langchain_run.json with llm/tool/chain runs
-- [ ] T024 [P] [US2] Unit test for LangChainAdapter.can_handle() in tests/ingestion/test_langchain.py
-- [ ] T025 [P] [US2] Unit test for run tree flattening in tests/ingestion/test_langchain.py
-- [ ] T026 [P] [US2] Unit test for tool run expansion (tool_call + observation) in tests/ingestion/test_langchain.py
-- [ ] T027 [P] [US2] Error handling test for streaming token events in tests/ingestion/test_langchain.py
+- [X] T023 [P] [US2] Create LangChain fixture at tests/ingestion/fixtures/langchain_run.json with llm/tool/chain runs
+- [X] T024 [P] [US2] Unit test for LangChainAdapter.can_handle() in tests/ingestion/test_langchain.py
+- [X] T025 [P] [US2] Unit test for run tree flattening in tests/ingestion/test_langchain.py
+- [X] T026 [P] [US2] Unit test for tool run expansion (tool_call + observation) in tests/ingestion/test_langchain.py
+- [X] T027 [P] [US2] Error handling test for streaming token events in tests/ingestion/test_langchain.py
 
 ### Implementation for LangChain Adapter
 
-- [ ] T028 [US2] Implement LangChainAdapter class in src/agenteval/ingestion/langchain.py
-- [ ] T029 [US2] Implement can_handle() to detect runs structure in src/agenteval/ingestion/langchain.py
-- [ ] T030 [US2] Implement run type mapping (RUN_TYPE_TO_STEP_TYPE) in src/agenteval/ingestion/langchain.py
-- [ ] T031 [US2] Implement run tree recursive flattening in src/agenteval/ingestion/langchain.py
-- [ ] T032 [US2] Implement tool run expansion (create two steps) in src/agenteval/ingestion/langchain.py
-- [ ] T033 [US2] Implement streaming token collapsing in src/agenteval/ingestion/langchain.py
-- [ ] T034 [US2] Register LangChainAdapter in src/agenteval/ingestion/__init__.py
+- [X] T028 [US2] Implement LangChainAdapter class in src/agenteval/ingestion/langchain.py
+- [X] T029 [US2] Implement can_handle() to detect runs structure in src/agenteval/ingestion/langchain.py
+- [X] T030 [US2] Implement run type mapping (RUN_TYPE_TO_STEP_TYPE) in src/agenteval/ingestion/langchain.py
+- [X] T031 [US2] Implement run tree recursive flattening in src/agenteval/ingestion/langchain.py
+- [X] T032 [US2] Implement tool run expansion (create two steps) in src/agenteval/ingestion/langchain.py
+- [X] T033 [US2] Implement streaming token collapsing in src/agenteval/ingestion/langchain.py
+- [X] T034 [US2] Register LangChainAdapter in src/agenteval/ingestion/__init__.py
 
 **Checkpoint**: LangChain adapter functional - can convert LangChain traces end-to-end
 
@@ -105,20 +105,20 @@
 
 ### Tests for CrewAI Adapter
 
-- [ ] T035 [P] [US3] Create CrewAI fixture at tests/ingestion/fixtures/crewai_log.json with tasks and agent actions
-- [ ] T036 [P] [US3] Unit test for CrewAIAdapter.can_handle() in tests/ingestion/test_crewai.py
-- [ ] T037 [P] [US3] Unit test for agent-to-actor_id mapping in tests/ingestion/test_crewai.py
-- [ ] T038 [P] [US3] Unit test for task action sequence conversion in tests/ingestion/test_crewai.py
-- [ ] T039 [P] [US3] Error handling test for missing agent field in tests/ingestion/test_crewai.py
+- [X] T035 [P] [US3] Create CrewAI fixture at tests/ingestion/fixtures/crewai_log.json with tasks and agent actions
+- [X] T036 [P] [US3] Unit test for CrewAIAdapter.can_handle() in tests/ingestion/test_crewai.py
+- [X] T037 [P] [US3] Unit test for agent-to-actor_id mapping in tests/ingestion/test_crewai.py
+- [X] T038 [P] [US3] Unit test for task action sequence conversion in tests/ingestion/test_crewai.py
+- [X] T039 [P] [US3] Error handling test for missing agent field in tests/ingestion/test_crewai.py
 
 ### Implementation for CrewAI Adapter
 
-- [ ] T040 [US3] Implement CrewAIAdapter class in src/agenteval/ingestion/crewai.py
-- [ ] T041 [US3] Implement can_handle() to detect tasks array in src/agenteval/ingestion/crewai.py
-- [ ] T042 [US3] Implement action type mapping (ACTION_TO_STEP_TYPE) in src/agenteval/ingestion/crewai.py
-- [ ] T043 [US3] Implement agent name to actor_id mapping in src/agenteval/ingestion/crewai.py
-- [ ] T044 [US3] Implement task action iteration and step creation in src/agenteval/ingestion/crewai.py
-- [ ] T045 [US3] Register CrewAIAdapter in src/agenteval/ingestion/__init__.py
+- [X] T040 [US3] Implement CrewAIAdapter class in src/agenteval/ingestion/crewai.py
+- [X] T041 [US3] Implement can_handle() to detect tasks array in src/agenteval/ingestion/crewai.py
+- [X] T042 [US3] Implement action type mapping (ACTION_TO_STEP_TYPE) in src/agenteval/ingestion/crewai.py
+- [X] T043 [US3] Implement agent name to actor_id mapping in src/agenteval/ingestion/crewai.py
+- [X] T044 [US3] Implement task action iteration and step creation in src/agenteval/ingestion/crewai.py
+- [X] T045 [US3] Register CrewAIAdapter in src/agenteval/ingestion/__init__.py
 
 **Checkpoint**: CrewAI adapter functional - can convert CrewAI traces end-to-end
 
@@ -132,21 +132,21 @@
 
 ### Tests for OpenAI Raw API Adapter
 
-- [ ] T046 [P] [US4] Create OpenAI fixture at tests/ingestion/fixtures/openai_response.json with messages and tool_calls
-- [ ] T047 [P] [US4] Unit test for OpenAIRawAdapter.can_handle() in tests/ingestion/test_openai_raw.py
-- [ ] T048 [P] [US4] Unit test for message-to-step conversion in tests/ingestion/test_openai_raw.py
-- [ ] T049 [P] [US4] Unit test for parallel tool call handling in tests/ingestion/test_openai_raw.py
-- [ ] T050 [P] [US4] Unit test for final_answer heuristic in tests/ingestion/test_openai_raw.py
+- [X] T046 [P] [US4] Create OpenAI fixture at tests/ingestion/fixtures/openai_response.json with messages and tool_calls
+- [X] T047 [P] [US4] Unit test for OpenAIRawAdapter.can_handle() in tests/ingestion/test_openai_raw.py
+- [X] T048 [P] [US4] Unit test for message-to-step conversion in tests/ingestion/test_openai_raw.py
+- [X] T049 [P] [US4] Unit test for parallel tool call handling in tests/ingestion/test_openai_raw.py
+- [X] T050 [P] [US4] Unit test for final_answer heuristic in tests/ingestion/test_openai_raw.py
 
 ### Implementation for OpenAI Raw API Adapter
 
-- [ ] T051 [US4] Implement OpenAIRawAdapter class in src/agenteval/ingestion/openai_raw.py
-- [ ] T052 [US4] Implement can_handle() to detect messages array in src/agenteval/ingestion/openai_raw.py
-- [ ] T053 [US4] Implement message type detection (skip user, process assistant/tool) in src/agenteval/ingestion/openai_raw.py
-- [ ] T054 [US4] Implement tool_calls expansion to tool_call steps in src/agenteval/ingestion/openai_raw.py
-- [ ] T055 [US4] Implement tool message to observation step mapping in src/agenteval/ingestion/openai_raw.py
-- [ ] T056 [US4] Implement final_answer heuristic (last assistant message) in src/agenteval/ingestion/openai_raw.py
-- [ ] T057 [US4] Register OpenAIRawAdapter in src/agenteval/ingestion/__init__.py
+- [X] T051 [US4] Implement OpenAIRawAdapter class in src/agenteval/ingestion/openai_raw.py
+- [X] T052 [US4] Implement can_handle() to detect messages array in src/agenteval/ingestion/openai_raw.py
+- [X] T053 [US4] Implement message type detection (skip user, process assistant/tool) in src/agenteval/ingestion/openai_raw.py
+- [X] T054 [US4] Implement tool_calls expansion to tool_call steps in src/agenteval/ingestion/openai_raw.py
+- [X] T055 [US4] Implement tool message to observation step mapping in src/agenteval/ingestion/openai_raw.py
+- [X] T056 [US4] Implement final_answer heuristic (last assistant message) in src/agenteval/ingestion/openai_raw.py
+- [X] T057 [US4] Register OpenAIRawAdapter in src/agenteval/ingestion/__init__.py
 
 **Checkpoint**: OpenAI adapter functional - can convert OpenAI API responses end-to-end
 
@@ -160,23 +160,23 @@
 
 ### Tests for Generic JSON Adapter
 
-- [ ] T058 [P] [US5] Create mapping config fixture at tests/ingestion/fixtures/custom_mapping.yaml with field mappings
-- [ ] T059 [P] [US5] Create custom trace fixture at tests/ingestion/fixtures/custom_trace.json matching the mapping
-- [ ] T060 [P] [US5] Unit test for GenericAdapter.can_handle() with mapping in tests/ingestion/test_generic.py
-- [ ] T061 [P] [US5] Unit test for JSONPath field extraction in tests/ingestion/test_generic.py
-- [ ] T062 [P] [US5] Unit test for transform functions (map, iso8601, concat) in tests/ingestion/test_generic.py
-- [ ] T063 [P] [US5] Unit test for mapping validation (unmappable fields) in tests/ingestion/test_generic.py
-- [ ] T064 [P] [US5] Error handling test for invalid mapping config in tests/ingestion/test_generic.py
+- [X] T058 [P] [US5] Create mapping config fixture at tests/ingestion/fixtures/custom_mapping.yaml with field mappings
+- [X] T059 [P] [US5] Create custom trace fixture at tests/ingestion/fixtures/custom_trace.json matching the mapping
+- [X] T060 [P] [US5] Unit test for GenericAdapter.can_handle() with mapping in tests/ingestion/test_generic.py
+- [X] T061 [P] [US5] Unit test for JSONPath field extraction in tests/ingestion/test_generic.py
+- [X] T062 [P] [US5] Unit test for transform functions (map, iso8601, concat) in tests/ingestion/test_generic.py
+- [X] T063 [P] [US5] Unit test for mapping validation (unmappable fields) in tests/ingestion/test_generic.py
+- [X] T064 [P] [US5] Error handling test for invalid mapping config in tests/ingestion/test_generic.py
 
 ### Implementation for Generic JSON Adapter
 
-- [ ] T065 [US5] Implement GenericAdapter class in src/agenteval/ingestion/generic.py
-- [ ] T066 [US5] Implement mapping config loader (YAML/JSON) in src/agenteval/ingestion/generic.py
-- [ ] T067 [US5] Implement JSONPath field extractor in src/agenteval/ingestion/generic.py
-- [ ] T068 [US5] Implement transform functions (map, iso8601, concat) in src/agenteval/ingestion/generic.py
-- [ ] T069 [US5] Implement mapping completeness validator in src/agenteval/ingestion/generic.py
-- [ ] T070 [US5] Implement trace construction from mapped fields in src/agenteval/ingestion/generic.py
-- [ ] T071 [US5] Register GenericAdapter in src/agenteval/ingestion/__init__.py
+- [X] T065 [US5] Implement GenericAdapter class in src/agenteval/ingestion/generic.py
+- [X] T066 [US5] Implement mapping config loader (YAML/JSON) in src/agenteval/ingestion/generic.py
+- [X] T067 [US5] Implement JSONPath field extractor in src/agenteval/ingestion/generic.py
+- [X] T068 [US5] Implement transform functions (map, iso8601, concat) in src/agenteval/ingestion/generic.py
+- [X] T069 [US5] Implement mapping completeness validator in src/agenteval/ingestion/generic.py
+- [X] T070 [US5] Implement trace construction from mapped fields in src/agenteval/ingestion/generic.py
+- [X] T071 [US5] Register GenericAdapter in src/agenteval/ingestion/__init__.py
 
 **Checkpoint**: Generic adapter functional - can convert custom traces via mappings
 
@@ -188,34 +188,34 @@
 
 ### Integration Tests
 
-- [ ] T072 [P] Integration test: ingest → validate → evaluate pipeline in tests/ingestion/test_integration.py
-- [ ] T073 [P] Integration test: bulk ingest with mixed success/failure in tests/ingestion/test_integration.py
-- [ ] T074 [P] Integration test: size limit enforcement (10MB/50MB) in tests/ingestion/test_integration.py
-- [ ] T075 [P] Integration test: CLI auto-detection across all adapters in tests/ingestion/test_integration.py
+- [X] T072 [P] Integration test: ingest → validate → evaluate pipeline in tests/ingestion/test_integration.py
+- [X] T073 [P] Integration test: bulk ingest with mixed success/failure in tests/ingestion/test_integration.py
+- [X] T074 [P] Integration test: size limit enforcement (10MB/50MB) in tests/ingestion/test_integration.py
+- [X] T075 [P] Integration test: CLI auto-detection across all adapters in tests/ingestion/test_integration.py
 
 ### CLI Improvements
 
-- [ ] T076 Implement progress bar for bulk operations using tqdm in src/agenteval/ingestion/cli.py
-- [ ] T077 Implement --verbose flag detailed logging in src/agenteval/ingestion/cli.py
-- [ ] T078 Implement bulk error summary reporting in src/agenteval/ingestion/cli.py
-- [ ] T079 Add helpful error messages for common failures in src/agenteval/ingestion/cli.py
+- [X] T076 Implement progress bar for bulk operations using tqdm in src/agenteval/ingestion/cli.py
+- [X] T077 Implement --verbose flag detailed logging in src/agenteval/ingestion/cli.py
+- [X] T078 Implement bulk error summary reporting in src/agenteval/ingestion/cli.py
+- [X] T079 Add helpful error messages for common failures in src/agenteval/ingestion/cli.py
 
 ### Documentation
 
-- [ ] T080 [P] Create usage guide at docs/ingestion_usage.md with examples for each adapter
-- [ ] T081 [P] Create generic mapping reference at docs/generic_mapping.md with transform documentation
-- [ ] T082 [P] Create troubleshooting guide at docs/ingestion_troubleshooting.md
-- [ ] T083 [P] Add example mapping configs at examples/mappings/ for common custom formats
-- [ ] T084 Update CLAUDE.md with ingestion module architecture notes
-- [ ] T085 Update README.md with agenteval-ingest command documentation
+- [X] T080 [P] Create usage guide at docs/ingestion_usage.md with examples for each adapter
+- [X] T081 [P] Create generic mapping reference at docs/generic_mapping.md with transform documentation
+- [X] T082 [P] Create troubleshooting guide at docs/ingestion_troubleshooting.md
+- [X] T083 [P] Add example mapping configs at examples/mappings/ for common custom formats
+- [X] T084 Update CLAUDE.md with ingestion module architecture notes
+- [X] T085 Update README.md with agenteval-ingest command documentation
 
 ### Validation & Cleanup
 
-- [ ] T086 Run agenteval-validate-dataset to ensure all test fixtures pass validation
-- [ ] T087 Run mypy type checking on src/agenteval/ingestion/
-- [ ] T088 Run ruff linting and formatting on src/agenteval/ingestion/
-- [ ] T089 Validate quickstart.md examples work end-to-end
-- [ ] T090 Code review and refactoring pass
+- [X] T086 Run agenteval-validate-dataset to ensure all test fixtures pass validation
+- [X] T087 Run mypy type checking on src/agenteval/ingestion/
+- [X] T088 Run ruff linting and formatting on src/agenteval/ingestion/
+- [X] T089 Validate quickstart.md examples work end-to-end
+- [X] T090 Code review and refactoring pass
 
 ---
 

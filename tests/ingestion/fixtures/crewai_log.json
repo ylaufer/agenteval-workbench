@@ -1,0 +1,67 @@
+{
+  "execution_id": "crew-exec-001",
+  "crew_name": "ResearchCrew",
+  "started_at": "2024-01-20T14:00:00Z",
+  "completed_at": "2024-01-20T14:05:30Z",
+  "tasks": [
+    {
+      "task_id": "task-001",
+      "description": "Research topic on AI safety",
+      "agent": "researcher",
+      "started_at": "2024-01-20T14:00:00Z",
+      "completed_at": "2024-01-20T14:02:30Z",
+      "actions": [
+        {
+          "action_id": "act-001",
+          "type": "thought",
+          "timestamp": "2024-01-20T14:00:00.100Z",
+          "content": "I need to search for recent AI safety research papers.",
+          "agent": "researcher"
+        },
+        {
+          "action_id": "act-002",
+          "type": "tool_use",
+          "timestamp": "2024-01-20T14:00:05.000Z",
+          "tool_name": "search_papers",
+          "tool_input": "{\"query\": \"AI safety research 2024\"}",
+          "tool_output": "{\"results\": [\"Paper 1: Constitutional AI\", \"Paper 2: RLHF advances\"]}",
+          "agent": "researcher"
+        },
+        {
+          "action_id": "act-003",
+          "type": "thought",
+          "timestamp": "2024-01-20T14:02:00.000Z",
+          "content": "Found relevant papers on Constitutional AI and RLHF.",
+          "agent": "researcher"
+        }
+      ],
+      "output": "Research summary: Recent AI safety focuses on Constitutional AI and RLHF techniques."
+    },
+    {
+      "task_id": "task-002",
+      "description": "Synthesize research into report",
+      "agent": "writer",
+      "started_at": "2024-01-20T14:02:30Z",
+      "completed_at": "2024-01-20T14:05:30Z",
+      "actions": [
+        {
+          "action_id": "act-004",
+          "type": "thought",
+          "timestamp": "2024-01-20T14:02:30.500Z",
+          "content": "I will create a comprehensive report based on the research.",
+          "agent": "writer"
+        },
+        {
+          "action_id": "act-005",
+          "type": "tool_use",
+          "timestamp": "2024-01-20T14:03:00.000Z",
+          "tool_name": "generate_report",
+          "tool_input": "{\"topic\": \"AI Safety\", \"sources\": [\"Constitutional AI\", \"RLHF\"]}",
+          "tool_output": "{\"report\": \"AI Safety Report: Constitutional AI and RLHF are key safety techniques...\"}",
+          "agent": "writer"
+        }
+      ],
+      "output": "Final Report: AI Safety techniques including Constitutional AI and RLHF."
+    }
+  ]
+}
