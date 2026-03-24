@@ -1,209 +1,155 @@
 # AgentEval Workbench
 
-Security-first evaluation framework for LLM outputs and autonomous agent workflows.
+Open-source trace forensics framework for LLM agent evaluation.
 
----
+AgentEval helps you understand *why* an agent failed, not just *that* it failed. It combines a structured failure taxonomy, rubric-driven scoring, and trace-level analysis to turn vague "the agent messed up" into actionable, reproducible diagnostics.
 
-## Overview
+## How It's Different
 
-AgentEval Workbench is a structured evaluation framework designed to assess:
+Observability tools (Langfuse, LangSmith, Arize) answer **"what happened?"**
+AgentEval answers **"what went wrong, why, and how do we prevent it next time?"**
 
-- Large Language Model (LLM) outputs
-- Multi-step autonomous agent workflows
-- Tool invocation correctness
-- Screenshot-grounded UI interactions
-- Failure pattern recurrence
-- Evaluation consistency across reviewers
+The core differentiators:
 
-This project reflects real-world AI Model Evaluator responsibilities, including rubric-based scoring, trace analysis, and benchmark governance.
+- **Failure Taxonomy** — 12 canonical failure categories (tool hallucination, instruction drift, constraint violation, etc.) with structured indicators and severity levels. Failures are classified, not just logged.
+- **Security-First** — offline-only validation, secret scanning, path traversal protection, no network calls during evaluation. Built for regulated environments.
+- **Schema-Driven Contracts** — every artifact (trace, rubric, evaluation, report) is validated against a JSON schema. Nothing is ad hoc.
+- **Hybrid Scoring** — pluggable evaluators combining deterministic rule-based checks with LLM-as-judge evaluation, with explicit confidence tracking.
 
----
-
-## Why This Exists
-
-Evaluating LLM and agent systems requires more than checking the final answer.
-
-Modern AI systems involve:
-
-- Tool calls
-- Planning steps
-- Observations
-- Multi-step reasoning traces
-- UI actions
-- Error handling
-- Security constraints
-
-This framework enforces:
-
-- Structured schema validation
-- Rubric-driven evaluation
-- Failure taxonomy alignment
-- Security scanning
-- CI-enforced dataset integrity
-- Type-safe Python bindings for schemas
-
----
-
-## Core Principles
-
-### Security First
-
-- No tokens allowed in benchmark data
-- No external URLs
-- No absolute paths
-- No path traversal
-- All filesystem access constrained to repo root
-- Offline validation only
-
-### Schema-Driven
-
-All traces validate against a formal JSON schema (`trace_schema.json`).
-
-### Benchmark-Based
-
-Canonical failure cases define evaluation standards.
-
-### CI-Enforced Governance
-
-Every push and pull request automatically validates:
-
-- Dataset structure
-- Schema compliance
-- Security constraints
-
----
-
-## Project Structure
-
-```text
-agenteval-workbench/
-├── app/                        # Streamlit UI (thin presentation layer)
-│   ├── app.py                  # Entry point — sidebar navigation, page routing
-│   ├── page_generate.py        # Generate & Validate page
-│   ├── page_evaluate.py        # Run Evaluation page
-│   ├── page_inspect.py         # Inspect Trace & Evaluation page
-│   └── page_report.py          # Aggregated Report page
-├── src/agenteval/
-│   ├── dataset/
-│   │   ├── validator.py        # Dataset validation (structure, schema, security, headers)
-│   │   └── generator.py        # Case generation with failure-type presets
-│   ├── core/
-│   │   ├── calibration.py
-│   │   ├── evaluators/         # Pluggable evaluator framework for auto-scoring
-│   │   │   ├── __init__.py     # EvaluatorRegistry
-│   │   │   ├── base.py         # Evaluator protocol
-│   │   │   ├── tool_use.py     # Rule-based tool_use evaluator
-│   │   │   ├── security.py     # Rule-based security_safety evaluator
-│   │   │   ├── llm_evaluator.py # LLM-based evaluator (optional)
-│   │   │   └── llm_provider.py # LLM API provider adapters
-│   │   ├── execution.py
-│   │   ├── loader.py
-│   │   ├── report.py
-│   │   ├── runner.py
-│   │   ├── runs.py             # Run tracking (create, complete, fail, list, inspect)
-│   │   ├── scorer.py           # Auto-scoring orchestrator and CLI
-│   │   ├── service.py          # UI-facing orchestration layer (composes existing APIs)
-│   │   ├── tagger.py
-│   │   └── types.py
-│   ├── schemas/
-│   │   ├── trace.py
-│   │   └── rubric.py
-│   └── __init__.py
-├── tests/
-│   ├── conftest.py
-│   ├── test_calibration.py
-│   ├── test_generator.py
-│   ├── test_loader.py
-│   ├── test_report.py
-│   ├── test_runner.py
-│   ├── test_runs.py
-│   ├── test_scorer.py
-│   ├── test_evaluators.py
-│   ├── test_service.py
-│   ├── test_tagger.py
-│   ├── test_types.py
-│   └── test_validator.py
-├── data/cases/
-├── rubrics/
-├── schemas/
-├── docs/
-├── reports/
-├── runs/                       # Tracked evaluation runs (auto-generated, gitignored)
-├── .pre-commit-config.yaml
-├── pyproject.toml
-└── .github/workflows/
-```
-
----
-
-## Installation
-
-Create a virtual environment:
+## Quick Start
 
 ```bash
+# Clone and set up
+git clone https://github.com/ylaufer/agenteval-workbench.git
+cd agenteval-workbench
 python -m venv .venv
-source .venv/Scripts/activate
+source .venv/bin/activate        # Linux/Mac
+# .venv\Scripts\activate         # Windows
+
+pip install -e .                 # core (only dependency: jsonschema)
+pip install -e ".[dev]"          # adds ruff, mypy, pytest, pre-commit
+pip install -e ".[ui]"           # adds Streamlit UI
 ```
 
-Upgrade pip:
+## The Workflow
 
-```bash
-python -m pip install --upgrade pip
+```
+generate case → validate dataset → evaluate traces → review report → improve agent → repeat
 ```
 
-Install the project in editable mode:
+### 1. Generate a benchmark case
 
 ```bash
-pip install -e .
-```
-
-Optional (development tools — includes ruff, mypy, pytest, pre-commit):
-
-```bash
-pip install -e ".[dev]"
-```
-
-Optional (Streamlit UI):
-
-```bash
-pip install -e ".[ui]"
-```
-
-Activate pre-commit hooks (one-time per clone):
-
-```bash
-pre-commit install
-```
-
----
-
-## Key Commands
-
-```bash
-# Dataset validation (must pass before every commit)
-agenteval-validate-dataset --repo-root .
-
-# Generate a benchmark case
 agenteval-generate-case --case-id my_case --failure-type tool_hallucination
+```
 
-# Run evaluation pipeline
+Each case contains three files: `prompt.txt` (the agent task), `trace.json` (the step-by-step execution log), and `expected_outcome.md` (failure classification and severity metadata).
+
+### 2. Validate the dataset
+
+```bash
+agenteval-validate-dataset --repo-root .
+```
+
+Checks structure, schema compliance, security constraints (no secrets, no external URLs, no path traversal), and header completeness. Runs automatically in CI on every push/PR.
+
+### 3. Run evaluation
+
+```bash
+# Generate evaluation templates (rubric-based)
 agenteval-eval-runner --dataset-dir data/cases --output-dir reports
 
-# Generate aggregated report
-agenteval-eval-report --input-dir reports
-
-# List past evaluation runs
-agenteval-list-runs
-
-# Auto-score benchmark cases (rule-based)
+# Auto-score with rule-based evaluators
 agenteval-auto-score --dataset-dir data/cases --output-dir reports
 
-# Inspect a specific run
+# Auto-score with LLM-as-judge (optional — set ANTHROPIC_API_KEY or OPENAI_API_KEY)
+ANTHROPIC_API_KEY=sk-... agenteval-auto-score --dataset-dir data/cases --output-dir reports
+```
+
+Auto-scoring uses pluggable evaluators: `ToolUseEvaluator` checks for incomplete executions, hallucinated outputs, and duplicate calls. `SecurityEvaluator` detects leaked secrets and risky patterns. LLM evaluators handle subjective dimensions like accuracy and reasoning quality.
+
+### 4. Generate reports
+
+```bash
+agenteval-eval-report --input-dir reports
+```
+
+Produces per-dimension statistics, failure distributions, severity breakdowns, and normalized overall scores in both JSON and Markdown.
+
+### 5. Track and compare runs
+
+```bash
+agenteval-list-runs
 agenteval-inspect-run <run_id>
+```
 
-# Inter-reviewer calibration
-agenteval-eval-calibration --scores-dir scores
+Every evaluation creates a tracked run with timestamps, dataset snapshot, and configuration — so results are always reproducible.
 
+## Streamlit UI
+
+```bash
+streamlit run app/app.py
+```
+
+Four pages covering the full workflow: **Generate** (create cases, validate dataset), **Evaluate** (run scoring pipeline), **Inspect** (browse traces with color-coded step types, view evaluation templates), and **Report** (aggregated summaries with dimension stats and failure distributions).
+
+## The Rubric
+
+Six scoring dimensions on a 0-2 scale:
+
+| Dimension | What It Measures | Weight |
+|-----------|-----------------|--------|
+| Accuracy | Claims match trace evidence | 1.0x |
+| Completeness | All user requirements fulfilled | 1.0x |
+| Tool Use | Correct, efficient tool usage | 1.0x |
+| UI Grounding | Claims match screenshot evidence | 1.0x |
+| Reasoning Quality | Step-to-step coherence, no drift | 1.0x |
+| Security & Safety | No leaked secrets, no unsafe behavior | 1.5x |
+
+Rubrics are versioned and validated against `schemas/rubric_schema.json`.
+
+## Failure Taxonomy
+
+12 canonical categories organized into five groups:
+
+**Tool Failures** — Tool Hallucination, Unnecessary Invocation, Schema Misuse, Output Misinterpretation
+
+**Instruction Failures** — Instruction Drift, Partial Completion, Constraint Violation
+
+**Output Quality** — Format Violation, Reasoning Inconsistency, Latency Mismanagement
+
+**Safety** — Unsafe Output, Sensitive Data Exposure
+
+**UI/Grounding** — UI Grounding Mismatch
+
+Each case maps to a primary failure and optional secondary failures. See `docs/failure_taxonomy.md` for full definitions.
+
+## Architecture
+
+```
+src/agenteval/
+  dataset/          validator, generator
+  core/
+    evaluators/     pluggable evaluator framework (Protocol-based)
+    runner.py       evaluation template generation
+    scorer.py       auto-scoring orchestrator
+    report.py       aggregated reporting
+    service.py      UI orchestration layer
+    runs.py         run tracking
+  schemas/          typed Python bindings for trace/rubric schemas
+
+app/                Streamlit UI (thin presentation layer)
+schemas/            JSON schemas (trace, rubric, evaluation, reviewer scores)
+rubrics/            versioned rubric definitions
+data/cases/         benchmark dataset
+docs/               failure taxonomy, dataset guidelines, roadmap
+```
+
+Key design decisions: the service layer composes existing APIs without modifying them. UI pages only import from `service.py`. All filesystem access is constrained within the repo root via `_safe_resolve_within()`. The evaluator framework uses `@runtime_checkable` Protocol, so adding a new evaluator means implementing two methods.
+
+## Development
+
+```bash
 # Linting
 ruff check src/
 ruff format --check src/
@@ -211,344 +157,27 @@ ruff format --check src/
 # Type checking
 mypy src/
 
-# Run tests
+# Tests (245 tests across 14 modules)
 pytest tests/ -v
 
-# Launch Streamlit UI (requires pip install -e ".[ui]")
-streamlit run app/app.py
+# Pre-commit hooks
+pre-commit install
 ```
 
----
+CI runs `agenteval-validate-dataset` on every push and PR. Failures block merge.
 
-## Running the Dataset Validator
+## Roadmap
 
-Run the validator:
+See [`docs/roadmap.md`](docs/roadmap.md) for the full roadmap. The short version:
 
-```bash
-agenteval-validate-dataset --repo-root .
-```
+**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 245 tests.
 
-The validator enforces:
+**Phase 2 (next)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI), guided onboarding, selective evaluation, run comparison, trace annotation UI, custom rubric builder.
 
-- Required file structure (`prompt.txt`, `trace.json`, `expected_outcome.md`)
-- JSON schema validation (`trace.json` against `schemas/trace_schema.json`)
-- YAML header completeness (5 required fields: `Case ID`, `Primary Failure`, `Secondary Failures`, `Severity`, `case_version`)
-- Error/warning severity levels (errors block, warnings are advisory)
-- Version-bump detection (warns if `trace.json` or `expected_outcome.md` changed without incrementing `case_version`)
-- Secret detection (API keys, Bearer tokens, etc.)
-- URL blocking
-- Absolute path blocking
-- Path traversal blocking
+**Phase 3** — CI/CD integration (GitHub Action), export hooks (Slack, webhooks), confidence calibration, experiment tracking, regression detection, auto test generation from failures.
 
-Exit codes:
+**Phase 4** — SQLite storage backend, parallel evaluation, advanced trace modeling (multi-agent, hierarchical spans), REST API, community benchmark registry.
 
-- `0` — all cases valid (warnings may be present)
-- `1` — one or more validation errors found
+## License
 
-Example output with issues:
-
-```
-[case_003] ERROR: Missing required file: prompt.txt
-[case_007] ERROR: expected_outcome.md missing required header field: case_version
-[demo_case] WARNING: trace.json modified without case_version bump (1.0 → 1.0)
-
-❌ Dataset validation failed (2 error(s), 1 warning(s)).
-```
-
----
-
-## Generating Benchmark Cases
-
-Generate complete, schema-valid cases using the case generator:
-
-```bash
-# Generate a generic case
-agenteval-generate-case --case-id my_test_case
-
-# Generate a case with a specific failure type
-agenteval-generate-case --case-id halluc_example --failure-type tool_hallucination
-
-# Overwrite an existing case
-agenteval-generate-case --case-id demo_case --overwrite
-```
-
-Supported failure types (from the 12 canonical categories):
-
-`tool_hallucination`, `unnecessary_tool_invocation`, `instruction_drift`, `partial_completion`,
-`tool_schema_misuse`, `ui_grounding_mismatch`, `unsafe_output`, `format_violation`,
-`latency_mismanagement`, `reasoning_inconsistency`, `constraint_violation`, `incomplete_execution`
-
-Each generated case includes all 3 required files with valid headers and passes validation immediately.
-
-The generator is also available as a library function:
-
-```python
-from agenteval.dataset import generate_case
-
-case_dir = generate_case(case_id="my_case", failure_type="tool_hallucination")
-```
-
----
-
-## Running the Evaluation Runner (Core Engine)
-
-The core evaluation engine generates **structured evaluation templates** for each benchmark case,
-grounded in the rubric defined under `rubrics/`.
-
-From the repo root:
-
-```bash
-agenteval-eval-runner \
-  --dataset-dir data/cases \
-  --output-dir reports
-```
-
-This will:
-
-- Load the rubric from `rubrics/v1_agent_general.json`
-- Validate each `trace.json` against `schemas/trace_schema.json`
-- Parse the metadata header from each `expected_outcome.md`
-- Emit, per case:
-  - `reports/case_XXX.evaluation.json`
-  - `reports/case_XXX.evaluation.md`
-
-### What the runner produces
-
-- **JSON template** (`case_XXX.evaluation.json`):
-  - Case and task identifiers
-  - Rubric version and name
-  - Parsed primary/secondary failures and severity
-  - Trace summary (total steps, counts per step `type`, run timestamp/latency when present)
-  - One entry per rubric dimension, with:
-    - `score` (initially `null`)
-    - `weight` and `scale`
-    - `evidence_step_ids` (initially empty)
-    - `notes` (initially empty)
-  - `case_version` from the `expected_outcome.md` header (`null` if absent)
-  - Convenience `labels` (e.g., `primary:Tool Hallucination`, `severity:Critical`)
-
-- **Markdown template** (`case_XXX.evaluation.md`):
-  - Human-friendly summary (IDs, failures, severity, case version, labels)
-  - Trace overview (step counts by `type`, timing)
-  - Table listing all rubric dimensions with columns for score, evidence step_ids, and notes
-  - Freeform “Evaluation notes” section
-
-### How reviewers use the templates
-
-- Open the markdown file for a case, inspect:
-  - The **Summary** and **Trace overview** sections
-  - The underlying `prompt.txt`, `trace.json`, and `expected_outcome.md` as needed
-- For each rubric dimension:
-  - Assign a score within the defined scale (e.g., `0–2`)
-  - Populate `Evidence step_ids` with the relevant `step_id` / `event_id` values from the trace
-  - Add short notes explaining the judgment, referencing failure taxonomy terms when useful
-- Optionally mirror the same judgments into the JSON template for downstream processing.
-
-### Automation hooks
-
-The JSON templates are designed for:
-
-- Programmatic aggregation of scores across cases
-- Inter-rater agreement analysis
-- Export to dashboards or reporting systems
-
-The `agenteval-eval-report` CLI ingests the filled `*.evaluation.json` files (see below),
-computes weighted scores per dimension and per case, and produces aggregate benchmark
-summaries in both JSON and Markdown formats.
-
----
-
-## Generating Structured Evaluation Reports
-
-Once evaluators (or automated agents) have filled in scores in the JSON templates, you can
-generate **summary reports**:
-
-```bash
-agenteval-eval-report \
-  --input-dir reports \
-  --output-json reports/summary.evaluation.json \
-  --output-md reports/summary.evaluation.md
-```
-
-This will:
-
-- Load the rubric (`rubrics/v1_agent_general.json`) to interpret scales and weights
-- Read all `reports/case_XXX.evaluation.json` files
-- Compute:
-  - Per-dimension stats (mean score, distribution, scored/unscored counts)
-  - Normalized overall scores per case (0–1) when scores are present
-  - Primary failure and severity distributions across the benchmark
-- Write:
-  - `reports/summary.evaluation.json` — structured, machine-readable summary
-  - `reports/summary.evaluation.md` — stakeholder-readable report
-
-The Markdown report is intended for stakeholders and reviewers; the JSON report is designed
-for downstream analytics, dashboards, and governance workflows.
-
----
-
-## Rule-Based Failure Tagging
-
-The evaluation runner automatically tags traces with failure patterns detected via heuristic
-rules in `src/agenteval/core/tagger.py`. Tags are included in evaluation templates under the
-`auto_tags` field.
-
-Current failure detectors:
-
-| Tag | Pattern |
-|-----|---------|
-| `incomplete_execution` | Tool call without a following observation containing output |
-| `hallucination_tool_output` | Final answer contradicts documented tool output |
-| `ui_mismatch` | Multiple screenshots with state-changing steps |
-| `format_violation` | Narrative text in a JSON-only constrained response |
-
-Tags propagate into both the per-case evaluation templates and the aggregated summary report.
-
----
-
-## Inter-Reviewer Calibration
-
-The calibration CLI computes pairwise inter-reviewer agreement from reviewer score files:
-
-```bash
-agenteval-eval-calibration \
-  --scores-dir scores \
-  --output-json reports/calibration.json \
-  --output-md reports/calibration.md
-```
-
-This will:
-
-- Discover all reviewer score files in `scores/` (format: `case_XXX_reviewer.json`)
-- Compute per-dimension pairwise percent agreement and Cohen's Kappa
-- Write structured JSON and Markdown calibration reports
-
-Reviewer score files are validated against `schemas/reviewer_score_schema.json`.
-
----
-
-## Streamlit UI
-
-AgentEval Workbench includes an optional Streamlit-based web interface for interactive use.
-The UI is a thin presentation layer — all logic flows through `src/agenteval/core/service.py`,
-which composes the existing library APIs without modifying any CLI modules.
-
-### Launch
-
-```bash
-pip install -e ".[ui]"
-streamlit run app/app.py
-```
-
-The app opens at `http://localhost:8501` with four pages accessible via sidebar navigation.
-
-### Pages
-
-| Page | What it does |
-|------|-------------|
-| **Generate** | Create benchmark cases (case ID, failure type, overwrite toggle). Auto-validates the dataset after generation. Includes a standalone "Validate Dataset" button. |
-| **Evaluate** | Run the evaluation pipeline on all cases. Displays a per-case summary table with case ID, primary failure, severity, scored dimensions, and auto-detected tags. |
-| **Inspect** | Browse cases from a dropdown. View case metadata, trace steps (with color-coded type badges), and evaluation template dimensions with scores. |
-| **Report** | Generate aggregated summary reports. Shows dimension statistics, failure frequency counts, severity distribution, and improvement recommendations. |
-
-### Architecture
-
-- **`app/`** lives outside the library package — Streamlit is an optional dependency, not a core requirement.
-- **`service.py`** orchestrates calls to `generator.generate_case()`, `validator.validate_dataset()`, `runner.main()`, and `report.main()` without modifying any of those modules.
-- UI pages import only from `agenteval.core.service` — never directly from runner, report, validator, or generator.
-- All existing CLI commands remain fully backward-compatible.
-
----
-
-## Running Tests
-
-The project uses pytest with strict markers and fail-fast mode:
-
-```bash
-# Run full test suite
-pytest tests/ -v
-
-# With coverage
-pytest tests/ --cov=agenteval --cov-report=term-missing
-```
-
-The test suite covers all modules (245 tests):
-
-- `test_types.py` — frozen dataclass construction, defaults, immutability
-- `test_validator.py` — path safety, security scanning, structure checks, schema validation, header validation, severity model, batch reporting, version-bump detection, CLI
-- `test_generator.py` — case generation, failure presets, overwrite handling, path safety
-- `test_loader.py` — rubric/trace/reviewer-score loading and parsing
-- `test_runner.py` — header parsing, trace summarization, template generation, case_version propagation, CLI
-- `test_report.py` — scale parsing, dimension stats, overall scores, recommendations, CLI
-- `test_tagger.py` — all four failure tag detectors and trace-level tagging
-- `test_calibration.py` — percent agreement, Cohen's kappa, calibration report, CLI
-- `test_runs.py` — run lifecycle (create/complete/fail), listing, results, summary, CLI entry points
-- `test_scorer.py` — evaluator registry, score_case, score_dataset, schema validation, CLI entry point
-- `test_evaluators.py` — ToolUseEvaluator, SecurityEvaluator, LLMEvaluator (mocked provider)
-- `test_service.py` — service layer delegation, list/load/run orchestration, run tracking integration
-
----
-
-## Continuous Integration & Pre-Commit Hooks
-
-This repository includes a GitHub Actions workflow that automatically runs the dataset validator on:
-
-- Every push
-- Every pull request
-
-A pre-commit hook (`.pre-commit-config.yaml`) also runs validation before every local commit, blocking commits with errors while allowing warnings through.
-
-The CI pipeline prevents:
-
-- Unsafe benchmark cases
-- Schema-breaking traces
-- Secret leaks
-- Malformed dataset structures
-- Missing YAML header fields (including `case_version`)
-
----
-
-## Benchmark Coverage
-
-The benchmark dataset includes canonical agent failure scenarios such as:
-
-- Tool hallucination
-- Unnecessary tool invocation
-- Instruction drift
-- Partial completion
-- Tool schema misuse
-- UI grounding mismatch
-- Unsafe output
-- Format violation
-- Latency mismanagement
-- Reasoning inconsistency
-
-Each case is mapped to a structured failure taxonomy and aligned with evaluation rubrics.
-
----
-
-## Evaluation Philosophy
-
-This project reflects production-grade AI evaluation practices:
-
-- Final answer correctness is not enough.
-- Tool grounding must be verified.
-- Failures must be classified.
-- Rubrics must be explicit and versioned.
-- Evaluator consistency must be measurable (via inter-reviewer calibration).
-- Security must be enforced at the dataset level.
-- All modules must have automated test coverage.
-
----
-
-## Intended Audience
-
-- AI Model Evaluators
-- QA Engineers working with LLM systems
-- Agent system developers
-- Research teams building autonomous workflows
-- Organizations implementing structured AI evaluation
-
----
-
-
+MIT
