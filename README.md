@@ -34,10 +34,34 @@ pip install -e ".[ui]"           # adds Streamlit UI
 ## The Workflow
 
 ```
-generate case → validate dataset → evaluate traces → review report → improve agent → repeat
+[ingest traces OR generate case] → validate dataset → evaluate traces → review report → improve agent → repeat
 ```
 
-### 1. Generate a benchmark case
+### 1a. Ingest traces (from external frameworks)
+
+Convert traces from OpenTelemetry, LangChain, CrewAI, OpenAI, or custom formats:
+
+```bash
+# Auto-detect format and convert
+agenteval-ingest otel_trace.json --output trace.json
+
+# Bulk conversion
+agenteval-ingest traces/ --output-dir converted/
+
+# Custom formats with mapping config
+agenteval-ingest custom.json --output trace.json --adapter generic --mapping config.yaml
+```
+
+**Supported adapters:**
+- **OpenTelemetry** (OTLP JSON) - Converts spans to steps, preserves hierarchy
+- **LangChain/LangSmith** - Flattens run trees, expands tool calls
+- **CrewAI** - Multi-agent task logs with action mapping
+- **OpenAI** (Chat Completions API) - Handles parallel tool calls, detects final answers
+- **Generic** - Custom JSON with user-defined field mappings
+
+See [docs/ingestion_usage.md](docs/ingestion_usage.md) for detailed examples and [docs/generic_mapping.md](docs/generic_mapping.md) for mapping configuration.
+
+### 1b. Generate a benchmark case
 
 ```bash
 agenteval-generate-case --case-id my_case --failure-type tool_hallucination
@@ -172,7 +196,7 @@ See [`docs/roadmap.md`](docs/roadmap.md) for the full roadmap. The short version
 
 **Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 245 tests.
 
-**Phase 2 (next)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI), guided onboarding, selective evaluation, run comparison, trace annotation UI, custom rubric builder.
+**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI), guided onboarding, selective evaluation, run comparison, trace annotation UI, custom rubric builder.
 
 **Phase 3** — CI/CD integration (GitHub Action), export hooks (Slack, webhooks), confidence calibration, experiment tracking, regression detection, auto test generation from failures.
 
