@@ -1,0 +1,89 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "weather-agent"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "agent-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "5b8aa5a2d2c872e8321cf37308d69df2",
+              "spanId": "051581bf3cb55c13",
+              "parentSpanId": "",
+              "name": "agent_reasoning",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1711234567000000000",
+              "endTimeUnixNano": "1711234568000000000",
+              "attributes": [
+                {
+                  "key": "thought",
+                  "value": {
+                    "stringValue": "I need to check the weather for Seattle"
+                  }
+                }
+              ]
+            },
+            {
+              "traceId": "5b8aa5a2d2c872e8321cf37308d69df2",
+              "spanId": "5fb8d07e8e1c688d",
+              "parentSpanId": "051581bf3cb55c13",
+              "name": "get_weather",
+              "kind": "SPAN_KIND_CLIENT",
+              "startTimeUnixNano": "1711234568500000000",
+              "endTimeUnixNano": "1711234569000000000",
+              "attributes": [
+                {
+                  "key": "tool.name",
+                  "value": {
+                    "stringValue": "get_weather"
+                  }
+                },
+                {
+                  "key": "tool.input",
+                  "value": {
+                    "stringValue": "{\"city\": \"Seattle\"}"
+                  }
+                },
+                {
+                  "key": "tool.output",
+                  "value": {
+                    "stringValue": "{\"temperature\": 15, \"conditions\": \"cloudy\"}"
+                  }
+                }
+              ]
+            },
+            {
+              "traceId": "5b8aa5a2d2c872e8321cf37308d69df2",
+              "spanId": "8c8b5d4e9f2a1b3c",
+              "parentSpanId": "051581bf3cb55c13",
+              "name": "agent_final_answer",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1711234569500000000",
+              "endTimeUnixNano": "1711234570000000000",
+              "attributes": [
+                {
+                  "key": "answer",
+                  "value": {
+                    "stringValue": "The weather in Seattle is 15°C and cloudy."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
