@@ -4,11 +4,16 @@ from __future__ import annotations
 import streamlit as st
 
 from agenteval.core.service import generate_summary_report
+from components.help_section import show_help_section
+from onboarding.content import PAGE_HELP
 
 
 def render() -> None:
     """Render the Report page."""
     st.header("Aggregated Evaluation Report")
+
+    # Help section
+    show_help_section("How this works", PAGE_HELP["report"])
 
     st.markdown(
         "Generate a summary report from all evaluation templates in `reports/`. "

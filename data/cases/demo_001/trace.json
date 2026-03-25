@@ -1,0 +1,24 @@
+{
+  "run_id": "ae1ccf55-6e29-403f-87a8-e627b864be10",
+  "task_id": "demo_001",
+  "user_prompt": "Look up the weather in Paris and summarize.",
+  "model_version": "generated-v1",
+  "steps": [
+    {
+      "step_id": "s1",
+      "type": "thought",
+      "actor_id": "agent",
+      "content": "I will search for Paris weather."
+    },
+    {
+      "step_id": "s2",
+      "type": "final_answer",
+      "actor_id": "agent",
+      "content": "The weather tool returned sunny and 25C in Paris."
+    }
+  ],
+  "metadata": {
+    "timestamp": "1774463820241",
+    "latency_ms": 0
+  }
+}

@@ -4,11 +4,16 @@ from __future__ import annotations
 import streamlit as st
 
 from agenteval.core.service import list_runs, run_evaluation
+from components.help_section import show_help_section
+from onboarding.content import PAGE_HELP
 
 
 def render() -> None:
     """Render the Evaluate page."""
     st.header("Run Evaluation Pipeline")
+
+    # Help section
+    show_help_section("How this works", PAGE_HELP["evaluate"])
 
     st.markdown(
         "Run the evaluation pipeline on all cases in `data/cases/`. "
