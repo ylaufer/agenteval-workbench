@@ -16,6 +16,8 @@ from agenteval.core.service import (
     load_trace,
 )
 from agenteval.dataset.validator import _get_repo_root
+from components.help_section import show_help_section
+from onboarding.content import PAGE_HELP
 
 # Color-coded badges for step types
 _TYPE_COLORS = {
@@ -56,6 +58,9 @@ def _render_step(step: dict) -> None:  # type: ignore[type-arg]
 def render() -> None:
     """Render the Inspect page."""
     st.header("Inspect Trace & Evaluation")
+
+    # Help section
+    show_help_section("How this works", PAGE_HELP["inspect"])
 
     tab_cases, tab_runs = st.tabs(["Cases", "Runs"])
 

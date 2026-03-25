@@ -7,6 +7,18 @@
 
 ---
 
+## Clarifications
+
+### Session 2026-03-24
+
+- Q: What should happen if demo flow fails at any stage (generate/validate/evaluate/report)? → A: Show error message and offer "Retry Demo" button (reuses same demo case ID)
+- Q: If the preferences.json file becomes corrupted or contains invalid JSON, how should the app handle this? → A: Show warning banner, reset to defaults, offer "Show Details" (transparent recovery with option to see error)
+- Q: The demo flow generates a case with ID "demo_001". What should happen if case_demo_001/ already exists from a previous demo run? → A: Overwrite existing demo case (always use case_demo_001, replace files if present)
+- Q: Must users complete the action on each tutorial step (e.g., actually generate a case) before proceeding to the next step? → A: Read-only walkthrough - User can click Next without executing, tutorial just explains each page
+- Q: What level of accessibility (keyboard navigation, screen readers, WCAG compliance) should the onboarding UI support? → A: Keyboard navigation for critical flows - Modal dismissal (Esc), tutorial navigation (arrows/Tab), help expansion (Enter/Space)
+
+---
+
 ## Problem Statement
 
 A new user currently has to understand failure taxonomies, rubric dimensions, trace schemas, and the full generate→validate→evaluate→report flow before getting any value. The learning curve is steep and documentation alone won't fix it.
@@ -40,6 +52,7 @@ Reduce time-to-first-value from "read 3 docs and figure it out" to "click one bu
 ### 3. Interactive Walkthrough Mode
 
 - Step-by-step guided tutorial using Streamlit's native components
+- Read-only walkthrough: users can navigate with "Next" button without executing actions
 - Highlights key UI elements at each step
 - Progress indicator showing where the user is in the workflow
 - "Skip tutorial" option that remembers preference
@@ -60,15 +73,17 @@ Reduce time-to-first-value from "read 3 docs and figure it out" to "click one bu
    - "Run Demo" button prominently displayed
 
 2. **Demo Flow**
-   - Click "Run Demo" → generates case_demo_001
+   - Click "Run Demo" → generates case_demo_001 (overwrites if exists)
    - Progress indicator shows: Generate → Validate → Evaluate → Report
    - Each step displays brief explanation of what's happening
    - Success screen with annotated report view
+   - **Error Handling**: If any stage fails, show error message with specific details and offer "Retry Demo" button (reuses same demo case ID)
 
 3. **Subsequent Launches**
    - Welcome dismissed (stored in user preferences)
    - Optional tutorial mode available via sidebar
    - Contextual help always accessible via info icons
+   - **Preference Recovery**: If preferences.json is corrupted, show warning banner at top of UI, reset to factory defaults, and offer "Show Details" button to view error
 
 ---
 
@@ -122,6 +137,18 @@ Reduce time-to-first-value from "read 3 docs and figure it out" to "click one bu
 - Demo flow end-to-end test
 - User preference persistence
 - Help content accessibility tests
+
+---
+
+## Accessibility Requirements
+
+- **Keyboard Navigation**: Support for critical flows
+  - Modal dismissal: Esc key closes welcome modal
+  - Tutorial navigation: Tab for focus, Enter/Space to activate buttons, arrow keys for step navigation
+  - Help expansion: Enter/Space to toggle collapsible help sections
+- **Focus Management**: Visible focus indicators on interactive elements
+- **Screen Reader**: Rely on Streamlit's built-in ARIA labels (no custom implementation required for MVP)
+- **WCAG Compliance**: Defer full WCAG 2.1 AA compliance to post-MVP phase
 
 ---
 

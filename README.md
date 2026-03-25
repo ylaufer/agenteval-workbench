@@ -117,6 +117,17 @@ streamlit run app/app.py
 
 Four pages covering the full workflow: **Generate** (create cases, validate dataset), **Evaluate** (run scoring pipeline), **Inspect** (browse traces with color-coded step types, view evaluation templates), and **Report** (aggregated summaries with dimension stats and failure distributions).
 
+### Guided Onboarding
+
+First-time users get a complete onboarding experience:
+
+- **Welcome Modal** — One-click demo that generates, validates, evaluates, and reports in <60 seconds
+- **Interactive Tutorial** — 6-step walkthrough with auto-navigation and progress tracking
+- **Contextual Help** — Expandable "How this works" sections on every page
+- **Quick Reference** — Always-accessible sidebar with failure taxonomy (12 categories) and rubric dimensions (6 dimensions)
+
+**Settings** (sidebar) — Toggle contextual help and tutorial mode. Preferences persist across sessions in `~/.agenteval/preferences.json`.
+
 ## The Rubric
 
 Six scoring dimensions on a 0-2 scale:

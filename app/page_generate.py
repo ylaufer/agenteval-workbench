@@ -5,6 +5,8 @@ import streamlit as st
 
 from agenteval.core.service import generate_case, validate_dataset
 from agenteval.dataset.generator import VALID_FAILURE_TYPES
+from components.help_section import show_help_section
+from onboarding.content import PAGE_HELP
 
 
 def _display_validation_issues(
@@ -46,6 +48,9 @@ def _display_validation_issues(
 def render() -> None:
     """Render the Generate & Validate page."""
     st.header("Generate & Validate Cases")
+
+    # Help section
+    show_help_section("How this works", PAGE_HELP["generate"])
 
     # --- Generate Case section ---
     st.subheader("Generate a Benchmark Case")
