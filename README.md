@@ -39,8 +39,15 @@ pip install -e ".[ui]"           # adds Streamlit UI
 
 ### 1a. Ingest traces (from external frameworks)
 
-Convert traces from OpenTelemetry, LangChain, CrewAI, OpenAI, or custom formats:
+Convert traces from OpenTelemetry, LangChain, CrewAI, OpenAI, or custom formats.
 
+**Via Streamlit UI** (recommended for interactive use):
+- Navigate to the **Ingest** page
+- Upload a JSON trace file
+- Format is auto-detected and conversion preview is shown
+- Save to a new case directory with one click
+
+**Via CLI** (for batch/scripted workflows):
 ```bash
 # Auto-detect format and convert
 agenteval-ingest otel_trace.json --output trace.json
@@ -115,7 +122,12 @@ Every evaluation creates a tracked run with timestamps, dataset snapshot, and co
 streamlit run app/app.py
 ```
 
-Four pages covering the full workflow: **Generate** (create cases, validate dataset), **Evaluate** (run scoring pipeline), **Inspect** (browse traces with color-coded step types, view evaluation templates), and **Report** (aggregated summaries with dimension stats and failure distributions).
+Five pages covering the full workflow:
+- **Generate** — Create benchmark cases, validate dataset
+- **Ingest** — Upload trace files from external frameworks (OTel, LangChain, CrewAI, OpenAI), auto-detect format, preview conversion, and save to case directory
+- **Evaluate** — Run scoring pipeline (manual templates or auto-scoring)
+- **Inspect** — Browse traces with color-coded step types, view evaluation templates
+- **Report** — Aggregated summaries with dimension stats and failure distributions
 
 ### Guided Onboarding
 
