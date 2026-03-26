@@ -55,6 +55,7 @@ if should_show_welcome_modal():
 
 PAGES = {
     "Generate": "page_generate",
+    "Ingest": "page_ingest",
     "Evaluate": "page_evaluate",
     "Inspect": "page_inspect",
     "Report": "page_report",
@@ -194,6 +195,8 @@ if st.session_state.get("tutorial_active"):
 
 if selection == "Generate":
     from page_generate import render
+elif selection == "Ingest":
+    from page_ingest import render
 elif selection == "Evaluate":
     from page_evaluate import render
 elif selection == "Inspect":
