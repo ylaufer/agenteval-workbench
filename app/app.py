@@ -7,6 +7,7 @@ st.set_page_config(page_title="AgentEval Workbench", layout="wide")
 
 PAGES = {
     "Generate": "page_generate",
+    "Ingest": "page_ingest",
     "Evaluate": "page_evaluate",
     "Inspect": "page_inspect",
     "Report": "page_report",
@@ -17,6 +18,8 @@ selection = st.sidebar.radio("Navigation", list(PAGES.keys()))
 
 if selection == "Generate":
     from page_generate import render
+elif selection == "Ingest":
+    from page_ingest import render
 elif selection == "Evaluate":
     from page_evaluate import render
 elif selection == "Inspect":
