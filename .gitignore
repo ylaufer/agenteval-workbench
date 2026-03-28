@@ -13,5 +13,5 @@ __pycache__/
 .DS_Store
 .coverage
 .pytest_cache/
-regression_tests/
+e2e/
 .mcp.json
