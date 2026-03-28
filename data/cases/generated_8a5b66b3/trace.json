@@ -1,0 +1,41 @@
+{
+  "run_id": "97c4d4c3-e383-4e70-a854-50ae02a58d0e",
+  "task_id": "generated_8a5b66b3",
+  "user_prompt": "Demonstrate a generic agent interaction.",
+  "model_version": "generated-v1",
+  "steps": [
+    {
+      "step_id": "s1",
+      "type": "thought",
+      "actor_id": "agent",
+      "content": "Thinking about the task."
+    },
+    {
+      "step_id": "s2",
+      "type": "tool_call",
+      "actor_id": "agent",
+      "content": "Calling search tool",
+      "tool_name": "search",
+      "tool_input": {
+        "query": "test"
+      }
+    },
+    {
+      "step_id": "s3",
+      "type": "observation",
+      "actor_id": "tool",
+      "content": "Search returned results.",
+      "tool_output": "result data"
+    },
+    {
+      "step_id": "s4",
+      "type": "final_answer",
+      "actor_id": "agent",
+      "content": "Here is the answer."
+    }
+  ],
+  "metadata": {
+    "timestamp": "1774468887489",
+    "latency_ms": 0
+  }
+}

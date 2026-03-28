@@ -89,7 +89,7 @@ Establish a reproducible, schema-driven evaluation pipeline.
 
 ### Testing (COMPLETED)
 
-- Full pytest suite (245 tests across 14 modules)
+- Full pytest suite (347 tests across 14 modules)
 - Spec-aligned tests
 - Dataset contract enforcement
 
@@ -133,7 +133,7 @@ Make AgentEval useful with real agent traces from real frameworks. No one will a
 
 ---
 
-## 2.1 Trace Ingestion Adapters (HIGH PRIORITY)
+## 2.1 Trace Ingestion Adapters (COMPLETED)
 
 ### Problem
 
@@ -217,9 +217,11 @@ agenteval-ingest trace.json --adapter generic --mapping my_mapping.yaml --dry-ru
 
 Teams can evaluate real agent runs within minutes of installing AgentEval, without writing any conversion code.
 
+> **Status**: Completed in Feature 005. All 5 adapters implemented and tested. CLI (`agenteval-ingest`) and bulk mode available.
+
 ---
 
-## 2.2 Guided Onboarding (HIGH PRIORITY)
+## 2.2 Guided Onboarding (COMPLETED)
 
 ### Problem
 
@@ -262,9 +264,11 @@ A new user currently has to understand failure taxonomies, rubric dimensions, tr
 
 Time-to-first-value drops from "read 3 docs and figure it out" to "click one button, see results in 60 seconds."
 
+> **Status**: Completed in Feature 006. Welcome modal, one-click demo, interactive tutorial, contextual help, quick reference sidebar, and persistent preferences all implemented.
+
 ---
 
-## 2.3 Selective Evaluation
+## 2.3 Selective Evaluation (COMPLETED)
 
 ### Problem
 
@@ -293,6 +297,8 @@ agenteval-auto-score --filter-tag "has_tool_calls"
 ### Outcome
 
 Evaluation becomes a surgical tool, not a blunt instrument.
+
+> **Status**: Completed in Feature 007. All CLI flags implemented, UI filter controls + case checkboxes on Evaluate page, single-case scoring on Inspect page, filter_criteria recorded in run.json.
 
 ---
 
@@ -460,7 +466,7 @@ The UI feels like a product, not a prototype.
 
 ---
 
-## 2.8 Ingestion UI
+## 2.8 Ingestion UI (MVP COMPLETED)
 
 ### Problem
 
@@ -510,6 +516,8 @@ src/agenteval/core/service.py          — ingest_trace() / ingest_bulk() additi
 ### Outcome
 
 Any team member can ingest a real trace into AgentEval without touching the CLI.
+
+> **Status**: MVP completed in Feature 012. Single-file upload, auto-detect, conversion preview, and save to case directory implemented. Manual adapter override (US2) and bulk ZIP upload (US3) deferred to a future iteration.
 
 ---
 
@@ -969,7 +977,15 @@ AgentEval becomes a scalable, community-driven framework with a real storage lay
 ```
 Phase 1 → Foundations (COMPLETED)
   ↓
-Phase 2 → Real-World Adoption (NEXT)
+Phase 2 → Real-World Adoption (IN PROGRESS)
+  2.1 Trace Ingestion Adapters      COMPLETED
+  2.2 Guided Onboarding             COMPLETED
+  2.3 Selective Evaluation          COMPLETED
+  2.4 Run Comparison                NEXT
+  2.5 Trace Annotation & Review UI  pending
+  2.6 Custom Rubric Builder         pending
+  2.7 UI Polish                     pending
+  2.8 Ingestion UI                  MVP COMPLETED (US2/US3 deferred)
   ↓
 Phase 3 → Integration & Intelligence
   ↓
@@ -980,13 +996,13 @@ Phase 4 → Scale & Community
 
 # Strategic Priorities
 
-## Immediate Next 3 (Phase 2)
+## Immediate Next (Phase 2 — remaining)
 
-1. **Trace Ingestion Adapters** — without this, adoption is blocked. Nobody will manually convert traces.
-2. **Guided Onboarding** — without this, new users bounce. The learning curve is too steep.
-3. **Selective Evaluation + Run Comparison** — without this, iterative workflows are painful.
+1. **Run Comparison** — without this, teams can't answer "did our change help?" Evaluation runs exist in isolation.
+2. **Trace Annotation & Review UI** — connects evaluation results to trace steps; makes review a coherent workflow.
+3. **Custom Rubric Builder** — unblocks teams with domain-specific evaluation criteria.
 
-These three moves transform AgentEval from "interesting project" to "tool I actually use."
+Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), and 2.8 (Ingestion UI MVP) are complete.
 
 ## Phase 3 Priorities
 

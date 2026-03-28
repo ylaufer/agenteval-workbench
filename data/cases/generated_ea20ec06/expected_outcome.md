@@ -1,0 +1,9 @@
+---
+Case ID: generated_ea20ec06
+Primary Failure: None
+Secondary Failures:
+Severity: Low
+case_version: 1.0
+---
+
+Generated case for generic scenario.
