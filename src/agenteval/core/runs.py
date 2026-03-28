@@ -102,6 +102,7 @@ def complete_run(run_id: str, num_cases: int) -> RunRecord:
         num_cases=num_cases,
         completed_at=now,
         error=None,
+        filter_criteria=existing.filter_criteria,
     )
     _write_run_json(updated)
     return updated
@@ -126,6 +127,7 @@ def fail_run(run_id: str, error: str, num_cases: int = 0) -> RunRecord:
         num_cases=num_cases,
         completed_at=None,
         error=error,
+        filter_criteria=existing.filter_criteria,
     )
     _write_run_json(updated)
     return updated

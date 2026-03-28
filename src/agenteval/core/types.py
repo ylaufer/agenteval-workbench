@@ -25,6 +25,7 @@ class RunRecord:
     num_cases: int = 0
     completed_at: str | None = None
     error: str | None = None
+    filter_criteria: dict[str, Any] | None = field(default=None)
 
 
 @dataclass(frozen=True)

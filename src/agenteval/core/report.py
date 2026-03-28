@@ -588,10 +588,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     _write_json(output_json_path, json_report)
     _write_markdown(output_md_path, json_report)
 
-    print(
-        f"Wrote aggregated reports to {output_json_path} and {output_md_path}.",
-        flush=True,
-    )
+    print(f"Wrote aggregated reports to {output_json_path} and {output_md_path}.")
     return 0
 
 

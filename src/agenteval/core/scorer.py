@@ -126,8 +126,12 @@ def score_dataset(
     output_dir: Path,
     rubric_path: Path | None = None,
     registry: EvaluatorRegistry | None = None,
+    case_filter: list[Path] | None = None,
 ) -> list[dict[str, Any]]:
-    """Score all cases in a dataset directory.
+    """Score cases in a dataset directory.
+
+    When case_filter is provided, only those case directories are scored.
+    When None, all case directories under dataset_dir are scored (existing behavior).
 
     Writes {case_id}.auto_evaluation.json to output_dir for each case.
     Returns list of AutoEvaluation dicts.
@@ -144,10 +148,13 @@ def score_dataset(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     results: list[dict[str, Any]] = []
-    case_dirs = sorted(
-        (entry for entry in dataset_dir.iterdir() if entry.is_dir()),
-        key=lambda p: p.name,
-    )
+    if case_filter is not None:
+        case_dirs = sorted(case_filter, key=lambda p: p.name)
+    else:
+        case_dirs = sorted(
+            (entry for entry in dataset_dir.iterdir() if entry.is_dir()),
+            key=lambda p: p.name,
+        )
 
     for case_dir in case_dirs:
         trace_path = case_dir / "trace.json"
@@ -193,6 +200,38 @@ def main(argv: list[str] | None = None) -> int:
         help="Scoring strategy filter (default: rule)",
     )
 
+    parser.add_argument(
+        "--cases",
+        type=str,
+        default=None,
+        help="Comma-separated case IDs to score (e.g., case_001,case_003). "
+        "Overrides all --filter-* arguments when specified.",
+    )
+    parser.add_argument(
+        "--filter-failure",
+        type=str,
+        default=None,
+        help="Filter cases by primary_failure value (case-insensitive match).",
+    )
+    parser.add_argument(
+        "--filter-severity",
+        type=str,
+        default=None,
+        help="Comma-separated severity levels to include (e.g., Critical,High).",
+    )
+    parser.add_argument(
+        "--filter-tag",
+        type=str,
+        default=None,
+        help="Comma-separated tags; case must have ALL listed tags.",
+    )
+    parser.add_argument(
+        "--filter-pattern",
+        type=str,
+        default=None,
+        help="Glob pattern matched against case directory name (e.g., case_0*).",
+    )
+
     args = parser.parse_args(argv)
     repo_root = _get_repo_root()
 
@@ -211,11 +250,66 @@ def main(argv: list[str] | None = None) -> int:
 
     registry = default_registry()
 
+    # Build case_filter from filter args
+    from agenteval.core.filtering import filter_cases
+
+    all_case_dirs = sorted(
+        (entry for entry in dataset_dir.iterdir() if entry.is_dir()),
+        key=lambda p: p.name,
+    )
+
+    case_ids: list[str] | None = None
+    if args.cases:
+        requested = [c.strip() for c in args.cases.split(",") if c.strip()]
+        # Warn about unknown IDs, continue with valid ones
+        known = {d.name for d in all_case_dirs}
+        valid: list[str] = []
+        for cid in requested:
+            if cid in known:
+                valid.append(cid)
+            else:
+                print(
+                    f"Warning: case '{cid}' not found in {dataset_dir}, skipping.", file=sys.stderr
+                )
+        case_ids = valid if valid else []
+
+    severity_list: list[str] | None = (
+        [s.strip() for s in args.filter_severity.split(",") if s.strip()]
+        if args.filter_severity
+        else None
+    )
+    tag_list: list[str] | None = (
+        [t.strip() for t in args.filter_tag.split(",") if t.strip()] if args.filter_tag else None
+    )
+
+    any_filter = (
+        case_ids is not None
+        or args.filter_failure is not None
+        or severity_list is not None
+        or tag_list is not None
+        or args.filter_pattern is not None
+    )
+
+    case_filter: list[Path] | None = None
+    if any_filter:
+        case_filter = filter_cases(
+            case_dirs=all_case_dirs,
+            case_ids=case_ids,
+            failure_type=args.filter_failure,
+            severity=severity_list,
+            tags=tag_list,
+            pattern=args.filter_pattern,
+        )
+        if not case_filter:
+            print("No cases matched the specified filter.")
+            return 0
+
     results = score_dataset(
         dataset_dir=dataset_dir,
         output_dir=output_dir,
         rubric_path=rubric_path,
         registry=registry,
+        case_filter=case_filter,
     )
 
     if not results:

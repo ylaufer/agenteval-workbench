@@ -123,13 +123,14 @@ def _tag_format_violation(steps: Sequence[Step]) -> bool:
 
 def tag_trace(trace: Trace) -> tuple[str, ...]:
     """
-    Analyze a trace and return applicable failure tags.
+    Analyze a trace and return applicable failure and structural tags.
 
     Args:
         trace: The evaluation trace to analyze.
 
     Returns:
-        Tuple of applicable failure tag constants from FailureTag.
+        Tuple of applicable tag strings: failure-pattern tags from FailureTag
+        followed by structural tags (has_tool_calls, multi_step, has_final_answer).
     """
     steps = trace["steps"]
     tags: list[str] = []
@@ -145,5 +146,13 @@ def tag_trace(trace: Trace) -> tuple[str, ...]:
 
     if _tag_format_violation(steps):
         tags.append(FailureTag.FORMAT_VIOLATION)
+
+    # Structural tags — derived from step composition, not failure patterns
+    if any(s["type"] == "tool_call" for s in steps):
+        tags.append("has_tool_calls")
+    if len(steps) > 3:
+        tags.append("multi_step")
+    if any(s["type"] == "final_answer" for s in steps):
+        tags.append("has_final_answer")
 
     return tuple(tags)

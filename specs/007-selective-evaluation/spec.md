@@ -7,6 +7,18 @@
 
 ---
 
+## Clarifications
+
+### Session 2026-03-28
+
+- Q: Where do auto-detected tags come from — live derivation, pre-computed sidecar, or deferred? → A: Derive tags live from `trace.json` at filter time (no tag store, no pre-indexing).
+- Q: During batch evaluation, if one case fails, what happens to the rest? → A: Continue on failure — process all cases, collect per-case errors, surface a summary at the end.
+- Q: When "Evaluate This Case" / "Evaluate Selected" is triggered in the UI, which pipeline runs? → A: Auto-score only (`agenteval-auto-score`). Filter params added to `agenteval-eval-runner` is out of scope. UI should make clear that auto-scoring is being targeted; contextual explanation deferred to guided onboarding (feature 006 follow-up).
+- Q: When multiple filter criteria are applied simultaneously, should cases match all or any? → A: AND logic — case must satisfy all specified criteria (intersection).
+- Q: Should case_id pattern filtering use glob or regex syntax? → A: Glob only (e.g., `case_0*`, `case_01?`). No regex support.
+
+---
+
 ## Problem Statement
 
 Evaluating the entire dataset on every run is wasteful during iterative development. Teams need to focus on specific cases — by failure type, severity, tag, or manual selection.
@@ -36,8 +48,8 @@ Transform evaluation from a blunt instrument into a surgical tool. Enable fast, 
 - Filter cases before evaluation:
   - by failure type (primary or secondary)
   - by severity level (Critical, High, Medium, Low)
-  - by auto-detected tags (e.g., `has_tool_calls`, `multi_step`)
-  - by case_id pattern (glob or regex)
+  - by auto-detected tags (e.g., `has_tool_calls`, `multi_step`) — derived live by inspecting `trace.json` at filter time; no sidecar or pre-indexing
+  - by case_id pattern (glob syntax only, e.g., `case_0*`, `case_01?`)
 - Apply filter → "Evaluate Filtered Cases" button
 
 ### 4. CLI Support
@@ -55,8 +67,8 @@ agenteval-auto-score --filter-severity Critical,High
 # By tag
 agenteval-auto-score --filter-tag "has_tool_calls"
 
-# Case ID pattern
-agenteval-auto-score --filter-pattern "case_0*"
+# Case ID glob pattern
+agenteval-auto-score --filter-pattern "case_0*"  # glob syntax only
 ```
 
 ### 5. Run Metadata
@@ -104,15 +116,23 @@ def filter_cases(
     tags: list[str] | None = None,
     pattern: str | None = None,
 ) -> list[str]:
-    """Filter case list by multiple criteria."""
+    """Filter case list by multiple criteria.
+
+    All criteria are combined with AND logic — a case must satisfy every
+    specified criterion to be included (intersection, not union).
+    Tags are derived live from trace.json at call time (no pre-indexing).
+    Supported tag derivation: has_tool_calls (any tool_call step present),
+    multi_step (step count > threshold), has_final_answer, etc.
+    """
     ...
 ```
 
 ### CLI Updates
 
-- Add filtering parameters to `agenteval-auto-score`
-- Add filtering parameters to `agenteval-eval-runner`
+- Add filtering parameters to `agenteval-auto-score` only
+- `agenteval-eval-runner` filtering is out of scope for this feature
 - Store filter metadata in run configuration
+- UI evaluate actions ("Evaluate This Case", "Evaluate Selected", "Evaluate Filtered") all target the auto-scoring pipeline; label wording must make this clear to the user
 
 ### Service Layer Updates
 
@@ -147,6 +167,15 @@ def run_selective_evaluation(
 - Existing case metadata (failure type, severity from `expected_outcome.md`)
 - Run tracking system (003-run-tracking)
 - Service layer (`src/agenteval/core/service.py`)
+
+---
+
+## Edge Cases & Error Handling
+
+- **Zero-match filter**: If filter criteria match no cases, display a clear empty-state message ("No cases match the current filter") and disable the evaluate button. CLI exits with a non-zero code and a descriptive message.
+- **Nonexistent case_ids** (CLI `--cases`): Skip unrecognized IDs, log a warning per skipped ID, continue with valid IDs.
+- **Mid-batch failure**: Continue processing remaining cases. Collect per-case errors. Surface a summary at completion: "N evaluated, M failed" with per-case error details. Consistent with existing `EvaluatorRegistry` per-dimension error isolation.
+- **All cases fail**: Return an error summary; do not write a partial report as if it were complete.
 
 ---
 

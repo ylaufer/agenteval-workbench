@@ -90,14 +90,21 @@ Checks structure, schema compliance, security constraints (no secrets, no extern
 # Generate evaluation templates (rubric-based)
 agenteval-eval-runner --dataset-dir data/cases --output-dir reports
 
-# Auto-score with rule-based evaluators
+# Auto-score all cases with rule-based evaluators
 agenteval-auto-score --dataset-dir data/cases --output-dir reports
 
 # Auto-score with LLM-as-judge (optional — set ANTHROPIC_API_KEY or OPENAI_API_KEY)
 ANTHROPIC_API_KEY=sk-... agenteval-auto-score --dataset-dir data/cases --output-dir reports
+
+# Selective auto-scoring — score a subset of cases
+agenteval-auto-score --cases case_001,case_003
+agenteval-auto-score --filter-failure "Tool Hallucination"
+agenteval-auto-score --filter-severity Critical,High
+agenteval-auto-score --filter-tag "has_tool_calls"
+agenteval-auto-score --filter-pattern "case_0*"
 ```
 
-Auto-scoring uses pluggable evaluators: `ToolUseEvaluator` checks for incomplete executions, hallucinated outputs, and duplicate calls. `SecurityEvaluator` detects leaked secrets and risky patterns. LLM evaluators handle subjective dimensions like accuracy and reasoning quality.
+Auto-scoring uses pluggable evaluators: `ToolUseEvaluator` checks for incomplete executions, hallucinated outputs, and duplicate calls. `SecurityEvaluator` detects leaked secrets and risky patterns. LLM evaluators handle subjective dimensions like accuracy and reasoning quality. All filter criteria are ANDed together and recorded in `run.json` for reproducibility.
 
 ### 4. Generate reports
 
@@ -125,8 +132,8 @@ streamlit run app/app.py
 Five pages covering the full workflow:
 - **Generate** — Create benchmark cases, validate dataset
 - **Ingest** — Upload trace files from external frameworks (OTel, LangChain, CrewAI, OpenAI), auto-detect format, preview conversion, and save to case directory
-- **Evaluate** — Run scoring pipeline (manual templates or auto-scoring)
-- **Inspect** — Browse traces with color-coded step types, view evaluation templates
+- **Evaluate** — Run full or selective auto-scoring; filter cases by failure type, severity, tags, or glob pattern; check individual cases or evaluate all filtered; run history shows filter criteria
+- **Inspect** — Browse traces with color-coded step types, view evaluation templates; score a single case inline with one click
 - **Report** — Aggregated summaries with dimension stats and failure distributions
 
 ### Guided Onboarding
@@ -180,6 +187,7 @@ src/agenteval/
     evaluators/     pluggable evaluator framework (Protocol-based)
     runner.py       evaluation template generation
     scorer.py       auto-scoring orchestrator
+    filtering.py    case filtering (failure type, severity, tags, glob pattern)
     report.py       aggregated reporting
     service.py      UI orchestration layer
     runs.py         run tracking
@@ -204,7 +212,7 @@ ruff format --check src/
 # Type checking
 mypy src/
 
-# Tests (245 tests across 14 modules)
+# Tests (347 tests across 14 modules)
 pytest tests/ -v
 
 # Pre-commit hooks
@@ -217,9 +225,9 @@ CI runs `agenteval-validate-dataset` on every push and PR. Failures block merge.
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full roadmap. The short version:
 
-**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 245 tests.
+**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 347 tests.
 
-**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI), guided onboarding, selective evaluation, run comparison, trace annotation UI, custom rubric builder.
+**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI) ✓, guided onboarding ✓, selective evaluation ✓, run comparison, trace annotation UI, custom rubric builder.
 
 **Phase 3** — CI/CD integration (GitHub Action), export hooks (Slack, webhooks), confidence calibration, experiment tracking, regression detection, auto test generation from failures.
 

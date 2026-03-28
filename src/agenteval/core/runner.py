@@ -295,10 +295,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         _write_markdown_template(md_out, template, rubric)
         num_cases += 1
 
-    print(
-        f"Generated evaluation templates for {num_cases} case(s) in {output_dir}.",
-        flush=True,
-    )
+    print(f"Generated evaluation templates for {num_cases} case(s) in {output_dir}.")
     return 0
 
 

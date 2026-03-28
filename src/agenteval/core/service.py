@@ -326,17 +326,23 @@ def run_evaluation(
         str(effective_output),
     ]
 
+    import io
+    import sys
+
+    _stdout, sys.stdout = sys.stdout, io.StringIO()
     try:
         exit_code = runner_main(argv)
-        if exit_code != 0:
-            fail_run(record.run_id, f"Runner exited with code {exit_code}")
-            msg = f"Evaluation runner failed with exit code {exit_code}"
-            raise RuntimeError(msg)
-    except RuntimeError:
-        raise
     except Exception as exc:
+        sys.stdout = _stdout
         fail_run(record.run_id, str(exc))
-        raise
+        raise RuntimeError(str(exc)) from exc
+    finally:
+        sys.stdout = _stdout
+
+    if exit_code != 0:
+        fail_run(record.run_id, f"Runner exited with code {exit_code}")
+        msg = f"Evaluation runner failed with exit code {exit_code}"
+        raise RuntimeError(msg)
 
     # Count evaluation files produced
     results = _get_run_results(record.run_id) if output_dir is None else []
@@ -519,3 +525,120 @@ def run_auto_scoring(
 
     complete_run(record.run_id, num_cases=len(results))
     return results
+
+
+# ---------------------------------------------------------------------------
+# Selective evaluation
+# ---------------------------------------------------------------------------
+
+
+def run_selective_evaluation(
+    case_ids: list[str],
+    dataset_dir: Path | None = None,
+    output_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Run auto-scoring on a specific subset of cases with run tracking.
+
+    Resolves case directories from case_ids within dataset_dir. Unknown case IDs
+    are logged as warnings and skipped (continue-on-failure). Creates a tracked
+    run, scores the resolved subset, and records filter_criteria in run metadata.
+
+    Returns:
+        dict with keys:
+        - ``results``: list of AutoEvaluation dicts (one per successfully scored case)
+        - ``errors``: dict mapping case_id -> error message for failed cases
+        - ``run_id``: the tracked run ID
+        - ``skipped``: list of case_ids not found in dataset_dir
+    """
+    import sys
+
+    from agenteval.core.runs import (
+        complete_run,
+        create_run,
+        fail_run,
+        get_run_dir as _get_run_dir,
+    )
+    from agenteval.core.scorer import score_dataset
+
+    repo_root = _get_repo_root()
+    if dataset_dir is None:
+        dataset_dir = repo_root / "data" / "cases"
+
+    rubric_path = repo_root / "rubrics" / "v1_agent_general.json"
+
+    # Resolve case directories — warn and skip unknown IDs
+    skipped: list[str] = []
+    resolved_dirs: list[Path] = []
+    for cid in case_ids:
+        case_dir = dataset_dir / cid
+        if not case_dir.exists():
+            print(f"Warning: case '{cid}' not found in {dataset_dir}, skipping.", file=sys.stderr)
+            skipped.append(cid)
+        else:
+            resolved_dirs.append(case_dir)
+
+    # Create tracked run
+    record = create_run(dataset_dir=dataset_dir, rubric_path=rubric_path)
+    run_dir = _get_run_dir(record.run_id)
+
+    # Record filter_criteria in run.json via extra metadata field
+    _write_filter_criteria(record.run_id, {"case_ids": case_ids})
+
+    effective_output = output_dir if output_dir is not None else run_dir
+
+    errors: dict[str, str] = {}
+    results: list[dict[str, Any]] = []
+
+    if not resolved_dirs:
+        complete_run(record.run_id, num_cases=0)
+        return {"results": results, "errors": errors, "run_id": record.run_id, "skipped": skipped}
+
+    try:
+        results = score_dataset(
+            dataset_dir=dataset_dir,
+            output_dir=effective_output,
+            rubric_path=rubric_path,
+            case_filter=resolved_dirs,
+        )
+    except Exception as exc:
+        fail_run(record.run_id, str(exc))
+        raise
+
+    complete_run(record.run_id, num_cases=len(results))
+    return {"results": results, "errors": errors, "run_id": record.run_id, "skipped": skipped}
+
+
+def _write_filter_criteria(run_id: str, filter_criteria: dict[str, Any]) -> None:
+    """Append filter_criteria to an existing run.json file."""
+    from agenteval.core.runs import get_run_dir
+
+    run_json_path = get_run_dir(run_id) / "run.json"
+    if not run_json_path.exists():
+        return
+    try:
+        data = json.loads(run_json_path.read_text(encoding="utf-8"))
+        data["filter_criteria"] = filter_criteria
+        run_json_path.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+    except Exception:  # noqa: BLE001
+        pass  # Best-effort; don't fail the run over metadata
+
+
+def get_dataset_tags(dataset_dir: Path | None = None) -> set[str]:
+    """Return the union of all tags across the dataset. Used by UI for tag dropdown.
+
+    Delegates to filtering.get_dataset_tags(). Scans trace.json for each case
+    and returns all failure + structural tags found in the dataset.
+    """
+    from agenteval.core.filtering import get_dataset_tags as _get_dataset_tags
+
+    repo_root = _get_repo_root()
+    if dataset_dir is None:
+        dataset_dir = repo_root / "data" / "cases"
+
+    if not dataset_dir.exists():
+        return set()
+
+    case_dirs = [d for d in dataset_dir.iterdir() if d.is_dir()]
+    return _get_dataset_tags(case_dirs)

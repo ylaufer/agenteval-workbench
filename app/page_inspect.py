@@ -14,6 +14,7 @@ from agenteval.core.service import (
     load_case_metadata,
     load_evaluation_template,
     load_trace,
+    run_selective_evaluation,
 )
 from agenteval.dataset.validator import _get_repo_root
 from components.help_section import show_help_section
@@ -119,6 +120,46 @@ def _render_cases_tab() -> None:
                     _render_step(step)
     except (json.JSONDecodeError, Exception) as exc:
         st.error(f"Failed to parse trace: {exc}")
+
+    # --- Auto-Scoring ---
+    st.subheader("Auto-Scoring")
+    st.session_state.setdefault(f"eval_result_{selected}", None)
+
+    if st.button("Run Auto-Scoring on this case", key=f"btn_eval_{selected}",
+                 icon=":material/play_arrow:"):
+        with st.spinner("Running auto-scoring..."):
+            try:
+                eval_result = run_selective_evaluation([selected])
+                st.session_state[f"eval_result_{selected}"] = eval_result
+            except Exception as exc:
+                st.session_state[f"eval_result_{selected}"] = {"error": str(exc)}
+
+    result = st.session_state.get(f"eval_result_{selected}")
+    if result is not None:
+        if "error" in result:
+            st.error(f"Scoring failed: {result['error']}")
+        else:
+            skipped = result.get("skipped", [])
+            results = result.get("results", [])
+            if skipped:
+                st.warning(f"Case not found: {', '.join(skipped)}")
+            elif not results:
+                st.warning("No results returned.")
+            else:
+                st.success("Auto-scoring complete.")
+                dims = results[0].get("dimensions", {})
+                rows = [
+                    {
+                        "Dimension": k,
+                        "Score": v.get("score") if isinstance(v, dict) else None,
+                        "Notes": v.get("notes", "") if isinstance(v, dict) else "",
+                    }
+                    for k, v in dims.items()
+                ]
+                st.dataframe(rows, hide_index=True, use_container_width=True)
+                auto_tags = results[0].get("auto_tags", [])
+                if auto_tags:
+                    st.markdown(f"**Auto Tags**: {', '.join(f'`{t}`' for t in auto_tags)}")
 
     # --- Evaluation Template ---
     st.subheader("Evaluation Template")
