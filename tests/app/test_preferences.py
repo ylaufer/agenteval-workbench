@@ -38,12 +38,13 @@ def test_get_preferences_path():
     assert ".agenteval" in str(path)
 
 
-def test_load_preferences_no_file():
+def test_load_preferences_no_file(tmp_path, monkeypatch):
     """Test loading when no preferences file exists."""
-    # Mock non-existent path
+    pref_file = tmp_path / "preferences.json"  # does not exist
+    monkeypatch.setattr("utils.preferences.get_preferences_path", lambda: pref_file)
+
     prefs = load_preferences()
-    
-    # Should return defaults
+
     assert prefs == get_default_preferences()
 
 

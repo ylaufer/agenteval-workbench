@@ -13,4 +13,5 @@ This package provides:
 - Inter-reviewer calibration and agreement metrics
 """
 
-__all__ = ["calibration", "loader", "report", "runner", "runs", "service", "tagger", "types"]
+__all__ = ["calibration", "loader", "report",
+           "runner", "runs", "service", "tagger", "types"]
