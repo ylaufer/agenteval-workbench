@@ -9,13 +9,19 @@ from .models import ConformanceResult
 
 
 def write_json_report(result: ConformanceResult, path: str | Path) -> None:
-    Path(path).write_text(json.dumps({
-        "trace_id": result.trace_id,
-        "journey": result.journey,
-        "passed": result.passed,
-        "failures": result.failures,
-        "metrics": result.metrics,
-    }, indent=2), encoding="utf-8")
+    Path(path).write_text(
+        json.dumps(
+            {
+                "trace_id": result.trace_id,
+                "journey": result.journey,
+                "passed": result.passed,
+                "failures": result.failures,
+                "metrics": result.metrics,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
 
 def write_markdown_report(result: ConformanceResult, path: str | Path) -> None:
@@ -41,7 +47,9 @@ def write_markdown_report(result: ConformanceResult, path: str | Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Write a telemetry conformance report.")
-    parser.add_argument("--result-json", required=True, help="Path to a conformance result JSON file")
+    parser.add_argument(
+        "--result-json", required=True, help="Path to a conformance result JSON file"
+    )
     parser.add_argument("--output-dir", required=True, help="Directory to write report files into")
     args = parser.parse_args()
 

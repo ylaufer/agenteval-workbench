@@ -38,9 +38,7 @@ def evaluate_conformance(trace: TraceEnvelope, invariant_config: dict) -> Confor
             prev_name, prev_pos = order_positions[i - 1]
             curr_name, curr_pos = order_positions[i]
             if curr_pos < prev_pos:
-                failures.append(
-                    f"span order violated: '{prev_name}' must precede '{curr_name}'"
-                )
+                failures.append(f"span order violated: '{prev_name}' must precede '{curr_name}'")
 
     # Occurrence bounds
     span_counts: dict[str, int] = {}
@@ -60,7 +58,9 @@ def evaluate_conformance(trace: TraceEnvelope, invariant_config: dict) -> Confor
             )
 
     max_total_duration_ms = spec.get("max_total_duration_ms")
-    total_duration = max((s.end_ms for s in trace.spans), default=0) - min((s.start_ms for s in trace.spans), default=0)
+    total_duration = max((s.end_ms for s in trace.spans), default=0) - min(
+        (s.start_ms for s in trace.spans), default=0
+    )
     if max_total_duration_ms is not None and total_duration > max_total_duration_ms:
         failures.append("trace exceeds max total duration")
 

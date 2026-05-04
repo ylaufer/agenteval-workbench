@@ -51,6 +51,7 @@ agenteval-inspect-run = "agenteval.core.runs:main_inspect"
 agenteval-ingest = "agenteval.ingestion.cli:main"
 agenteval-telemetry-validate = "agenteval.telemetry.validators:main"
 agenteval-telemetry-report = "agenteval.telemetry.reporters:main"
+agenteval-compare = "agenteval.core.comparison:main"
 
 [tool.ruff]
 line-length = 100
