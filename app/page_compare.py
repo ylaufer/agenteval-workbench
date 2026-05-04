@@ -6,6 +6,7 @@ from typing import Any
 
 import streamlit as st
 
+from agenteval.core.runs import get_run_results
 from agenteval.core.service import compare_runs, list_runs
 from components.help_section import show_help_section
 
@@ -16,17 +17,22 @@ from components.help_section import show_help_section
 
 
 def _load_run_options() -> list[dict[str, Any]]:
-    """Return runs list, cached in session state."""
-    if "compare_run_options" not in st.session_state:
-        st.session_state.compare_run_options = list_runs()
-    return st.session_state.compare_run_options  # type: ignore[return-value]
+    """Return all completed runs, always fresh."""
+    return [r for r in list_runs() if r.get("status") == "completed"]
 
 
 def _run_label(run: dict[str, Any]) -> str:
     run_id = run.get("run_id", "")
-    status = run.get("status", "")
-    num_cases = run.get("num_cases", "?")
-    return f"{run_id}  [{status}, {num_cases} cases]"
+    num_cases = run.get("num_cases") or "?"
+    results = get_run_results(run_id)
+    scored = sum(
+        1
+        for rec in results
+        for dim in rec.get("dimensions", {}).values()
+        if dim.get("score") is not None
+    )
+    tag = f"{scored} scored dims" if scored else "no scores"
+    return f"{run_id}  [{num_cases} cases · {tag}]"
 
 
 def _do_compare(run_a_id: str, run_b_id: str) -> None:
@@ -157,7 +163,7 @@ def render() -> None:
 
     runs = _load_run_options()
     if len(runs) < 2:
-        st.info("Need at least two completed runs to compare. Run evaluations first on the Evaluate page.")
+        st.info("Need at least two completed runs to compare. Go to the **Evaluate** page and run auto-scoring.")
         return
 
     run_ids = [r["run_id"] for r in runs]
@@ -188,14 +194,15 @@ def render() -> None:
 
     same_run = run_a_id == run_b_id
 
-    st.button(
+    clicked = st.button(
         "Compare",
         type="primary",
         disabled=same_run,
-        on_click=_do_compare,
-        args=(run_a_id, run_b_id),
         help="Select two different runs to compare" if same_run else None,
     )
+    if clicked:
+        with st.spinner("Comparing…"):
+            _do_compare(run_a_id, run_b_id)
 
     if same_run:
         st.caption("Select two different runs to enable comparison.")

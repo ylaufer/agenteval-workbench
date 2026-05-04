@@ -167,24 +167,33 @@ def list_runs() -> list[RunRecord]:
 
 
 def get_run_results(run_id: str) -> list[dict[str, Any]]:
-    """Load all per-case evaluation templates from a run.
+    """Load all per-case evaluation results from a run.
 
-    Returns list of evaluation template dicts sorted by case_id.
-    Returns empty list if run directory doesn't exist.
+    Prefers *.auto_evaluation.json (from auto-scoring) over *.evaluation.json
+    (runner templates) when both exist for the same case. Returns list sorted
+    by case_id. Returns empty list if run directory doesn't exist.
     """
     run_dir = get_run_dir(run_id)
     if not run_dir.exists():
         return []
 
+    # Collect both file types; auto_evaluation takes precedence per case_id
+    by_case: dict[str, Path] = {}
+    for path in run_dir.iterdir():
+        if not path.is_file() or path.name.startswith("summary"):
+            continue
+        if path.name.endswith(".auto_evaluation.json"):
+            case_id = path.name[: -len(".auto_evaluation.json")]
+            by_case[case_id] = path  # always wins
+        elif path.name.endswith(".evaluation.json") and path.name not in by_case:
+            case_id = path.name[: -len(".evaluation.json")]
+            if case_id not in by_case:
+                by_case[case_id] = path
+
     results: list[dict[str, Any]] = []
-    for path in sorted(run_dir.iterdir(), key=lambda p: p.name):
-        if (
-            path.is_file()
-            and path.name.endswith(".evaluation.json")
-            and not path.name.startswith("summary")
-        ):
-            data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
-            results.append(data)
+    for case_id in sorted(by_case):
+        data: dict[str, Any] = json.loads(by_case[case_id].read_text(encoding="utf-8"))
+        results.append(data)
     return results
 
 
