@@ -23,18 +23,26 @@ def _redact_value(text: str, rules: list[dict[str, Any]]) -> str:
     return result
 
 
-def _walk(value: Any, rules: list[dict[str, Any]]) -> Any:
+def _walk(value: Any, rules: list[dict[str, Any]], _path: str = "") -> Any:
     if isinstance(value, dict):
         out = {}
         for k, v in value.items():
-            direct = next((r for r in rules if f"attributes.{k}" in r.get("path_patterns", []) or k in r.get("path_patterns", [])), None)
+            full_path = f"{_path}.{k}" if _path else k
+            direct = next(
+                (
+                    r for r in rules
+                    if full_path in r.get("path_patterns", [])
+                    or f"attributes.{full_path}" in r.get("path_patterns", [])
+                ),
+                None,
+            )
             if direct:
                 out[k] = direct["replacement"]
             else:
-                out[k] = _walk(v, rules)
+                out[k] = _walk(v, rules, full_path)
         return out
     if isinstance(value, list):
-        return [_walk(v, rules) for v in value]
+        return [_walk(v, rules, _path) for v in value]
     if isinstance(value, str):
         return _redact_value(value, rules)
     return value
@@ -42,6 +50,11 @@ def _walk(value: Any, rules: list[dict[str, Any]]) -> Any:
 
 def redact_trace(trace: TraceEnvelope, rules_config: dict[str, Any]) -> TraceEnvelope:
     rules = rules_config.get("redaction_rules", [])
+    if not rules:
+        raise ValueError(
+            "redact_trace requires at least one redaction rule; "
+            "refusing to process trace without a valid redaction config"
+        )
     cloned = copy.deepcopy(trace)
     cloned.spans = [
         SpanRecord(

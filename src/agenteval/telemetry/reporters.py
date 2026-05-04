@@ -22,10 +22,14 @@ def write_markdown_report(result: ConformanceResult, path: str | Path) -> None:
         f"# Conformance Report: {result.journey}",
         "",
         f"- Passed: {result.passed}",
-        f"- Metrics: {result.metrics}",
         "",
-        "## Failures",
+        "## Metrics",
     ]
+    if result.metrics:
+        lines.extend([f"- {k}: {v}" for k, v in result.metrics.items()])
+    else:
+        lines.append("- (none)")
+    lines += ["", "## Failures"]
     if result.failures:
         lines.extend([f"- {failure}" for failure in result.failures])
     else:
