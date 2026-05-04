@@ -302,7 +302,7 @@ Evaluation becomes a surgical tool, not a blunt instrument.
 
 ---
 
-## 2.4 Run Comparison
+## 2.4 Run Comparison (COMPLETED)
 
 ### Problem
 
@@ -325,23 +325,22 @@ Without comparison, evaluation runs exist in isolation. Teams can't answer "did 
 #### Comparison Metrics
 
 - Dimension-level: mean score change, standard deviation change, min/max shifts
-- Failure-level: failure type distribution change, new failure types introduced, failure types resolved
-- Aggregate: overall score change (weighted), number of regressions, number of improvements
+- Failure-level: new failure types introduced, failure types resolved
+- Aggregate: overall score change (weighted), net quality change verdict
 
 #### CLI
 
 ```bash
 agenteval-compare --run-a <run_id_a> --run-b <run_id_b>
-agenteval-compare --run-a <run_id_a> --run-b <run_id_b> --output-json comparison.json
+agenteval-compare --baseline <run_id_a> --current <run_id_b> --output-json comparison.json
 ```
 
 #### UI
 
-- Side-by-side comparison page
-- Color-coded delta indicators (green for improvement, red for regression)
-- Sortable table: sort by largest regression, largest improvement, or by dimension
-- Drill-down: click a case to see the per-dimension diff
-- Sparkline trend if more than 2 runs exist
+- Compare Runs page in Streamlit sidebar
+- Summary metrics: net quality change, overall score delta, case counts
+- Dimension delta table with mean scores and improvement/regression counts
+- Case-level delta table with status icons and per-case score deltas
 
 ### Architecture
 
@@ -354,6 +353,8 @@ schemas/comparison_schema.json     — output schema for comparison results
 ### Outcome
 
 Every evaluation run becomes part of a measurable improvement story.
+
+> **Status**: Completed in Feature 008. Full comparison engine, CLI (`agenteval-compare`), Streamlit Compare page, and 36 tests. `get_run_results` updated to prefer auto-scored results over empty templates.
 
 ---
 
@@ -981,7 +982,7 @@ Phase 2 → Real-World Adoption (IN PROGRESS)
   2.1 Trace Ingestion Adapters      COMPLETED
   2.2 Guided Onboarding             COMPLETED
   2.3 Selective Evaluation          COMPLETED
-  2.4 Run Comparison                NEXT
+  2.4 Run Comparison                COMPLETED
   2.5 Trace Annotation & Review UI  pending
   2.6 Custom Rubric Builder         pending
   2.7 UI Polish                     pending
@@ -998,11 +999,11 @@ Phase 4 → Scale & Community
 
 ## Immediate Next (Phase 2 — remaining)
 
-1. **Run Comparison** — without this, teams can't answer "did our change help?" Evaluation runs exist in isolation.
-2. **Trace Annotation & Review UI** — connects evaluation results to trace steps; makes review a coherent workflow.
-3. **Custom Rubric Builder** — unblocks teams with domain-specific evaluation criteria.
+1. **Trace Annotation & Review UI** — connects evaluation results to trace steps; makes review a coherent workflow.
+2. **Custom Rubric Builder** — unblocks teams with domain-specific evaluation criteria.
+3. **UI Polish** — navigation coherence, empty states, loading states, contextual actions.
 
-Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), and 2.8 (Ingestion UI MVP) are complete.
+Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), and 2.8 (Ingestion UI MVP) are complete.
 
 ## Phase 3 Priorities
 
