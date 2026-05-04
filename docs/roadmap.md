@@ -1015,3 +1015,45 @@ Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluati
 7. **SQLite Storage** — unblocks everything else at scale. Move this earlier if dataset sizes grow.
 8. **Parallel Evaluation** — necessary once LLM evaluators are in regular use.
 9. **Community Benchmarks** — the long-term moat. A framework is a tool; a framework with shared benchmarks is a standard.
+
+## Telemetry / Observability-Driven Testing
+
+### Status
+**Milestone 1 complete (MVP)**
+
+### What is now in place
+- isolated telemetry module under `src/agenteval/telemetry/`
+- local JSON trace fixture loading
+- YAML-based redaction rules
+- YAML-based journey invariants
+- structural validation for trace integrity
+- semantic coverage checks
+- basic conformance evaluation
+- JSON / Markdown reporting
+- dedicated telemetry test coverage
+
+### Milestone 1 scope
+This phase focused on establishing a secure, local-first foundation for telemetry-oriented evaluation inside AgentEval.
+
+The goal was **not** to build a full observability platform, but to create a safe and testable base for:
+- normalized trace handling
+- security-first redaction
+- invariant-driven conformance checks
+- telemetry report generation
+
+### Deferred to later milestones
+The following remain intentionally out of scope:
+- live OTLP ingestion
+- Cloud Trace integration
+- anomaly detection
+- drift detection
+- dashboards
+- multi-agent correlation beyond local conformance rules
+- production telemetry collection
+
+### Next likely evolution areas
+- richer semantic validation
+- more expressive invariant rules
+- parent-child and cardinality conformance rules
+- telemetry adapters for external trace sources
+- observability-driven testing workflows based on runtime evidence

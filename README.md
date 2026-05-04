@@ -178,7 +178,39 @@ Rubrics are versioned and validated against `schemas/rubric_schema.json`.
 
 Each case maps to a primary failure and optional secondary failures. See `docs/failure_taxonomy.md` for full definitions.
 
-## Telemetry Module (Observability-Driven Testing)
+## Telemetry / Observability-Driven Testing MVP
+
+AgentEval now includes a security-first telemetry MVP under `src/agenteval/telemetry/` to support early observability-driven testing workflows.
+
+This module is designed as an internal capability focused on local, sanitized telemetry fixtures and behavioral conformance checks.
+
+### Current MVP capabilities
+- local JSON trace loading
+- security-first trace redaction via YAML-configured rules
+- structural trace validation
+- basic semantic coverage validation
+- invariant loading from YAML
+- journey conformance evaluation
+- JSON and Markdown report generation
+
+### Security posture
+This MVP is intentionally offline-first and security-first:
+- no production telemetry is stored in the repository
+- redaction config is required before processing traces
+- sensitive values must be redacted before persistence or reporting
+- only local sanitized fixtures are used in this phase
+
+### Out of scope for this MVP
+The telemetry MVP does **not** yet include:
+- live OTLP ingestion
+- Cloud Trace integration
+- anomaly detection
+- drift detection
+- dashboards
+- production telemetry collection
+
+### Why this matters
+This extends AgentEval from trace-aware evaluation toward telemetry-aware conformance checks, creating a foundation for future observability-driven testing workflows.
 
 An internal capability for conformance-testing agents against sanitized local trace fixtures. Fully isolated from the benchmark evaluation pipeline — no live telemetry, no network calls.
 
