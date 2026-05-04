@@ -178,6 +178,40 @@ Rubrics are versioned and validated against `schemas/rubric_schema.json`.
 
 Each case maps to a primary failure and optional secondary failures. See `docs/failure_taxonomy.md` for full definitions.
 
+## Telemetry Module (Observability-Driven Testing)
+
+An internal capability for conformance-testing agents against sanitized local trace fixtures. Fully isolated from the benchmark evaluation pipeline — no live telemetry, no network calls.
+
+```bash
+# Validate a local trace fixture (structure + semantics)
+agenteval-telemetry-validate fixtures/traces/sample_trace.json
+agenteval-telemetry-validate fixtures/traces/sample_trace.json --thresholds config/telemetry_thresholds.yaml
+
+# Write conformance reports from a result JSON
+agenteval-telemetry-report --result-json result.json --output-dir reports/
+```
+
+**What it does:**
+
+- **Normalized trace model** — `TraceEnvelope` and `SpanRecord` dataclasses with typed fields
+- **Secure fixture loader** — loads local sanitized JSON fixtures only
+- **Redaction engine** — applies path-pattern and regex rules before any reporting; fail-closed (raises if no rules are configured)
+- **Structural + semantic validation** — detects missing root spans, broken parent references, negative durations, missing required fields; optionally enforces depth and duration thresholds from `config/telemetry_thresholds.yaml`
+- **Journey invariant conformance** — checks required/forbidden spans and timing constraints declared in `config/telemetry_journey_invariants.yaml`
+- **Markdown + JSON reporters** — writes per-run conformance reports with metrics and failure details
+
+**Security constraints (per `constitution.md`):** no raw production telemetry in the repo, redaction before any output, fail closed when config is missing, no network calls anywhere in the module.
+
+```python
+from agenteval.telemetry import (
+    load_trace, load_redaction_rules, redact_trace,
+    load_invariants, evaluate_conformance,
+    write_json_report, write_markdown_report,
+)
+```
+
+Config files: `config/telemetry_redaction_rules.yaml`, `config/telemetry_journey_invariants.yaml`, `config/telemetry_thresholds.yaml`. Fixtures: `fixtures/traces/`.
+
 ## Architecture
 
 ```
@@ -192,15 +226,25 @@ src/agenteval/
     service.py      UI orchestration layer
     runs.py         run tracking
   schemas/          typed Python bindings for trace/rubric schemas
+  telemetry/        observability-driven testing module (isolated)
+    models.py       TraceEnvelope, SpanRecord, ConformanceResult
+    loader.py       local JSON fixture loader
+    redaction.py    path-pattern + regex redaction engine
+    validators.py   structural and semantic validators
+    invariants.py   journey invariant YAML loader
+    engine.py       conformance evaluation
+    reporters.py    markdown + JSON report writers
 
 app/                Streamlit UI (thin presentation layer)
 schemas/            JSON schemas (trace, rubric, evaluation, reviewer scores)
 rubrics/            versioned rubric definitions
 data/cases/         benchmark dataset
+config/             telemetry redaction rules, journey invariants, thresholds
+fixtures/traces/    sanitized local trace fixtures (no production data)
 docs/               failure taxonomy, dataset guidelines, roadmap
 ```
 
-Key design decisions: the service layer composes existing APIs without modifying them. UI pages only import from `service.py`. All filesystem access is constrained within the repo root via `_safe_resolve_within()`. The evaluator framework uses `@runtime_checkable` Protocol, so adding a new evaluator means implementing two methods.
+Key design decisions: the service layer composes existing APIs without modifying them. UI pages only import from `service.py`. All filesystem access is constrained within the repo root via `_safe_resolve_within()`. The evaluator framework uses `@runtime_checkable` Protocol, so adding a new evaluator means implementing two methods. The telemetry module is fully isolated — it imports nothing from `core` or `dataset`.
 
 ## Development
 
@@ -212,7 +256,7 @@ ruff format --check src/
 # Type checking
 mypy src/
 
-# Tests (347 tests across 14 modules)
+# Tests (392 tests across 21 modules)
 pytest tests/ -v
 
 # Pre-commit hooks
@@ -227,7 +271,7 @@ See [`docs/roadmap.md`](docs/roadmap.md) for the full roadmap. The short version
 
 **Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 347 tests.
 
-**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI) ✓, guided onboarding ✓, selective evaluation ✓, run comparison, trace annotation UI, custom rubric builder.
+**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI) ✓, guided onboarding ✓, selective evaluation ✓, telemetry/observability-driven testing module (Milestone 1) ✓, run comparison, trace annotation UI, custom rubric builder.
 
 **Phase 3** — CI/CD integration (GitHub Action), export hooks (Slack, webhooks), confidence calibration, experiment tracking, regression detection, auto test generation from failures.
 
