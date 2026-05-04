@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from typing import cast
+
 from agenteval.ingestion.base import parse_timestamp
-from agenteval.schemas.trace import Trace
+from agenteval.schemas.trace import Step, Trace
 
 
 class OpenAIRawAdapter:
@@ -104,7 +106,7 @@ class OpenAIRawAdapter:
             "task_id": conversation_id,
             "user_prompt": user_prompt,
             "model_version": model_version,
-            "steps": steps,
+            "steps": cast(list[Step], steps),
             "metadata": {
                 "timestamp": timestamp,
                 "environment": {

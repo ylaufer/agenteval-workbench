@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from typing import cast
+
 from agenteval.ingestion.base import map_step_type, parse_timestamp
-from agenteval.schemas.trace import Trace
+from agenteval.schemas.trace import Step, Trace
 
 # Mapping from OTel span kinds to AgentEval step types
 SPAN_KIND_TO_STEP_TYPE = {
@@ -90,7 +92,7 @@ class OTelAdapter:
             "task_id": trace_id,  # Use OTel traceId as task_id
             "user_prompt": "Ingested from OpenTelemetry trace",  # Placeholder
             "model_version": "unknown",  # Not available in OTel traces
-            "steps": steps,
+            "steps": cast(list[Step], steps),
             "metadata": {
                 "timestamp": timestamp,
                 "environment": {
@@ -172,25 +174,25 @@ class OTelAdapter:
         if step_type == "thought":
             for attr in attributes:
                 if attr.get("key") in ["thought", "reasoning", "message"]:
-                    return attr.get("value", {}).get("stringValue", "")
+                    return str(attr.get("value", {}).get("stringValue", ""))
 
         elif step_type == "tool_call":
             for attr in attributes:
                 if attr.get("key") == "tool.input":
-                    return attr.get("value", {}).get("stringValue", "")
+                    return str(attr.get("value", {}).get("stringValue", ""))
 
         elif step_type == "observation":
             for attr in attributes:
                 if attr.get("key") == "tool.output":
-                    return attr.get("value", {}).get("stringValue", "")
+                    return str(attr.get("value", {}).get("stringValue", ""))
 
         elif step_type == "final_answer":
             for attr in attributes:
                 if attr.get("key") in ["answer", "response", "output"]:
-                    return attr.get("value", {}).get("stringValue", "")
+                    return str(attr.get("value", {}).get("stringValue", ""))
 
         # Fallback: use span name
-        return span.get("name", "")
+        return str(span.get("name", ""))
 
     def _extract_tool_name(self, span: dict) -> str | None:
         """Extract tool name from span attributes.
@@ -204,10 +206,12 @@ class OTelAdapter:
         attributes = span.get("attributes", [])
         for attr in attributes:
             if attr.get("key") == "tool.name":
-                return attr.get("value", {}).get("stringValue")
+                val = attr.get("value", {}).get("stringValue")
+                return str(val) if val is not None else None
 
         # Fallback to span name
-        return span.get("name")
+        name = span.get("name")
+        return str(name) if name is not None else None
 
     def validate_mapping(self, raw: dict) -> list[str]:
         """Validate OTel trace and return warnings.

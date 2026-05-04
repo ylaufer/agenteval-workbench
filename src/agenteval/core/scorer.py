@@ -8,13 +8,14 @@ import sys
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from agenteval.core.evaluators import EvaluatorRegistry
 from agenteval.core.loader import load_rubric, load_trace
 from agenteval.core.tagger import tag_trace
 from agenteval.core.types import AutoEvaluation, DimensionScoreResult, Rubric
 from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
+from agenteval.schemas.trace import Trace
 
 
 def default_registry() -> EvaluatorRegistry:
@@ -34,7 +35,7 @@ def default_registry() -> EvaluatorRegistry:
     registry.register(SecurityEvaluator())
 
     # Optionally register LLM evaluators for subjective dimensions
-    _register_llm_evaluators(registry, os.environ)
+    _register_llm_evaluators(registry, dict(os.environ))
 
     return registry
 
@@ -45,12 +46,12 @@ def _register_llm_evaluators(
 ) -> None:
     """Register LLM evaluators if an API key is available."""
     from agenteval.core.evaluators.llm_evaluator import LLMEvaluator
-    from agenteval.core.evaluators.llm_provider import AnthropicProvider, OpenAIProvider
+    from agenteval.core.evaluators.llm_provider import AnthropicProvider, LLMProvider, OpenAIProvider
 
     # Subjective dimensions that benefit from LLM evaluation
     llm_dimensions = ("accuracy", "completeness", "reasoning_quality", "ui_grounding")
 
-    provider = None
+    provider: LLMProvider | None = None
     if environ.get(AnthropicProvider.ENV_KEY):
         provider = AnthropicProvider()
     elif environ.get(OpenAIProvider.ENV_KEY):
@@ -79,7 +80,7 @@ def score_case(
 
     trace_path = case_dir / "trace.json"
     trace = load_trace(trace_path=trace_path)
-    auto_tags = tag_trace(trace)
+    auto_tags = tag_trace(cast(Trace, trace))
 
     dim_results = registry.score_all(trace, rubric)
 
@@ -109,7 +110,7 @@ def score_case(
         auto_tags=auto_tags,
         metadata={"timestamp": now, "model": None},
     )
-    return _to_json_compatible(asdict(evaluation))
+    return cast(dict[str, Any], _to_json_compatible(asdict(evaluation)))
 
 
 def _to_json_compatible(obj: Any) -> Any:

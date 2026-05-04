@@ -109,7 +109,7 @@ def ingest_trace(
                    or Generic adapter selected but no mapping config provided
         FileExistsError: Case directory already exists
     """
-    import jsonschema
+    import jsonschema  # type: ignore[import-untyped]
 
     repo_root = _get_repo_root()
 

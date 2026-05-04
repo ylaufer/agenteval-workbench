@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, cast
 
-import jsonschema
+import jsonschema  # type: ignore[import-untyped]
 
 from agenteval.dataset.validator import _get_repo_root, _load_json, _safe_resolve_within
 from .types import DimensionScore, ReviewerScore, Rubric, RubricDimension

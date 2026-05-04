@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from typing import cast
+
 from agenteval.ingestion.base import parse_timestamp
-from agenteval.schemas.trace import Trace
+from agenteval.schemas.trace import Step, Trace
 
 # Mapping from CrewAI action types to AgentEval step types
 ACTION_TO_STEP_TYPE = {
@@ -80,7 +82,7 @@ class CrewAIAdapter:
             "task_id": execution_id,
             "user_prompt": user_prompt,
             "model_version": "unknown",  # CrewAI doesn't track model version
-            "steps": steps,
+            "steps": cast(list[Step], steps),
             "metadata": {
                 "timestamp": timestamp,
                 "environment": {

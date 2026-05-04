@@ -49,6 +49,8 @@ agenteval-auto-score = "agenteval.core.scorer:main"
 agenteval-list-runs = "agenteval.core.runs:main_list"
 agenteval-inspect-run = "agenteval.core.runs:main_inspect"
 agenteval-ingest = "agenteval.ingestion.cli:main"
+agenteval-telemetry-validate = "agenteval.telemetry.validators:main"
+agenteval-telemetry-report = "agenteval.telemetry.reporters:main"
 
 [tool.ruff]
 line-length = 100

@@ -1,0 +1,11 @@
+version: 1
+journeys:
+  - name: simple_rag_query
+    required_spans:
+      - http.server:/ask
+      - retriever.search
+      - llm.generate
+    forbidden_spans:
+      - support_ticket.create
+    max_depth: 6
+    max_total_duration_ms: 2500
