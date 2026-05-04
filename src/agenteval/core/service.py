@@ -632,6 +632,61 @@ def compare_runs(run_a_id: str, run_b_id: str) -> Any:
     return _compare_runs(run_a_id, run_b_id)
 
 
+# ---------------------------------------------------------------------------
+# Annotations
+# ---------------------------------------------------------------------------
+
+
+def get_annotations(case_id: str) -> list[dict[str, Any]]:
+    """Return all annotations for a case as dicts, sorted by timestamp ascending."""
+    from dataclasses import asdict
+
+    from agenteval.core.annotations import get_annotations as _get_annotations
+
+    repo_root = _get_repo_root()
+    return [asdict(a) for a in _get_annotations(case_id, repo_root)]
+
+
+def add_annotation(
+    case_id: str,
+    step_id: str,
+    reviewer_id: str,
+    content: str,
+    severity: str,
+) -> dict[str, Any]:
+    """Add a reviewer annotation to a trace step. Returns the annotation as a dict."""
+    from dataclasses import asdict
+
+    from agenteval.core.annotations import add_annotation as _add_annotation
+
+    repo_root = _get_repo_root()
+    ann = _add_annotation(
+        case_id=case_id,
+        step_id=step_id,
+        reviewer_id=reviewer_id,
+        content=content,
+        severity=severity,  # type: ignore[arg-type]
+        repo_root=repo_root,
+    )
+    return asdict(ann)
+
+
+def delete_annotation(case_id: str, annotation_id: str) -> bool:
+    """Remove an annotation by ID. Returns True if deleted, False if not found."""
+    from agenteval.core.annotations import delete_annotation as _delete_annotation
+
+    repo_root = _get_repo_root()
+    return _delete_annotation(case_id, annotation_id, repo_root)
+
+
+def get_auto_eval_for_case(case_id: str) -> dict[str, Any] | None:
+    """Load the best available auto_evaluation for a case. Returns dict or None."""
+    from agenteval.core.annotations import get_auto_eval_for_case as _get_auto_eval
+
+    repo_root = _get_repo_root()
+    return _get_auto_eval(case_id, repo_root)
+
+
 def get_dataset_tags(dataset_dir: Path | None = None) -> set[str]:
     """Return the union of all tags across the dataset. Used by UI for tag dropdown.
 
