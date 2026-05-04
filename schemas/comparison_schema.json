@@ -3,7 +3,7 @@
   "title": "ComparisonResult",
   "description": "Structured diff between two AgentEval evaluation runs.",
   "type": "object",
-  "required": ["comparison_id", "run_a", "run_b", "timestamp", "summary", "dimension_deltas", "case_deltas"],
+  "required": ["comparison_id", "run_a", "run_b", "timestamp", "summary", "dimension_deltas", "case_deltas", "rubric_mismatch", "rubric_versions"],
   "additionalProperties": false,
   "properties": {
     "comparison_id": { "type": "string" },
@@ -51,6 +51,13 @@
           "cases_unchanged": { "type": "integer", "minimum": 0 }
         }
       }
+    },
+    "rubric_mismatch": { "type": "boolean" },
+    "rubric_versions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 2,
+      "maxItems": 2
     },
     "case_deltas": {
       "type": "array",

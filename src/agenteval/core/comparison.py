@@ -74,6 +74,8 @@ class ComparisonResult:
     summary: ComparisonSummary
     dimension_deltas: list[DimensionDelta]
     case_deltas: list[CaseDelta]
+    rubric_mismatch: bool = False
+    rubric_versions: list[str] = field(default_factory=lambda: ["", ""])
 
 
 # ---------------------------------------------------------------------------
@@ -373,7 +375,8 @@ def _validate_result(result: ComparisonResult, repo_root: Path) -> None:
     """Validate ComparisonResult against comparison_schema.json."""
     schema_path = repo_root / "schemas" / "comparison_schema.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    data = asdict(result)
+    # Round-trip through JSON to convert tuples → lists (asdict preserves tuples)
+    data = json.loads(json.dumps(asdict(result)))
     jsonschema.validate(instance=data, schema=schema)
 
 
@@ -405,6 +408,13 @@ def compare_runs(
     results_a = get_run_results(run_a_id)
     results_b = get_run_results(run_b_id)
 
+    # Extract rubric version IDs from run.json rubric_path field
+    run_a_record = get_run(run_a_id)
+    run_b_record = get_run(run_b_id)
+    rubric_ver_a = Path(run_a_record.rubric_path).stem if run_a_record and run_a_record.rubric_path else ""
+    rubric_ver_b = Path(run_b_record.rubric_path).stem if run_b_record and run_b_record.rubric_path else ""
+    rubric_mismatch = bool(rubric_ver_a and rubric_ver_b and rubric_ver_a != rubric_ver_b)
+
     case_deltas = _build_case_deltas(results_a, results_b)
     dimension_deltas = _build_dimension_deltas(case_deltas)
     summary = _build_summary(case_deltas, run_a_id, run_b_id)
@@ -417,6 +427,8 @@ def compare_runs(
         summary=summary,
         dimension_deltas=dimension_deltas,
         case_deltas=case_deltas,
+        rubric_mismatch=rubric_mismatch,
+        rubric_versions=[rubric_ver_a, rubric_ver_b],
     )
     _validate_result(result, repo_root)
     return result

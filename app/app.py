@@ -60,6 +60,7 @@ PAGES = {
     "Inspect": "page_inspect",
     "Report": "page_report",
     "Compare": "page_compare",
+    "Rubric Builder": "page_rubric",
 }
 
 st.sidebar.title("AgentEval Workbench")
@@ -206,6 +207,8 @@ elif selection == "Report":
     from page_report import render
 elif selection == "Compare":
     from page_compare import render
+elif selection == "Rubric Builder":
+    from page_rubric import render
 else:
     st.error(f"Unknown page: {selection}")
     st.stop()

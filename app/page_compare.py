@@ -219,6 +219,14 @@ def render() -> None:
             f"Comparison `{result.get('comparison_id', '')}` · "
             f"Run A: `{result.get('run_a', '')}` vs Run B: `{result.get('run_b', '')}`"
         )
+        if result.get("rubric_mismatch"):
+            versions = result.get("rubric_versions", ["", ""])
+            ver_a = versions[0] if len(versions) > 0 else ""
+            ver_b = versions[1] if len(versions) > 1 else ""
+            st.warning(
+                f"⚠️ Rubric mismatch: run A used '{ver_a}', run B used '{ver_b}'. "
+                "Scores may not be directly comparable."
+            )
         _render_summary(result.get("summary", {}))
         st.divider()
         _render_dimension_deltas(result.get("dimension_deltas", []))

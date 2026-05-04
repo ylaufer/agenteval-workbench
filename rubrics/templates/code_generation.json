@@ -1,0 +1,58 @@
+{
+  "name": "Code Generation",
+  "description": "Evaluation rubric for code generation agents. Covers functional correctness, test coverage, security hygiene, and code style.",
+  "dimensions": [
+    {
+      "name": "correctness",
+      "title": "Correctness",
+      "scale": "0-2",
+      "weight": 2.0,
+      "description": "Whether the generated code is functionally correct and meets the stated requirements.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Code does not work; syntax errors, logic errors, or fails to meet requirements.",
+        "1": "Code partially works; passes some cases but fails edge cases or secondary requirements.",
+        "2": "Code is functionally correct and meets all stated requirements."
+      }
+    },
+    {
+      "name": "test_coverage",
+      "title": "Test Coverage",
+      "scale": "0-2",
+      "weight": 1.0,
+      "description": "Quality and completeness of tests generated alongside the code.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "No tests provided, or tests are trivial/non-functional.",
+        "1": "Basic tests present but missing edge cases or important scenarios.",
+        "2": "Tests are thorough, cover main paths and edge cases, and would catch regressions."
+      }
+    },
+    {
+      "name": "security",
+      "title": "Security",
+      "scale": "0-2",
+      "weight": 1.5,
+      "description": "Whether the generated code avoids common security vulnerabilities (injection, hardcoded secrets, unsafe dependencies, etc.).",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Clear security vulnerability: SQL injection, hardcoded credentials, unsafe eval, etc.",
+        "1": "Minor security concern or best-practice deviation; not directly exploitable but risky.",
+        "2": "Code is secure; follows best practices and avoids known vulnerability patterns."
+      }
+    },
+    {
+      "name": "code_style",
+      "title": "Code Style",
+      "scale": "0-2",
+      "weight": 0.5,
+      "description": "Readability, naming conventions, documentation, and adherence to language idioms.",
+      "evidence_required": false,
+      "scoring_guide": {
+        "0": "Poor style: confusing names, no comments on complex logic, inconsistent formatting.",
+        "1": "Adequate style; mostly readable but some areas unclear or inconsistent.",
+        "2": "Clean, idiomatic code with clear naming, appropriate comments, and consistent style."
+      }
+    }
+  ]
+}
