@@ -156,7 +156,7 @@ def validate_trace_output(trace: Trace) -> None:
     Raises:
         ValueError: If trace is invalid
     """
-    import jsonschema
+    import jsonschema  # type: ignore[import-untyped]
 
     from agenteval.dataset.validator import _get_repo_root, _load_json
 

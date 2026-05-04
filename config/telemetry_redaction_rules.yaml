@@ -1,0 +1,17 @@
+version: 1
+redaction_rules:
+  - name: authorization_header
+    path_patterns: ["headers.authorization", "metadata.authorization"]
+    replacement: "[REDACTED]"
+  - name: sensitive_keys
+    path_patterns: ["password", "secret", "token", "api_key", "apikey", "private_key", "credentials"]
+    replacement: "[REDACTED_SECRET]"
+  - name: email
+    regex: '[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}'
+    replacement: "[REDACTED_EMAIL]"
+  - name: bearer_token
+    regex: 'Bearer\s+[A-Za-z0-9._\-]+'
+    replacement: "Bearer [REDACTED]"
+  - name: api_key_like
+    regex: '(?i)(api[_\-]?key|token|secret|password)\s*[:=]\s*[^\s,;]+'
+    replacement: "[REDACTED_SECRET]"

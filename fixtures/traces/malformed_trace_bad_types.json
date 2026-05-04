@@ -1,0 +1,17 @@
+{
+  "trace_id": "trace-bad-types",
+  "journey": "simple_rag_query",
+  "root_span_id": "span-1",
+  "spans": [
+    {
+      "span_id": "span-1",
+      "parent_span_id": null,
+      "name": "http.server:/ask",
+      "service": "gateway",
+      "kind": "SERVER",
+      "start_ms": "not-an-int",
+      "end_ms": 10,
+      "attributes": {}
+    }
+  ]
+}

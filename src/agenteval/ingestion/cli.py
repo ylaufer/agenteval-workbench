@@ -152,7 +152,7 @@ def ingest_single_file(
 
                 # Try to load YAML mapping
                 try:
-                    import yaml
+                    import yaml  # type: ignore[import-untyped]
 
                     with open(mapping_path, "r", encoding="utf-8") as f:
                         mapping = yaml.safe_load(f)

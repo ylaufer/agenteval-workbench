@@ -5,8 +5,10 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
+from typing import Any, cast
+
 from agenteval.ingestion.base import map_step_type, parse_timestamp
-from agenteval.schemas.trace import Trace
+from agenteval.schemas.trace import Step, Trace
 
 # Mapping from LangChain run types to AgentEval step types
 RUN_TYPE_TO_STEP_TYPE = {
@@ -84,7 +86,7 @@ class LangChainAdapter:
             "task_id": run_id,
             "user_prompt": user_prompt,
             "model_version": "unknown",  # LangChain doesn't always track model version
-            "steps": steps,
+            "steps": cast(list[Step], steps),
             "metadata": {
                 "timestamp": timestamp,
                 "environment": {
@@ -197,7 +199,7 @@ class LangChainAdapter:
         # Step 2: observation (if outputs available)
         if "outputs" in run and "end_time" in run:
             observation_content = json.dumps(run["outputs"])
-            observation_step = {
+            observation_step: dict[str, Any] = {
                 "step_id": f"{run_id}_obs",
                 "type": "observation",
                 "content": observation_content,
@@ -210,7 +212,7 @@ class LangChainAdapter:
             start_dt = datetime.fromisoformat(parse_timestamp(run["start_time"]).replace("Z", ""))
             end_dt = datetime.fromisoformat(parse_timestamp(run["end_time"]).replace("Z", ""))
             latency_ms = (end_dt - start_dt).total_seconds() * 1000
-            observation_step["latency_ms"] = round(latency_ms, 2)
+            observation_step["latency_ms"] = int(round(latency_ms))
 
             steps.append(observation_step)
 
@@ -236,7 +238,7 @@ class LangChainAdapter:
                         if isinstance(first_gen, dict) and "message" in first_gen:
                             message = first_gen["message"]
                             if isinstance(message, dict) and "content" in message:
-                                return message["content"]
+                                return str(message["content"])
 
                 # Fallback to output field
                 if "output" in outputs:
@@ -247,7 +249,7 @@ class LangChainAdapter:
             return json.dumps(run["inputs"])
 
         # Fallback to run name
-        return run.get("name", "")
+        return str(run.get("name", ""))
 
     def validate_mapping(self, raw: dict) -> list[str]:
         """Validate LangChain run and return warnings.

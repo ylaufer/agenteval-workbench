@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 from agenteval.ingestion.base import parse_timestamp
-from agenteval.schemas.trace import Trace
+from agenteval.schemas.trace import Step, Trace
 
 
 class GenericAdapter:
@@ -105,7 +105,7 @@ class GenericAdapter:
             "task_id": str(task_id) if task_id else "unknown",
             "user_prompt": str(user_prompt) if user_prompt else "unknown",
             "model_version": str(model_version) if model_version else "unknown",
-            "steps": steps,
+            "steps": cast(list[Step], steps),
             "metadata": {
                 "timestamp": timestamp,
                 "environment": {

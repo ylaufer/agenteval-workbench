@@ -1,0 +1,1 @@
+Read constitution.md first. Then read CLAUDE.md and the .specify docs. Implement Milestone 1 only under src/agenteval/telemetry. Use local fixtures only. No live telemetry integrations. Fail closed when config is missing. Redact before reporting.

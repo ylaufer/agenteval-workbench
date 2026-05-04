@@ -1,0 +1,20 @@
+{
+  "trace_id": "trace-sensitive",
+  "journey": "simple_rag_query",
+  "root_span_id": "span-1",
+  "spans": [
+    {
+      "span_id": "span-1",
+      "parent_span_id": null,
+      "name": "http.server:/ask",
+      "service": "gateway",
+      "kind": "SERVER",
+      "start_ms": 0,
+      "end_ms": 10,
+      "attributes": {
+        "password": "secret123",
+        "email": "bob@example.com"
+      }
+    }
+  ]
+}
