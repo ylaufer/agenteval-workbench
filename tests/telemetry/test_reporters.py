@@ -25,17 +25,18 @@ def test_reporters_write_files(tmp_path: Path) -> None:
 
 
 def test_json_report_content(tmp_path: Path) -> None:
-    import json
     result = ConformanceResult(
         journey="test_journey",
         passed=False,
         failures=["missing required span: foo"],
+        trace_id="trace-abc",
         metrics={"span_count": 2, "total_duration_ms": 50},
     )
     out = tmp_path / "r.json"
     write_json_report(result, out)
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["journey"] == "test_journey"
+    assert data["trace_id"] == "trace-abc"
     assert data["passed"] is False
     assert data["failures"] == ["missing required span: foo"]
     assert data["metrics"]["span_count"] == 2
@@ -46,12 +47,14 @@ def test_markdown_report_passing(tmp_path: Path) -> None:
         journey="simple_rag_query",
         passed=True,
         failures=[],
+        trace_id="trace-pass",
         metrics={"span_count": 3, "total_duration_ms": 180},
     )
     out = tmp_path / "r.md"
     write_markdown_report(result, out)
     content = out.read_text(encoding="utf-8")
     assert "# Conformance Report: simple_rag_query" in content
+    assert "Trace ID: trace-pass" in content
     assert "Passed: True" in content
     assert "span_count: 3" in content
     assert "total_duration_ms: 180" in content

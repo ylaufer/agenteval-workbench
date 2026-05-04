@@ -7,5 +7,9 @@ journeys:
       - llm.generate
     forbidden_spans:
       - support_ticket.create
-    max_depth: 6
+    required_order:
+      - http.server:/ask
+      - retriever.search
+      - llm.generate
+    max_span_count: 6
     max_total_duration_ms: 2500

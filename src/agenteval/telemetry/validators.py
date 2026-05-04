@@ -20,22 +20,52 @@ def validate_trace_structure(
     thresholds: dict[str, Any] | None = None,
 ) -> list[str]:
     errors: list[str] = []
-    seen = {span.span_id for span in trace.spans}
+    span_ids = [span.span_id for span in trace.spans]
+    seen = set(span_ids)
+
+    # Duplicate span IDs
+    counts: dict[str, int] = {}
+    for sid in span_ids:
+        counts[sid] = counts.get(sid, 0) + 1
+    for sid, count in counts.items():
+        if count > 1:
+            errors.append(f"duplicate span_id: {sid}")
 
     if trace.root_span_id not in seen:
         errors.append("root span missing")
 
     for span in trace.spans:
-        if span.parent_span_id and span.parent_span_id not in seen:
+        # Self-referencing parent
+        if span.parent_span_id == span.span_id:
+            errors.append(f"self-parent span: {span.span_id}")
+        elif span.parent_span_id and span.parent_span_id not in seen:
             errors.append(f"missing parent for {span.span_id}")
         if span.end_ms < span.start_ms:
             errors.append(f"negative duration for {span.span_id}")
 
+    # BFS orphan detection from root
+    if trace.root_span_id in seen:
+        children: dict[str, list[str]] = {sid: [] for sid in seen}
+        for span in trace.spans:
+            if span.parent_span_id and span.parent_span_id in children:
+                children[span.parent_span_id].append(span.span_id)
+        reachable: set[str] = set()
+        queue = [trace.root_span_id]
+        while queue:
+            current = queue.pop()
+            if current in reachable:
+                continue
+            reachable.add(current)
+            queue.extend(children.get(current, []))
+        for sid in seen:
+            if sid not in reachable:
+                errors.append(f"unreachable span: {sid}")
+
     if thresholds:
         cfg = thresholds.get("thresholds", {})
-        max_depth = cfg.get("max_depth_default")
-        if max_depth is not None and len(trace.spans) > max_depth:
-            errors.append(f"span count {len(trace.spans)} exceeds max_depth_default {max_depth}")
+        max_span_count = cfg.get("max_span_count_default")
+        if max_span_count is not None and len(trace.spans) > max_span_count:
+            errors.append(f"span count {len(trace.spans)} exceeds max_span_count_default {max_span_count}")
 
         max_duration = cfg.get("max_total_duration_ms_default")
         if max_duration is not None and trace.spans:

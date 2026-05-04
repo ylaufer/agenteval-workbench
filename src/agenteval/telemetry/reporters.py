@@ -10,6 +10,7 @@ from .models import ConformanceResult
 
 def write_json_report(result: ConformanceResult, path: str | Path) -> None:
     Path(path).write_text(json.dumps({
+        "trace_id": result.trace_id,
         "journey": result.journey,
         "passed": result.passed,
         "failures": result.failures,
@@ -21,6 +22,7 @@ def write_markdown_report(result: ConformanceResult, path: str | Path) -> None:
     lines = [
         f"# Conformance Report: {result.journey}",
         "",
+        f"- Trace ID: {result.trace_id}",
         f"- Passed: {result.passed}",
         "",
         "## Metrics",
@@ -53,6 +55,7 @@ def main() -> None:
         journey=raw["journey"],
         passed=raw["passed"],
         failures=raw["failures"],
+        trace_id=raw.get("trace_id", ""),
         metrics=raw.get("metrics", {}),
     )
 

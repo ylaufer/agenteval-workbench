@@ -29,4 +29,5 @@ class ConformanceResult:
     journey: str
     passed: bool
     failures: list[str]
+    trace_id: str = ""
     metrics: dict[str, Any] = field(default_factory=dict)

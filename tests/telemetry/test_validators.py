@@ -57,6 +57,39 @@ def test_structure_fails_negative_duration() -> None:
     assert any("negative duration" in e for e in errors)
 
 
+def test_structure_fails_duplicate_span_id() -> None:
+    spans = [_span("s1"), _span("s1", name="duplicate.op")]
+    trace = TraceEnvelope("t", "j", "s1", spans)
+    errors = validate_trace_structure(trace)
+    assert any("duplicate span_id" in e for e in errors)
+
+
+def test_structure_fails_self_parent() -> None:
+    span = SpanRecord("s1", "s1", "op", "svc", "INTERNAL", 0, 10, {})
+    trace = _trace(span)
+    errors = validate_trace_structure(trace)
+    assert any("self-parent" in e for e in errors)
+
+
+def test_structure_fails_orphan_span() -> None:
+    # s2 references s1 as parent, but s3 has no parent and is not the root
+    s1 = _span("s1")
+    s2 = _span("s2", parent="s1")
+    s3 = _span("s3")  # no parent, not root
+    trace = TraceEnvelope("t", "j", "s1", [s1, s2, s3])
+    errors = validate_trace_structure(trace)
+    assert any("unreachable span" in e for e in errors)
+
+
+def test_structure_valid_linear_chain() -> None:
+    s1 = _span("s1")
+    s2 = _span("s2", parent="s1")
+    s3 = _span("s3", parent="s2")
+    trace = TraceEnvelope("t", "j", "s1", [s1, s2, s3])
+    errors = validate_trace_structure(trace)
+    assert errors == []
+
+
 # --- structure: threshold enforcement ---
 
 def test_structure_threshold_depth_exceeded() -> None:
@@ -64,7 +97,7 @@ def test_structure_threshold_depth_exceeded() -> None:
     spans = [_span(f"s{i}") for i in range(10)]  # 10 spans, default max is 8
     trace = _trace(*spans)
     errors = validate_trace_structure(trace, thresholds)
-    assert any("max_depth_default" in e for e in errors)
+    assert any("max_span_count_default" in e for e in errors)
 
 
 def test_structure_threshold_duration_exceeded() -> None:
@@ -82,7 +115,7 @@ def test_structure_threshold_not_applied_when_none() -> None:
     trace = _trace(*spans)
     errors = validate_trace_structure(trace, None)
     # No threshold errors — only structural errors are expected
-    assert not any("max_depth_default" in e for e in errors)
+    assert not any("max_span_count_default" in e for e in errors)
 
 
 def test_structure_within_thresholds_passes() -> None:

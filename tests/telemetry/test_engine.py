@@ -80,15 +80,56 @@ def test_conformance_fails_duration_exceeded() -> None:
 
 
 def test_conformance_fails_depth_exceeded() -> None:
-    # max_depth is 6; create 7 spans
+    # max_span_count is 6; create 7 spans
     spans = [SpanRecord(f"s{i}", None, f"span.{i}", "svc", "INTERNAL", i, i + 1, {}) for i in range(7)]
     spans[0] = SpanRecord("s0", None, "http.server:/ask", "gw", "SERVER", 0, 100, {})
     trace = TraceEnvelope("t", "simple_rag_query", "s0", spans)
-    # Patch required spans to avoid that failure
     invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
     result = evaluate_conformance(trace, invariants)
     assert result.passed is False
-    assert any("max depth" in f for f in result.failures)
+    assert any("max_span_count" in f for f in result.failures)
+
+
+def test_conformance_fails_required_order_violated() -> None:
+    # simple_rag_query requires order: http.server:/ask → retriever.search → llm.generate
+    # Swap retriever.search and llm.generate
+    spans = [
+        _span("s1", "http.server:/ask", start=0, end=10),
+        _span("s2", "llm.generate", start=11, end=20),
+        _span("s3", "retriever.search", start=21, end=30),
+    ]
+    trace = _make_trace(spans)
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.passed is False
+    assert any("span order violated" in f for f in result.failures)
+
+
+def test_conformance_passes_correct_order() -> None:
+    spans = [
+        _span("s1", "http.server:/ask", start=0, end=10),
+        _span("s2", "retriever.search", start=11, end=20),
+        _span("s3", "llm.generate", start=21, end=30),
+    ]
+    trace = _make_trace(spans)
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.passed is True
+
+
+def test_conformance_result_has_trace_id() -> None:
+    trace = load_trace(Path("fixtures/traces/sample_trace.json"))
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.trace_id == trace.trace_id
+
+
+def test_conformance_no_spec_has_trace_id() -> None:
+    spans = [_span("s1", "some.span")]
+    trace = TraceEnvelope("trace-xyz", "unknown_journey", "s1", spans)
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.trace_id == "trace-xyz"
 
 
 def test_conformance_metrics_populated() -> None:
