@@ -144,7 +144,7 @@ Six pages covering the full workflow:
 - **Generate** — Create benchmark cases, validate dataset
 - **Ingest** — Upload trace files from external frameworks (OTel, LangChain, CrewAI, OpenAI), auto-detect format, preview conversion, and save to case directory
 - **Evaluate** — Run full or selective auto-scoring; filter cases by failure type, severity, tags, or glob pattern; check individual cases or evaluate all filtered; run history shows filter criteria
-- **Inspect** — Browse traces with color-coded step types, view evaluation templates; score a single case inline with one click
+- **Inspect** — Browse traces with color-coded step types; inline reviewer annotations per step (severity-tagged, persisted to `reports/`); auto-score overlay with dimension badges on flagged steps and sidebar evaluation flags; evidence linking — click any cited step in the evaluation to jump to and highlight it in the trace viewer; score a single case inline with one click
 - **Report** — Aggregated summaries with dimension stats and failure distributions
 - **Compare** — Diff two runs side-by-side: improved/regressed cases, dimension deltas, net quality change
 
@@ -267,6 +267,8 @@ src/agenteval/
     scorer.py       auto-scoring orchestrator
     filtering.py    case filtering (failure type, severity, tags, glob pattern)
     report.py       aggregated reporting
+    comparison.py   run comparison engine (deltas, net quality verdict)
+    annotations.py  reviewer annotations CRUD + auto-eval overlay builder
     service.py      UI orchestration layer
     runs.py         run tracking
   schemas/          typed Python bindings for trace/rubric schemas
@@ -280,7 +282,8 @@ src/agenteval/
     reporters.py    markdown + JSON report writers
 
 app/                Streamlit UI (thin presentation layer)
-schemas/            JSON schemas (trace, rubric, evaluation, reviewer scores)
+  components/       reusable widgets (annotation form/list, help, tooltips)
+schemas/            JSON schemas (trace, rubric, evaluation, reviewer scores, annotations)
 rubrics/            versioned rubric definitions
 data/cases/         benchmark dataset
 config/             telemetry redaction rules, journey invariants, thresholds
@@ -300,7 +303,7 @@ ruff format --check src/
 # Type checking
 mypy src/
 
-# Tests (392 tests across 21 modules)
+# Tests (495 tests across 15 modules)
 pytest tests/ -v
 
 # Pre-commit hooks
@@ -313,9 +316,9 @@ CI runs `agenteval-validate-dataset` on every push and PR. Failures block merge.
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full roadmap. The short version:
 
-**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 392 tests.
+**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 495 tests.
 
-**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI) ✓, guided onboarding ✓, selective evaluation ✓, telemetry module (below) ✓, run comparison, trace annotation UI, custom rubric builder.
+**Phase 2 (in progress)** — Trace ingestion adapters ✓, guided onboarding ✓, selective evaluation ✓, run comparison ✓, trace annotation & review UI ✓, telemetry MVP ✓. Remaining: custom rubric builder, UI polish.
 
 **Telemetry module — Milestone 1 (done, `feature/telemetry-mvp`):**
 - ✅ Normalized trace model (`TraceEnvelope`, `SpanRecord`, `ConformanceResult`)
