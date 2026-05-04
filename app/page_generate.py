@@ -6,6 +6,7 @@ import streamlit as st
 from agenteval.core.service import generate_case, validate_dataset
 from agenteval.dataset.generator import VALID_FAILURE_TYPES
 from components.help_section import show_help_section
+from components.workflow_nav import render_next_step_hint
 from onboarding.content import PAGE_HELP
 
 
@@ -84,6 +85,7 @@ def render() -> None:
             generated_id = case_path.name
             if result.ok:
                 st.success("Dataset validation passed.")
+                render_next_step_hint("Generate")
             else:
                 _display_validation_issues(result.issues, highlight_case_id=generated_id)
 

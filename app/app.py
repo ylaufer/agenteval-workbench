@@ -63,6 +63,11 @@ PAGES = {
     "Rubric Builder": "page_rubric",
 }
 
+# Handle cross-page navigation triggered by empty state / next-step buttons
+if st.session_state.get("nav_to_page") in PAGES:
+    _nav_target = st.session_state.pop("nav_to_page")
+    st.session_state["_forced_page"] = _nav_target
+
 st.sidebar.title("AgentEval Workbench")
 
 # Auto-navigate during tutorial mode (T034-T038)
@@ -86,7 +91,21 @@ if st.session_state.get("tutorial_active"):
     selection = page_mapping.get(tutorial_page, "Generate")
     st.sidebar.radio("Navigation", list(PAGES.keys()), index=list(PAGES.keys()).index(selection), disabled=True)
 else:
-    selection = st.sidebar.radio("Navigation", list(PAGES.keys()))
+    # Honour cross-page redirect from empty state / next-step buttons
+    forced = st.session_state.pop("_forced_page", None)
+    page_keys = list(PAGES.keys())
+    default_idx = page_keys.index(forced) if forced in page_keys else 0
+    selection = st.sidebar.radio("Navigation", page_keys, index=default_idx)
+
+# Workflow steps indicator
+_WORKFLOW_STEPS = ["Generate", "Inspect", "Evaluate", "Report"]
+st.sidebar.divider()
+st.sidebar.caption("**Evaluation workflow**")
+for _step in _WORKFLOW_STEPS:
+    if _step == selection:
+        st.sidebar.markdown(f":material/arrow_right: **{_step}**")
+    else:
+        st.sidebar.markdown(f":material/circle: {_step}")
 
 # Settings section in sidebar
 st.sidebar.divider()

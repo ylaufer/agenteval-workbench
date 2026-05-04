@@ -8,6 +8,7 @@ import streamlit as st
 
 from agenteval.core.runs import get_run_results
 from agenteval.core.service import compare_runs, list_runs
+from components.empty_state import render_empty_state
 from components.help_section import show_help_section
 
 
@@ -163,7 +164,13 @@ def render() -> None:
 
     runs = _load_run_options()
     if len(runs) < 2:
-        st.info("Need at least two completed runs to compare. Go to the **Evaluate** page and run auto-scoring.")
+        render_empty_state(
+            ":material/compare:",
+            "Not enough runs to compare",
+            "Complete at least two evaluation runs on the Evaluate page.",
+            "Go to Evaluate",
+            "Evaluate",
+        )
         return
 
     run_ids = [r["run_id"] for r in runs]
