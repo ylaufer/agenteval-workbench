@@ -704,3 +704,43 @@ def get_dataset_tags(dataset_dir: Path | None = None) -> set[str]:
 
     case_dirs = [d for d in dataset_dir.iterdir() if d.is_dir()]
     return _get_dataset_tags(case_dirs)
+
+
+# ---------------------------------------------------------------------------
+# Rubric Builder
+# ---------------------------------------------------------------------------
+
+
+def list_rubric_templates() -> list[str]:
+    """Return sorted template IDs available in rubrics/templates/."""
+    from agenteval.core.rubric_builder import list_templates as _list_templates
+
+    return _list_templates(_get_repo_root())
+
+
+def load_rubric_template(template_id: str) -> dict[str, Any]:
+    """Load a starter template by ID. Raises FileNotFoundError if missing."""
+    from agenteval.core.rubric_builder import load_template as _load_template
+
+    return _load_template(template_id, _get_repo_root())
+
+
+def validate_rubric(rubric: dict[str, Any]) -> tuple[bool, list[str]]:
+    """Validate a rubric dict. Returns (is_valid, errors)."""
+    from agenteval.core.rubric_builder import validate_rubric as _validate_rubric
+
+    return _validate_rubric(rubric, _get_repo_root())
+
+
+def save_rubric(name: str, rubric: dict[str, Any]) -> str:
+    """Save a rubric with auto-versioned filename. Returns saved path as string."""
+    from agenteval.core.rubric_builder import save_rubric as _save_rubric
+
+    return str(_save_rubric(name, rubric, _get_repo_root()))
+
+
+def list_rubrics() -> list[str]:
+    """List all rubric stems available in rubrics/ (excludes templates/)."""
+    from agenteval.core.rubric_builder import list_rubrics as _list_rubrics
+
+    return _list_rubrics(_get_repo_root())

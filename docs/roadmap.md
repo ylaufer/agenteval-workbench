@@ -987,7 +987,7 @@ Phase 2 → Real-World Adoption (IN PROGRESS)
   2.3 Selective Evaluation          COMPLETED
   2.4 Run Comparison                COMPLETED
   2.5 Trace Annotation & Review UI  COMPLETED
-  2.6 Custom Rubric Builder         pending
+  2.6 Custom Rubric Builder         COMPLETED
   2.7 UI Polish                     pending
   2.8 Ingestion UI                  MVP COMPLETED (US2/US3 deferred)
   ↓
@@ -1002,10 +1002,9 @@ Phase 4 → Scale & Community
 
 ## Immediate Next (Phase 2 — remaining)
 
-1. **Custom Rubric Builder** — unblocks teams with domain-specific evaluation criteria.
-2. **UI Polish** — navigation coherence, empty states, loading states, contextual actions.
+1. **UI Polish** — navigation coherence, empty states, loading states, contextual actions.
 
-Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), 2.5 (Trace Annotation & Review UI), and 2.8 (Ingestion UI MVP) are complete.
+Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), 2.5 (Trace Annotation & Review UI), 2.6 (Custom Rubric Builder), and 2.8 (Ingestion UI MVP) are complete.
 
 ## Phase 3 Priorities
 

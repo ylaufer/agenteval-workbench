@@ -1,0 +1,58 @@
+{
+  "name": "Customer Support",
+  "description": "Evaluation rubric for customer support agent interactions. Covers tone and empathy, resolution quality, escalation appropriateness, and policy compliance.",
+  "dimensions": [
+    {
+      "name": "tone_empathy",
+      "title": "Tone & Empathy",
+      "scale": "0-2",
+      "weight": 1.0,
+      "description": "Whether the agent communicates with appropriate tone, empathy, and professionalism.",
+      "evidence_required": false,
+      "scoring_guide": {
+        "0": "Dismissive, rude, or inappropriate tone; shows no empathy for customer's situation.",
+        "1": "Neutral or adequate tone; some empathy shown but inconsistently or superficially.",
+        "2": "Warm, professional, and empathetic throughout; acknowledges customer feelings appropriately."
+      }
+    },
+    {
+      "name": "resolution_quality",
+      "title": "Resolution Quality",
+      "scale": "0-2",
+      "weight": 1.5,
+      "description": "How effectively the agent resolves the customer's issue or request.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Issue not resolved; incorrect solution provided or customer left without help.",
+        "1": "Partial resolution; addresses the issue but leaves gaps or requires customer follow-up.",
+        "2": "Issue fully resolved; customer has a clear, correct, and actionable path forward."
+      }
+    },
+    {
+      "name": "escalation_appropriateness",
+      "title": "Escalation Appropriateness",
+      "scale": "0-2",
+      "weight": 1.0,
+      "description": "Whether escalation decisions (to human agent, manager, etc.) are appropriate and timely.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Inappropriate escalation: unnecessary escalation for simple issues, or failed to escalate critical ones.",
+        "1": "Escalation decision is debatable; timing or rationale could be improved.",
+        "2": "Escalation decision is clearly appropriate; escalated when needed, handled directly when appropriate."
+      }
+    },
+    {
+      "name": "policy_compliance",
+      "title": "Policy Compliance",
+      "scale": "0-2",
+      "weight": 1.5,
+      "description": "Whether the agent's actions and advice comply with company policies and guidelines.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Clear policy violation: unauthorized discounts, incorrect information, breach of confidentiality.",
+        "1": "Minor policy deviation or ambiguity; no clear harm but not fully compliant.",
+        "2": "Fully compliant with all applicable policies; information and actions are authorized."
+      }
+    }
+  ]
+}

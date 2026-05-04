@@ -1,0 +1,58 @@
+{
+  "name": "RAG Pipeline",
+  "description": "Evaluation rubric for retrieval-augmented generation pipelines. Focuses on answer accuracy, retrieval quality, source attribution, and hallucination detection.",
+  "dimensions": [
+    {
+      "name": "accuracy",
+      "title": "Accuracy",
+      "scale": "0-2",
+      "weight": 1.5,
+      "description": "Factual correctness of claims in the response relative to retrieved context and ground truth.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Major incorrect claims or answer contradicts retrieved documents.",
+        "1": "Partially correct; minor errors or unsupported claims present.",
+        "2": "All claims correct and supported by retrieved context."
+      }
+    },
+    {
+      "name": "retrieval_quality",
+      "title": "Retrieval Quality",
+      "scale": "0-2",
+      "weight": 1.0,
+      "description": "Relevance and completeness of retrieved chunks relative to the query.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Retrieved chunks are irrelevant or missing key information needed to answer.",
+        "1": "Partially relevant retrieval; some useful chunks but gaps remain.",
+        "2": "Retrieved chunks are relevant and sufficient to answer the query accurately."
+      }
+    },
+    {
+      "name": "source_attribution",
+      "title": "Source Attribution",
+      "scale": "0-2",
+      "weight": 1.0,
+      "description": "Whether the response correctly cites or attributes claims to retrieved sources.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "No attribution, or attributes claims to wrong/fabricated sources.",
+        "1": "Partial attribution; some claims attributed but others are unsourced.",
+        "2": "All significant claims are attributed to correct retrieved sources."
+      }
+    },
+    {
+      "name": "hallucination_detection",
+      "title": "Hallucination Detection",
+      "scale": "0-2",
+      "weight": 1.5,
+      "description": "Absence of fabricated facts not present in retrieved context or ground truth.",
+      "evidence_required": true,
+      "scoring_guide": {
+        "0": "Clear hallucinations: specific facts, names, or numbers not present in any source.",
+        "1": "Minor over-generalization or unverified claim present; not clearly fabricated.",
+        "2": "No hallucinations; response stays within boundaries of retrieved context."
+      }
+    }
+  ]
+}
