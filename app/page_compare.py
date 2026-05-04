@@ -157,7 +157,7 @@ def render() -> None:
     st.title("Compare Runs")
 
     show_help_section(
-        "compare_runs",
+        "How this works",
         "**Compare Runs** lets you diff two evaluation runs side-by-side to see which "
         "cases improved or regressed, per-dimension trends, and net quality change.",
     )

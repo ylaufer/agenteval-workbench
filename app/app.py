@@ -236,6 +236,14 @@ else:
 
 if st.session_state.pop("_scroll_to_top", False):
     import streamlit.components.v1 as _components
-    _components.html("<script>window.parent.document.querySelector('section.main').scrollTo(0,0);</script>", height=0)
+    _components.html(
+        "<script>"
+        "var el = window.parent.document.querySelector('[data-testid=\"stMain\"]')"
+        " || window.parent.document.querySelector('.main')"
+        " || window.parent.document.documentElement;"
+        "if (el) el.scrollTo(0, 0);"
+        "</script>",
+        height=0,
+    )
 
 render()
