@@ -4,7 +4,9 @@ from __future__ import annotations
 import streamlit as st
 
 from agenteval.core.service import generate_summary_report
+from components.empty_state import render_empty_state
 from components.help_section import show_help_section
+from components.workflow_nav import render_next_step_hint
 from onboarding.content import PAGE_HELP
 
 
@@ -89,13 +91,17 @@ def render() -> None:
                 "Summary files written to `reports/summary.evaluation.json` "
                 "and `reports/summary.evaluation.md`."
             )
+            render_next_step_hint("Report")
 
         except RuntimeError as exc:
             msg = str(exc)
             if "No *.evaluation.json" in msg or "evaluation" in msg.lower():
-                st.info(
-                    "No evaluation templates found in `reports/`. "
-                    "Run the evaluation pipeline first from the **Evaluate** page."
+                render_empty_state(
+                    ":material/summarize:",
+                    "No evaluations found",
+                    "Run the evaluation pipeline on the Evaluate page first.",
+                    "Go to Evaluate",
+                    "Evaluate",
                 )
             elif "rubric" in msg.lower():
                 st.error(f"Rubric error: {msg}")

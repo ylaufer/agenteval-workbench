@@ -20,6 +20,7 @@ from agenteval.core.service import (
 )
 from agenteval.dataset.validator import _get_repo_root
 from components.annotation import render_annotation_form, render_annotation_list
+from components.empty_state import render_empty_state
 from components.help_section import show_help_section
 from onboarding.content import PAGE_HELP
 
@@ -85,7 +86,11 @@ def _render_step(
             )
             dim_badges = f"  {badges}"
 
-        st.markdown(f"**`{step_id}`** :{color}[{step_type}] — *{actor}*{dim_badges}")
+        _badge_color = {"thought": "blue", "tool_call": "orange", "observation": "green", "final_answer": "violet"}.get(step_type, "gray")
+        col_hdr, col_badge = st.columns([4, 1], vertical_alignment="center")
+        col_hdr.markdown(f"**`{step_id}`** — *{actor}*{dim_badges}")
+        with col_badge:
+            st.badge(step_type, color=_badge_color)
         st.text(content)
 
         if step_type == "tool_call":
@@ -132,9 +137,12 @@ def _render_cases_tab() -> None:
     """Render the case inspection tab."""
     cases = list_cases()
     if not cases:
-        st.info(
-            "No cases found in the dataset. "
-            "Use the **Generate** page to create benchmark cases first."
+        render_empty_state(
+            ":material/folder_open:",
+            "No cases yet",
+            "Generate benchmark cases to start inspecting traces.",
+            "Go to Generate",
+            "Generate",
         )
         return
 

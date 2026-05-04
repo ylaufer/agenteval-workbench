@@ -14,7 +14,9 @@ from agenteval.core.service import (
     run_selective_evaluation,
 )
 from agenteval.dataset.validator import _get_repo_root
+from components.empty_state import render_empty_state
 from components.help_section import show_help_section
+from components.workflow_nav import render_next_step_hint
 from onboarding.content import PAGE_HELP
 
 
@@ -170,9 +172,12 @@ def render() -> None:
     all_tags = _load_dataset_tags()
 
     if not all_cases:
-        st.info(
-            "No cases found in the dataset. "
-            "Use the **Generate** page to create benchmark cases first."
+        render_empty_state(
+            ":material/rule:",
+            "No cases to evaluate",
+            "Generate benchmark cases first, then run auto-scoring here.",
+            "Go to Generate",
+            "Generate",
         )
         _render_run_history()
         return
@@ -242,8 +247,22 @@ def render() -> None:
                     label_visibility="collapsed",
                 )
                 c2.write(case["case_id"])
-                c3.write(case["primary_failure"] or "—")
-                c4.write(case["severity"] or "—")
+                _sev = case["severity"] or ""
+                _fail = case["primary_failure"] or ""
+                _sev_color = {
+                    "Critical": "red", "High": "orange",
+                    "Medium": "blue", "Low": "gray",
+                }.get(_sev, "gray")
+                with c3:
+                    if _fail:
+                        st.badge(_fail, color="gray")
+                    else:
+                        st.write("—")
+                with c4:
+                    if _sev:
+                        st.badge(_sev, color=_sev_color)
+                    else:
+                        st.write("—")
 
     # --- Evaluate buttons ---
     with st.container(horizontal=True):
@@ -277,6 +296,7 @@ def render() -> None:
 
             if n_fail == 0 and n_skip == 0:
                 st.success(f"Auto-scored **{n_ok}** case(s).")
+                render_next_step_hint("Evaluate")
             else:
                 st.warning(
                     f"{n_ok} evaluated"
@@ -321,7 +341,11 @@ def _render_run_history() -> None:
 
     runs = list_runs()
     if not runs:
-        st.info("No evaluation runs yet. Run auto-scoring above to create one.")
+        render_empty_state(
+            ":material/history:",
+            "No runs yet",
+            "Run auto-scoring above to create the first evaluation run.",
+        )
     else:
         run_rows = []
         for run in runs:

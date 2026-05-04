@@ -988,7 +988,7 @@ Phase 2 → Real-World Adoption (IN PROGRESS)
   2.4 Run Comparison                COMPLETED
   2.5 Trace Annotation & Review UI  COMPLETED
   2.6 Custom Rubric Builder         COMPLETED
-  2.7 UI Polish                     pending
+  2.7 UI Polish                     COMPLETED
   2.8 Ingestion UI                  MVP COMPLETED (US2/US3 deferred)
   ↓
 Phase 3 → Integration & Intelligence
@@ -1000,11 +1000,9 @@ Phase 4 → Scale & Community
 
 # Strategic Priorities
 
-## Immediate Next (Phase 2 — remaining)
+## Phase 2 — COMPLETE ✅
 
-1. **UI Polish** — navigation coherence, empty states, loading states, contextual actions.
-
-Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), 2.5 (Trace Annotation & Review UI), 2.6 (Custom Rubric Builder), and 2.8 (Ingestion UI MVP) are complete.
+All Phase 2 features are complete: 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), 2.5 (Trace Annotation & Review UI), 2.6 (Custom Rubric Builder), 2.7 (UI Polish), and 2.8 (Ingestion UI MVP).
 
 ## Phase 3 Priorities
 
