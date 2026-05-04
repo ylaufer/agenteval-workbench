@@ -55,11 +55,11 @@ if should_show_welcome_modal():
 
 PAGES = {
     "Generate": "page_generate",
-    "Ingest": "page_ingest",
-    "Evaluate": "page_evaluate",
     "Inspect": "page_inspect",
+    "Evaluate": "page_evaluate",
     "Report": "page_report",
     "Compare": "page_compare",
+    "Ingest": "page_ingest",
     "Rubric Builder": "page_rubric",
 }
 
@@ -94,8 +94,10 @@ else:
     # Honour cross-page redirect from empty state / next-step buttons
     forced = st.session_state.pop("_forced_page", None)
     page_keys = list(PAGES.keys())
-    default_idx = page_keys.index(forced) if forced in page_keys else 0
-    selection = st.sidebar.radio("Navigation", page_keys, index=default_idx)
+    if forced and forced in page_keys:
+        st.session_state["_nav_radio"] = forced
+        st.session_state["_scroll_to_top"] = True
+    selection = st.sidebar.radio("Navigation", page_keys, key="_nav_radio")
 
 # Workflow steps indicator
 _WORKFLOW_STEPS = ["Generate", "Inspect", "Evaluate", "Report"]
@@ -231,5 +233,9 @@ elif selection == "Rubric Builder":
 else:
     st.error(f"Unknown page: {selection}")
     st.stop()
+
+if st.session_state.pop("_scroll_to_top", False):
+    import streamlit.components.v1 as _components
+    _components.html("<script>window.parent.document.querySelector('section.main').scrollTo(0,0);</script>", height=0)
 
 render()

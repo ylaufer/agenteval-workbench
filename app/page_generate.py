@@ -85,11 +85,13 @@ def render() -> None:
             generated_id = case_path.name
             if result.ok:
                 st.success("Dataset validation passed.")
-                render_next_step_hint("Generate")
+                st.session_state["_gen_hint"] = True
             else:
+                st.session_state["_gen_hint"] = False
                 _display_validation_issues(result.issues, highlight_case_id=generated_id)
 
         except ValueError as exc:
+            st.session_state["_gen_hint"] = False
             msg = str(exc)
             if "already exists" in msg:
                 st.warning(f"{msg}\n\nEnable the **Overwrite** checkbox to replace it.")
@@ -98,15 +100,6 @@ def render() -> None:
             else:
                 st.error(f"Generation failed: {msg}")
 
-    # --- Validate Dataset section ---
-    st.divider()
-    st.subheader("Validate Dataset")
+    if st.session_state.get("_gen_hint"):
+        render_next_step_hint("Generate")
 
-    if st.button("Validate Dataset"):
-        with st.spinner("Validating dataset..."):
-            result = validate_dataset()
-
-        if result.ok:
-            st.success("Dataset validation passed.")
-        else:
-            _display_validation_issues(result.issues)
