@@ -269,9 +269,25 @@ CI runs `agenteval-validate-dataset` on every push and PR. Failures block merge.
 
 See [`docs/roadmap.md`](docs/roadmap.md) for the full roadmap. The short version:
 
-**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 347 tests.
+**Phase 1 (done)** — Schema-driven evaluation pipeline, auto-scoring engine, Streamlit UI, run tracking, 392 tests.
 
-**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI) ✓, guided onboarding ✓, selective evaluation ✓, telemetry/observability-driven testing module (Milestone 1) ✓, run comparison, trace annotation UI, custom rubric builder.
+**Phase 2 (in progress)** — Trace ingestion adapters (OpenTelemetry, LangChain, CrewAI) ✓, guided onboarding ✓, selective evaluation ✓, telemetry module (below) ✓, run comparison, trace annotation UI, custom rubric builder.
+
+**Telemetry module — Milestone 1 (done, `feature/telemetry-mvp`):**
+- ✅ Normalized trace model (`TraceEnvelope`, `SpanRecord`, `ConformanceResult`)
+- ✅ Local JSON fixture loader (sanitized fixtures only, no live sources)
+- ✅ Redaction engine — path-pattern + regex rules, fail-closed on missing config
+- ✅ Structural + semantic validator — parent integrity, duration, required fields, optional threshold enforcement
+- ✅ Journey invariant loader (`telemetry_journey_invariants.yaml`)
+- ✅ Conformance engine — required/forbidden spans, timing and depth budgets
+- ✅ Markdown + JSON reporters
+- ✅ 45 tests, 100% coverage, ruff/mypy clean
+
+**Telemetry module — Milestone 2 (not started):**
+- Live OTLP ingestion (OpenTelemetry collector)
+- Google Cloud Trace integration
+- Anomaly and drift detection
+- Dashboard / UI integration
 
 **Phase 3** — CI/CD integration (GitHub Action), export hooks (Slack, webhooks), confidence calibration, experiment tracking, regression detection, auto test generation from failures.
 
