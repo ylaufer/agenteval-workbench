@@ -46,7 +46,11 @@ def _register_llm_evaluators(
 ) -> None:
     """Register LLM evaluators if an API key is available."""
     from agenteval.core.evaluators.llm_evaluator import LLMEvaluator
-    from agenteval.core.evaluators.llm_provider import AnthropicProvider, LLMProvider, OpenAIProvider
+    from agenteval.core.evaluators.llm_provider import (
+        AnthropicProvider,
+        LLMProvider,
+        OpenAIProvider,
+    )
 
     # Subjective dimensions that benefit from LLM evaluation
     llm_dimensions = ("accuracy", "completeness", "reasoning_quality", "ui_grounding")

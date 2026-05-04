@@ -49,16 +49,18 @@ def load_trace(path: str | Path) -> TraceEnvelope:
     spans = []
     for i, span_data in enumerate(payload["spans"]):
         _validate_span(span_data, i)
-        spans.append(SpanRecord(
-            span_id=span_data["span_id"],
-            parent_span_id=span_data.get("parent_span_id"),
-            name=span_data["name"],
-            service=span_data["service"],
-            kind=span_data["kind"],
-            start_ms=span_data["start_ms"],
-            end_ms=span_data["end_ms"],
-            attributes=span_data.get("attributes", {}),
-        ))
+        spans.append(
+            SpanRecord(
+                span_id=span_data["span_id"],
+                parent_span_id=span_data.get("parent_span_id"),
+                name=span_data["name"],
+                service=span_data["service"],
+                kind=span_data["kind"],
+                start_ms=span_data["start_ms"],
+                end_ms=span_data["end_ms"],
+                attributes=span_data.get("attributes", {}),
+            )
+        )
 
     return TraceEnvelope(
         trace_id=payload["trace_id"],

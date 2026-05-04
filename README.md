@@ -123,18 +123,30 @@ agenteval-inspect-run <run_id>
 
 Every evaluation creates a tracked run with timestamps, dataset snapshot, and configuration — so results are always reproducible.
 
+### 6. Compare runs
+
+```bash
+agenteval-compare --run-a <RUN_ID_A> --run-b <RUN_ID_B>
+
+# Save structured result
+agenteval-compare --baseline <RUN_ID_A> --current <RUN_ID_B> --output-json comparison.json
+```
+
+Diffs two evaluation runs side-by-side: per-case status (improved / regressed / unchanged / new / removed), per-dimension mean score deltas, new and resolved failure types, and a single net-quality-change verdict.
+
 ## Streamlit UI
 
 ```bash
 streamlit run app/app.py
 ```
 
-Five pages covering the full workflow:
+Six pages covering the full workflow:
 - **Generate** — Create benchmark cases, validate dataset
 - **Ingest** — Upload trace files from external frameworks (OTel, LangChain, CrewAI, OpenAI), auto-detect format, preview conversion, and save to case directory
 - **Evaluate** — Run full or selective auto-scoring; filter cases by failure type, severity, tags, or glob pattern; check individual cases or evaluate all filtered; run history shows filter criteria
 - **Inspect** — Browse traces with color-coded step types, view evaluation templates; score a single case inline with one click
 - **Report** — Aggregated summaries with dimension stats and failure distributions
+- **Compare** — Diff two runs side-by-side: improved/regressed cases, dimension deltas, net quality change
 
 ### Guided Onboarding
 

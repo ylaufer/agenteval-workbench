@@ -65,7 +65,9 @@ def validate_trace_structure(
         cfg = thresholds.get("thresholds", {})
         max_span_count = cfg.get("max_span_count_default")
         if max_span_count is not None and len(trace.spans) > max_span_count:
-            errors.append(f"span count {len(trace.spans)} exceeds max_span_count_default {max_span_count}")
+            errors.append(
+                f"span count {len(trace.spans)} exceeds max_span_count_default {max_span_count}"
+            )
 
         max_duration = cfg.get("max_total_duration_ms_default")
         if max_duration is not None and trace.spans:

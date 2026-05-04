@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ComparisonResult",
+  "description": "Structured diff between two AgentEval evaluation runs.",
+  "type": "object",
+  "required": ["comparison_id", "run_a", "run_b", "timestamp", "summary", "dimension_deltas", "case_deltas"],
+  "additionalProperties": false,
+  "properties": {
+    "comparison_id": { "type": "string" },
+    "run_a": { "type": "string" },
+    "run_b": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_cases_compared", "cases_improved", "cases_regressed",
+        "cases_unchanged", "cases_new", "cases_removed",
+        "net_quality_change", "new_failure_types", "resolved_failure_types"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "total_cases_compared": { "type": "integer", "minimum": 0 },
+        "cases_improved": { "type": "integer", "minimum": 0 },
+        "cases_regressed": { "type": "integer", "minimum": 0 },
+        "cases_unchanged": { "type": "integer", "minimum": 0 },
+        "cases_new": { "type": "integer", "minimum": 0 },
+        "cases_removed": { "type": "integer", "minimum": 0 },
+        "overall_score_delta": { "type": ["number", "null"] },
+        "net_quality_change": {
+          "type": "string",
+          "enum": ["improved", "regressed", "unchanged", "insufficient_data"]
+        },
+        "new_failure_types": { "type": "array", "items": { "type": "string" } },
+        "resolved_failure_types": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "dimension_deltas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["dimension", "cases_improved", "cases_regressed", "cases_unchanged"],
+        "additionalProperties": false,
+        "properties": {
+          "dimension": { "type": "string" },
+          "mean_score_a": { "type": ["number", "null"] },
+          "mean_score_b": { "type": ["number", "null"] },
+          "mean_delta": { "type": ["number", "null"] },
+          "std_delta": { "type": ["number", "null"] },
+          "cases_improved": { "type": "integer", "minimum": 0 },
+          "cases_regressed": { "type": "integer", "minimum": 0 },
+          "cases_unchanged": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "case_deltas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "case_id": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["improved", "regressed", "unchanged", "new", "removed"]
+          },
+          "overall_score_a": { "type": ["number", "null"] },
+          "overall_score_b": { "type": ["number", "null"] },
+          "overall_delta": { "type": ["number", "null"] },
+          "dimension_deltas": {
+            "type": "object",
+            "additionalProperties": { "type": ["number", "null"] }
+          },
+          "primary_failure_a": { "type": ["string", "null"] },
+          "primary_failure_b": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

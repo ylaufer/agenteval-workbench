@@ -30,7 +30,8 @@ def _walk(value: Any, rules: list[dict[str, Any]], _path: str = "") -> Any:
             full_path = f"{_path}.{k}" if _path else k
             direct = next(
                 (
-                    r for r in rules
+                    r
+                    for r in rules
                     if full_path in r.get("path_patterns", [])
                     or f"attributes.{full_path}" in r.get("path_patterns", [])
                 ),

@@ -625,6 +625,13 @@ def _write_filter_criteria(run_id: str, filter_criteria: dict[str, Any]) -> None
         pass  # Best-effort; don't fail the run over metadata
 
 
+def compare_runs(run_a_id: str, run_b_id: str) -> Any:
+    """Compare two evaluation runs. Returns a ComparisonResult dataclass."""
+    from agenteval.core.comparison import compare_runs as _compare_runs
+
+    return _compare_runs(run_a_id, run_b_id)
+
+
 def get_dataset_tags(dataset_dir: Path | None = None) -> set[str]:
     """Return the union of all tags across the dataset. Used by UI for tag dropdown.
 
