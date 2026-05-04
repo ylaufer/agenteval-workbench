@@ -383,6 +383,7 @@ The current inspect page renders trace steps linearly with no interactivity. Rev
 - For cases that appear in two runs, show a step-by-step diff
 - Highlight steps that changed between trace versions
 - Useful when comparing traces from different model versions or prompt variants
+- **Deferred**: requires real trace variants; implemented when agent iteration produces divergent traces
 
 #### Evidence Linking
 
@@ -392,6 +393,8 @@ The current inspect page renders trace steps linearly with no interactivity. Rev
 ### Outcome
 
 Review becomes a connected workflow where evaluation results and trace data are interleaved, not siloed.
+
+> **Status**: Completed in Feature 009. Inline annotations with severity levels (US1), auto-score overlay with dimension badges and sidebar evaluation flags (US2), and jump-to-step evidence linking with highlighted step border (US3) all implemented. Step-level diff view (US4) deferred.
 
 ---
 
@@ -983,7 +986,7 @@ Phase 2 → Real-World Adoption (IN PROGRESS)
   2.2 Guided Onboarding             COMPLETED
   2.3 Selective Evaluation          COMPLETED
   2.4 Run Comparison                COMPLETED
-  2.5 Trace Annotation & Review UI  pending
+  2.5 Trace Annotation & Review UI  COMPLETED
   2.6 Custom Rubric Builder         pending
   2.7 UI Polish                     pending
   2.8 Ingestion UI                  MVP COMPLETED (US2/US3 deferred)
@@ -999,11 +1002,10 @@ Phase 4 → Scale & Community
 
 ## Immediate Next (Phase 2 — remaining)
 
-1. **Trace Annotation & Review UI** — connects evaluation results to trace steps; makes review a coherent workflow.
-2. **Custom Rubric Builder** — unblocks teams with domain-specific evaluation criteria.
-3. **UI Polish** — navigation coherence, empty states, loading states, contextual actions.
+1. **Custom Rubric Builder** — unblocks teams with domain-specific evaluation criteria.
+2. **UI Polish** — navigation coherence, empty states, loading states, contextual actions.
 
-Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), and 2.8 (Ingestion UI MVP) are complete.
+Features 2.1 (Trace Ingestion), 2.2 (Guided Onboarding), 2.3 (Selective Evaluation), 2.4 (Run Comparison), 2.5 (Trace Annotation & Review UI), and 2.8 (Ingestion UI MVP) are complete.
 
 ## Phase 3 Priorities
 
