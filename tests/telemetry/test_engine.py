@@ -132,6 +132,48 @@ def test_conformance_no_spec_has_trace_id() -> None:
     assert result.trace_id == "trace-xyz"
 
 
+def test_conformance_fails_max_occurrences_exceeded() -> None:
+    # max_occurrences: llm.generate: 2; put 3 occurrences
+    spans = [
+        _span("s1", "http.server:/ask"),
+        _span("s2", "retriever.search"),
+        _span("s3", "llm.generate"),
+        _span("s4", "llm.generate"),
+        _span("s5", "llm.generate"),
+    ]
+    trace = _make_trace(spans)
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.passed is False
+    assert any("at most" in f for f in result.failures)
+
+
+def test_conformance_fails_min_occurrences_not_met() -> None:
+    # min_occurrences: retriever.search: 1; omit it entirely
+    spans = [
+        _span("s1", "http.server:/ask"),
+        _span("s2", "llm.generate"),
+    ]
+    trace = _make_trace(spans)
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.passed is False
+    assert any("at least" in f for f in result.failures)
+
+
+def test_conformance_passes_occurrence_bounds_satisfied() -> None:
+    # 1x retriever.search (≥1), 1x llm.generate (≤2) — within bounds
+    spans = [
+        _span("s1", "http.server:/ask", start=0, end=10),
+        _span("s2", "retriever.search", start=11, end=20),
+        _span("s3", "llm.generate", start=21, end=30),
+    ]
+    trace = _make_trace(spans)
+    invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))
+    result = evaluate_conformance(trace, invariants)
+    assert result.passed is True
+
+
 def test_conformance_metrics_populated() -> None:
     trace = load_trace(Path("fixtures/traces/sample_trace.json"))
     invariants = load_invariants(Path("config/telemetry_journey_invariants.yaml"))

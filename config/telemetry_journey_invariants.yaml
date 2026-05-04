@@ -11,5 +11,9 @@ journeys:
       - http.server:/ask
       - retriever.search
       - llm.generate
+    min_occurrences:
+      retriever.search: 1
+    max_occurrences:
+      llm.generate: 2
     max_span_count: 6
     max_total_duration_ms: 2500

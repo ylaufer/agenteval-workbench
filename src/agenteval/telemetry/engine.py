@@ -42,6 +42,23 @@ def evaluate_conformance(trace: TraceEnvelope, invariant_config: dict) -> Confor
                     f"span order violated: '{prev_name}' must precede '{curr_name}'"
                 )
 
+    # Occurrence bounds
+    span_counts: dict[str, int] = {}
+    for name in names:
+        span_counts[name] = span_counts.get(name, 0) + 1
+    for span_name, min_count in spec.get("min_occurrences", {}).items():
+        actual = span_counts.get(span_name, 0)
+        if actual < min_count:
+            failures.append(
+                f"span '{span_name}' appears {actual} time(s), expected at least {min_count}"
+            )
+    for span_name, max_count in spec.get("max_occurrences", {}).items():
+        actual = span_counts.get(span_name, 0)
+        if actual > max_count:
+            failures.append(
+                f"span '{span_name}' appears {actual} time(s), expected at most {max_count}"
+            )
+
     max_total_duration_ms = spec.get("max_total_duration_ms")
     total_duration = max((s.end_ms for s in trace.spans), default=0) - min((s.start_ms for s in trace.spans), default=0)
     if max_total_duration_ms is not None and total_duration > max_total_duration_ms:

@@ -75,6 +75,15 @@ def validate_trace_structure(
                     f"total duration {total}ms exceeds max_total_duration_ms_default {max_duration}ms"
                 )
 
+        required_coverage = cfg.get("required_semantic_coverage")
+        if required_coverage is not None and trace.spans:
+            complete = sum(1 for s in trace.spans if s.name and s.service and s.kind)
+            coverage = complete / len(trace.spans)
+            if coverage < required_coverage:
+                errors.append(
+                    f"semantic coverage {coverage:.2f} below required {required_coverage}"
+                )
+
     return errors
 
 

@@ -118,6 +118,29 @@ def test_structure_threshold_not_applied_when_none() -> None:
     assert not any("max_span_count_default" in e for e in errors)
 
 
+def test_structure_threshold_semantic_coverage_below_required() -> None:
+    # required_semantic_coverage is 1.0; one span with empty service drops coverage below it
+    thresholds = load_thresholds(Path("config/telemetry_thresholds.yaml"))
+    spans = [
+        SpanRecord("s1", None, "op", "svc", "INTERNAL", 0, 10, {}),
+        SpanRecord("s2", "s1", "op", "", "INTERNAL", 1, 9, {}),  # empty service
+    ]
+    trace = TraceEnvelope("t", "j", "s1", spans)
+    errors = validate_trace_structure(trace, thresholds)
+    assert any("semantic coverage" in e for e in errors)
+
+
+def test_structure_threshold_semantic_coverage_passes_when_all_complete() -> None:
+    thresholds = load_thresholds(Path("config/telemetry_thresholds.yaml"))
+    spans = [
+        SpanRecord("s1", None, "op", "svc", "INTERNAL", 0, 10, {}),
+        SpanRecord("s2", "s1", "op2", "svc", "CLIENT", 1, 9, {}),
+    ]
+    trace = TraceEnvelope("t", "j", "s1", spans)
+    errors = validate_trace_structure(trace, thresholds)
+    assert not any("semantic coverage" in e for e in errors)
+
+
 def test_structure_within_thresholds_passes() -> None:
     thresholds = load_thresholds(Path("config/telemetry_thresholds.yaml"))
     trace = load_trace(Path("fixtures/traces/sample_trace.json"))
