@@ -5,6 +5,8 @@ import json
 
 import streamlit as st
 
+from agenteval.core import service
+from agenteval.core.annotations import build_auto_eval_overlay
 from agenteval.core.service import (
     get_run,
     get_run_results,
@@ -17,6 +19,7 @@ from agenteval.core.service import (
     run_selective_evaluation,
 )
 from agenteval.dataset.validator import _get_repo_root
+from components.annotation import render_annotation_form, render_annotation_list
 from components.help_section import show_help_section
 from onboarding.content import PAGE_HELP
 
@@ -28,30 +31,83 @@ _TYPE_COLORS = {
     "final_answer": "violet",
 }
 
+_SEVERITY_STEP_COLORS = {
+    "flagged": "red",
+    "clean": "green",
+}
 
-def _render_step(step: dict) -> None:  # type: ignore[type-arg]
-    """Render a single trace step."""
+
+def _get_annotations_cached(case_id: str) -> list[dict]:  # type: ignore[type-arg]
+    """Return annotations for a case, cached in session state."""
+    cache_key = f"annotations_{case_id}"
+    if cache_key not in st.session_state:
+        st.session_state[cache_key] = service.get_annotations(case_id)
+    return st.session_state[cache_key]  # type: ignore[no-any-return]
+
+
+def _render_step(
+    step: dict,  # type: ignore[type-arg]
+    overlay_step_evidence: dict,  # type: ignore[type-arg]
+    highlighted_step: str | None,
+    case_id: str,
+    annotations_by_step: dict,  # type: ignore[type-arg]
+) -> None:
+    """Render a single trace step with overlay badges, highlighting, and annotations."""
     step_id = step.get("step_id", "?")
     step_type = step.get("type", "unknown")
     actor = step.get("actor_id", "")
     content = step.get("content", "")
     color = _TYPE_COLORS.get(step_type, "gray")
 
-    st.markdown(f"**`{step_id}`** :{color}[{step_type}] — *{actor}*")
-    st.text(content)
+    is_highlighted = highlighted_step == step_id
+    is_flagged = step_id in overlay_step_evidence
 
-    if step_type == "tool_call":
-        tool_name = step.get("tool_name")
-        tool_input = step.get("tool_input")
-        if tool_name:
-            st.markdown(f"Tool: `{tool_name}`")
-        if tool_input:
-            st.json(tool_input)
+    # Choose container style
+    if is_highlighted:
+        container = st.container(border=True)
+    elif is_flagged:
+        container = st.container(border=True)
+    else:
+        container = st.container()
 
-    if step_type == "observation":
-        tool_output = step.get("tool_output")
-        if tool_output:
-            st.code(str(tool_output), language=None)
+    with container:
+        # Highlight banner
+        if is_highlighted:
+            st.markdown(":violet-background[:material/my_location: Highlighted step]")
+
+        # Step header line
+        dim_badges = ""
+        if is_flagged:
+            dims = overlay_step_evidence[step_id]
+            badges = " ".join(
+                f":red-badge[{d.dimension}: {d.score if d.score is not None else '?'}]"
+                for d in dims
+            )
+            dim_badges = f"  {badges}"
+
+        st.markdown(f"**`{step_id}`** :{color}[{step_type}] — *{actor}*{dim_badges}")
+        st.text(content)
+
+        if step_type == "tool_call":
+            tool_name = step.get("tool_name")
+            tool_input = step.get("tool_input")
+            if tool_name:
+                st.markdown(f"Tool: `{tool_name}`")
+            if tool_input:
+                st.json(tool_input)
+
+        if step_type == "observation":
+            tool_output = step.get("tool_output")
+            if tool_output:
+                st.code(str(tool_output), language=None)
+
+        # Annotations for this step
+        step_annotations = annotations_by_step.get(step_id, [])
+        render_annotation_list(step_annotations, case_id)
+
+        # Add Note expander
+        with st.expander(":material/add_comment: Add Note", expanded=False):
+            render_annotation_form(case_id, step_id)
 
     st.divider()
 
@@ -82,12 +138,30 @@ def _render_cases_tab() -> None:
         )
         return
 
+    # Track previously selected case to clear highlight on change
+    prev_case_key = "inspect_prev_case"
+    prev_case = st.session_state.get(prev_case_key)
+
     selected = st.selectbox("Select a case", cases)
     if not selected:
         return
 
+    # Clear highlighted step when case changes
+    if prev_case != selected:
+        st.session_state["inspect_highlighted_step"] = None
+        st.session_state[prev_case_key] = selected
+
     repo_root = _get_repo_root()
     case_dir = repo_root / "data" / "cases" / selected
+
+    # --- Load auto-eval overlay ---
+    overlay_step_evidence: dict = {}  # type: ignore[type-arg]
+    case_flags = []
+    auto_eval = service.get_auto_eval_for_case(selected)
+    if auto_eval is not None:
+        overlay = build_auto_eval_overlay(auto_eval)
+        overlay_step_evidence = overlay.step_evidence
+        case_flags = overlay.case_flags
 
     # --- Case Metadata ---
     st.subheader("Case Metadata")
@@ -107,17 +181,50 @@ def _render_cases_tab() -> None:
     else:
         st.warning("No metadata found (expected_outcome.md missing or has no header).")
 
+    # --- Sidebar: Evaluation Flags ---
+    if case_flags:
+        with st.sidebar:
+            with st.expander(":material/flag: Evaluation Flags", expanded=True):
+                for flag in case_flags:
+                    score_str = str(flag.score) if flag.score is not None else "?"
+                    st.markdown(
+                        f":red-badge[{flag.dimension}] score={score_str}  \n"
+                        f":small[{flag.notes[:80]}{'…' if len(flag.notes) > 80 else ''}]"
+                    )
+
     # --- Trace Viewer ---
     st.subheader("Trace Steps")
+
+    # Load annotations once, index by step_id
+    all_annotations = _get_annotations_cached(selected)
+    annotations_by_step: dict = {}  # type: ignore[type-arg]
+    for ann in all_annotations:
+        step_id = ann.get("step_id", "")
+        annotations_by_step.setdefault(step_id, []).append(ann)
+
+    highlighted_step: str | None = st.session_state.get("inspect_highlighted_step")
+
     try:
         trace = load_trace(case_dir)
         steps = trace.get("steps", [])
         if not steps:
             st.info("Trace has no steps.")
         else:
+            # Legend when overlay is active
+            if overlay_step_evidence:
+                st.caption(
+                    ":red-badge[dimension: score] = flagged by evaluator  "
+                    "  :violet-background[violet] = jump-to target"
+                )
             for step in steps:
                 if isinstance(step, dict):
-                    _render_step(step)
+                    _render_step(
+                        step,
+                        overlay_step_evidence,
+                        highlighted_step,
+                        selected,
+                        annotations_by_step,
+                    )
     except (json.JSONDecodeError, Exception) as exc:
         st.error(f"Failed to parse trace: {exc}")
 
@@ -176,11 +283,25 @@ def _render_cases_tab() -> None:
                 weight = dim_data.get("weight", 1.0)
                 scale = dim_data.get("scale", "0-2")
                 score_display = str(score) if score is not None else "Not yet scored"
+                evidence_step_ids: list[str] = dim_data.get("evidence_step_ids") or []
 
                 st.markdown(
                     f"**{dim_name}** — Scale: {scale}, Weight: {weight}, "
                     f"Score: **{score_display}**"
                 )
+
+                # US3: Evidence linking — "→ Step" jump buttons
+                if evidence_step_ids:
+                    cols = st.columns(len(evidence_step_ids))
+                    for i, sid in enumerate(evidence_step_ids):
+                        with cols[i]:
+                            if st.button(
+                                f":material/arrow_forward: {sid}",
+                                key=f"jump_{dim_name}_{sid}_{selected}",
+                                help=f"Highlight {sid} in the trace viewer",
+                            ):
+                                st.session_state["inspect_highlighted_step"] = sid
+                                st.rerun()
 
         auto_tags = template.get("auto_tags", [])
         if auto_tags:

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Annotation File",
+  "description": "Schema for reviewer annotation files stored in reports/{case_id}.annotations.json.",
+  "type": "object",
+  "required": ["case_id", "annotations"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Benchmark case identifier."
+    },
+    "annotations": {
+      "type": "array",
+      "description": "Ordered list of reviewer annotations (append-only).",
+      "items": {
+        "type": "object",
+        "required": [
+          "annotation_id",
+          "case_id",
+          "step_id",
+          "reviewer_id",
+          "timestamp",
+          "content",
+          "severity"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "annotation_id": {
+            "type": "string",
+            "pattern": "^ann_[0-9a-f]{8}$",
+            "description": "Unique identifier: ann_ followed by 8 hex characters."
+          },
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The case this annotation belongs to."
+          },
+          "step_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The trace step this note references."
+          },
+          "reviewer_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Reviewer identifier (free text)."
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 UTC timestamp."
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Note text."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["none", "low", "medium", "high"],
+            "description": "Issue severity level."
+          }
+        }
+      }
+    }
+  }
+}
