@@ -9,6 +9,7 @@ from typing import Any, Dict
 import pytest
 
 from agenteval.core.runs import (
+    _set_filter_criteria,
     complete_run,
     create_run,
     fail_run,
@@ -20,6 +21,7 @@ from agenteval.core.runs import (
     list_runs,
     main_inspect,
     main_list,
+    main_run,
 )
 from agenteval.core.types import RunStatus
 
@@ -287,3 +289,117 @@ class TestCLIInspect:
         assert record.run_id in captured.out
         assert "completed" in captured.out
         assert "Cases evaluated: 3" in captured.out
+
+
+# ---------------------------------------------------------------------------
+# main_list — updated hint
+# ---------------------------------------------------------------------------
+
+
+class TestCLIListHint:
+    def test_empty_state_points_to_agenteval_run(
+        self, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        exit_code = main_list([])
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        assert "agenteval-run" in captured.out
+        assert "agenteval-eval-runner" not in captured.out
+
+
+# ---------------------------------------------------------------------------
+# _set_filter_criteria
+# ---------------------------------------------------------------------------
+
+
+class TestSetFilterCriteria:
+    def test_persists_criteria_to_run_json(self, repo_root_env: Path) -> None:
+        dataset_dir = repo_root_env / "data" / "cases"
+        dataset_dir.mkdir(parents=True)
+        rubric_path = repo_root_env / "rubrics" / "v1_agent_general.json"
+
+        record = create_run(dataset_dir=dataset_dir, rubric_path=rubric_path)
+        _set_filter_criteria(record.run_id, {"failure_type": "tool_hallucination"})
+
+        run_json = get_run_dir(record.run_id) / "run.json"
+        data = json.loads(run_json.read_text(encoding="utf-8"))
+        assert data["filter_criteria"] == {"failure_type": "tool_hallucination"}
+
+    def test_noop_for_missing_run(self, repo_root_env: Path) -> None:
+        # Should not raise
+        _set_filter_criteria("nonexistent_run_id", {"cases": ["case_001"]})
+
+
+# ---------------------------------------------------------------------------
+# main_run
+# ---------------------------------------------------------------------------
+
+
+class TestCLIRun:
+    def test_creates_tracked_run_and_scores_cases(
+        self, sample_case_dir: Path, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """main_run creates a run.json-backed run and auto-scores available cases."""
+        dataset_dir = repo_root_env / "data" / "cases"
+        exit_code = main_run(["--dataset-dir", str(dataset_dir)])
+        assert exit_code == 0
+
+        # Run should appear in list_runs
+        runs = list_runs()
+        assert len(runs) == 1
+        assert runs[0].status == RunStatus.COMPLETED.value
+        assert runs[0].num_cases == 1
+
+        # Output should include run ID and compare hint
+        captured = capsys.readouterr()
+        run_id = runs[0].run_id
+        assert run_id in captured.out
+        assert "agenteval-compare" in captured.out
+
+    def test_missing_dataset_dir_returns_exit_2(
+        self, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        nonexistent = str(repo_root_env / "data" / "does_not_exist")
+        exit_code = main_run(["--dataset-dir", nonexistent])
+        assert exit_code == 2
+        captured = capsys.readouterr()
+        assert "not found" in captured.err
+
+    def test_empty_dataset_dir_completes_with_zero_cases(
+        self, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        empty_dir = repo_root_env / "data" / "cases"
+        empty_dir.mkdir(parents=True)
+        exit_code = main_run(["--dataset-dir", str(empty_dir)])
+        assert exit_code == 0
+
+        runs = list_runs()
+        assert len(runs) == 1
+        assert runs[0].num_cases == 0
+
+    def test_filter_cases_by_id(
+        self, sample_case_dir: Path, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        dataset_dir = repo_root_env / "data" / "cases"
+        exit_code = main_run(
+            ["--dataset-dir", str(dataset_dir), "--cases", "case_001"]
+        )
+        assert exit_code == 0
+        runs = list_runs()
+        assert runs[0].num_cases == 1
+        # filter_criteria should be recorded
+        run_json = get_run_dir(runs[0].run_id) / "run.json"
+        data = json.loads(run_json.read_text(encoding="utf-8"))
+        assert data["filter_criteria"]["cases"] == ["case_001"]
+
+    def test_unknown_case_id_warns_and_completes(
+        self, sample_case_dir: Path, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        dataset_dir = repo_root_env / "data" / "cases"
+        exit_code = main_run(
+            ["--dataset-dir", str(dataset_dir), "--cases", "nonexistent_case"]
+        )
+        # No cases matched → run is failed, exit 0
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        assert "nonexistent_case" in captured.err or "No cases" in captured.out
