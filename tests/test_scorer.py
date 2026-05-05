@@ -266,3 +266,36 @@ class TestCLIMain:
             "--strategy", "rule",
         ])
         assert exit_code == 0
+
+    def test_out_of_repo_output_dir_prints_friendly_error(
+        self, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Out-of-repo --output-dir produces exit code 2 and 'Error:' on stderr (no traceback)."""
+        # tmp_path and repo_root_env share the same base dir, so use parent to escape
+        outside_dir = repo_root_env.parent / "outside_output"
+        with pytest.raises(SystemExit) as exc_info:
+            scorer_main([
+                "--dataset-dir", str(repo_root_env / "data" / "cases"),
+                "--output-dir", str(outside_dir),
+            ])
+        assert exc_info.value.code == 2
+        captured = capsys.readouterr()
+        assert "Error:" in captured.err
+        assert "Traceback" not in captured.err
+        assert "ValueError" not in captured.err
+
+    def test_out_of_repo_dataset_dir_prints_friendly_error(
+        self, repo_root_env: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Out-of-repo --dataset-dir produces exit code 2 and 'Error:' on stderr."""
+        outside_dir = repo_root_env.parent / "outside_cases"
+        outside_dir.mkdir(parents=True, exist_ok=True)
+        with pytest.raises(SystemExit) as exc_info:
+            scorer_main([
+                "--dataset-dir", str(outside_dir),
+                "--output-dir", str(repo_root_env / "reports"),
+            ])
+        assert exc_info.value.code == 2
+        captured = capsys.readouterr()
+        assert "Error:" in captured.err
+        assert "Traceback" not in captured.err

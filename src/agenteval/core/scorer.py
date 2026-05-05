@@ -14,7 +14,7 @@ from agenteval.core.evaluators import EvaluatorRegistry
 from agenteval.core.loader import load_rubric, load_trace
 from agenteval.core.tagger import tag_trace
 from agenteval.core.types import AutoEvaluation, DimensionScoreResult, Rubric
-from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
+from agenteval.dataset.validator import _friendly_path_error, _get_repo_root, _safe_resolve_within
 from agenteval.schemas.trace import Trace
 
 
@@ -244,10 +244,21 @@ def main(argv: list[str] | None = None) -> int:
     output_dir = Path(args.output_dir) if args.output_dir else repo_root / "reports"
     rubric_path = Path(args.rubric) if args.rubric else None
 
-    dataset_dir = _safe_resolve_within(repo_root, dataset_dir)
-    output_dir = _safe_resolve_within(repo_root, output_dir)
+    try:
+        dataset_dir = _safe_resolve_within(repo_root, dataset_dir)
+    except ValueError:
+        _friendly_path_error("--dataset-dir", str(dataset_dir), repo_root)
+
+    try:
+        output_dir = _safe_resolve_within(repo_root, output_dir)
+    except ValueError:
+        _friendly_path_error("--output-dir", str(output_dir), repo_root)
+
     if rubric_path is not None:
-        rubric_path = _safe_resolve_within(repo_root, rubric_path)
+        try:
+            rubric_path = _safe_resolve_within(repo_root, rubric_path)
+        except ValueError:
+            _friendly_path_error("--rubric", str(rubric_path), repo_root)
 
     if not dataset_dir.exists():
         print(f"Error: Dataset directory not found: {dataset_dir}", file=sys.stderr)

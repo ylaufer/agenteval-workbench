@@ -40,31 +40,23 @@ The tool call does not add value and introduces unnecessary latency and dependen
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 2  
 Reason: The final answer is correct.
 
-### Tool Appropriateness
+### tool_use
 Score: 0  
 Reason: Tool invocation was unnecessary for a trivial computation.
 
-### Tool Grounding
-Score: 2  
-Reason: The final answer is correctly grounded in tool output.
-
-### Instruction Adherence
+### completeness
 Score: 2  
 Reason: The instruction was followed correctly.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 2  
 Reason: The reasoning is coherent and consistent.
 
-### Efficiency
-Score: 0  
-Reason: The task could have been completed without tool invocation.
-
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe behavior.
 

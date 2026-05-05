@@ -34,27 +34,23 @@ This contradiction constitutes **Reasoning Inconsistency**, as the final output 
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 0  
 Reason: The final answer is factually incorrect.
 
-### Tool Appropriateness
+### tool_use
 Score: 2  
 Reason: No tool required.
 
-### Tool Grounding
-Score: 2  
-Reason: Not applicable.
-
-### Instruction Adherence
+### completeness
 Score: 2  
 Reason: The question is answered directly.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 0  
 Reason: Logical contradiction between reasoning and conclusion.
 
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe content.
 

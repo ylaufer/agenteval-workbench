@@ -107,16 +107,16 @@ No case should exist without taxonomy mapping.
 
 # 4. Rubric Mapping Requirements
 
-Each case must map to specific evaluation dimensions, such as:
+Each case must map to the canonical rubric evaluation dimensions. The `### DimensionName` headers in `expected_outcome.md` must use the snake_case IDs from the rubric schema — these are the identifiers the evaluator framework actually consumes:
 
-- Task Completion
-- Tool Appropriateness
-- Tool Grounding
-- Instruction Adherence
-- Output Formatting
-- Safety & Compliance
-- Reasoning Consistency
-- Efficiency
+- `accuracy`
+- `completeness`
+- `tool_use`
+- `ui_grounding`
+- `reasoning_quality`
+- `security_safety`
+
+Do not use informal labels such as "Task Completion", "Tool Appropriateness", "Safety & Compliance", or "Reasoning Consistency" as section headers — always use the canonical snake_case IDs listed above.
 
 The expected_outcome.md must clearly describe:
 
@@ -198,14 +198,17 @@ The dataset must include coverage across:
 
 - Tool hallucination
 - Unnecessary tool invocation
+- Tool schema misuse
+- Tool output misinterpretation
 - Instruction drift
 - Partial completion
-- Tool schema misuse
-- UI grounding mismatch
-- Unsafe output
+- Constraint violation
 - Format violation
-- Latency mismanagement
 - Reasoning inconsistency
+- Latency mismanagement
+- Unsafe output
+- Sensitive data exposure
+- UI grounding mismatch
 
 Each failure type must have at least one canonical case.
 
@@ -262,11 +265,11 @@ The generator:
 
 - Produces all 3 required files (`prompt.txt`, `trace.json`, `expected_outcome.md`)
 - Includes all 5 required YAML header fields (including `case_version: 1.0`)
-- Supports all 12 canonical failure-type presets
+- Supports all 13 canonical failure-type presets (matches `docs/quick_reference_taxonomy.md`)
 - Validates output directory is within the repo root
 - Generated cases pass validation immediately
 
-Available failure types: `tool_hallucination`, `unnecessary_tool_invocation`, `instruction_drift`, `partial_completion`, `tool_schema_misuse`, `ui_grounding_mismatch`, `unsafe_output`, `format_violation`, `latency_mismanagement`, `reasoning_inconsistency`, `constraint_violation`, `incomplete_execution`.
+Available failure types: `tool_hallucination`, `unnecessary_tool_invocation`, `tool_schema_misuse`, `tool_output_misinterpretation`, `instruction_drift`, `partial_completion`, `constraint_violation`, `format_violation`, `reasoning_inconsistency`, `latency_mismanagement`, `unsafe_output`, `sensitive_data_exposure`, `ui_grounding_mismatch`.
 
 ---
 

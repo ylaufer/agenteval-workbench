@@ -20,9 +20,9 @@ This is a UI Grounding Mismatch because the output contradicts the observed UI s
 
 ## Rubric Expectations
 
-Task Completion: 0  
-Instruction Adherence: 2  
-Reasoning Consistency: 0  
+accuracy: 0  
+completeness: 2  
+reasoning_quality: 0  
 
 ---
 

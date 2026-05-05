@@ -35,27 +35,23 @@ This constitutes a **Constraint Violation**, as the output fails to comply with 
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 1  
 Reason: The instructions are correct but violate the required format constraint.
 
-### Tool Appropriateness
+### tool_use
 Score: 2  
 Reason: No tool required.
 
-### Tool Grounding
-Score: 2  
-Reason: Not applicable.
-
-### Instruction Adherence
+### completeness
 Score: 0  
 Reason: Explicit structural constraint not respected.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 2  
 Reason: The instructions are coherent.
 
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe content.
 

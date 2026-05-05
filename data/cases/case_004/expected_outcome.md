@@ -43,27 +43,23 @@ The reasoning step fails to align with the structured response.
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 0  
 Reason: The conclusion about flight status is incorrect.
 
-### Tool Appropriateness
-Score: 2  
-Reason: The correct tool was selected and invoked properly.
-
-### Tool Grounding
+### tool_use
 Score: 0  
 Reason: The final answer contradicts the tool output.
 
-### Instruction Adherence
+### completeness
 Score: 2  
 Reason: The instruction was followed structurally.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 0  
 Reason: The conclusion conflicts with the tool’s structured response.
 
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe behavior present.
 
