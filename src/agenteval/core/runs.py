@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import secrets
+import sys
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -206,6 +207,16 @@ def get_run_summary(run_id: str) -> dict[str, Any] | None:
     return data
 
 
+def _set_filter_criteria(run_id: str, criteria: dict[str, Any]) -> None:
+    """Persist filter_criteria into an existing run.json."""
+    run_json = get_run_dir(run_id) / "run.json"
+    if not run_json.exists():
+        return
+    data = json.loads(run_json.read_text(encoding="utf-8"))
+    data["filter_criteria"] = criteria
+    run_json.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # CLI entry points
 # ---------------------------------------------------------------------------
@@ -221,8 +232,8 @@ def main_list(argv: Sequence[str] | None = None) -> int:
 
     runs = list_runs()
     if not runs:
-        print("No evaluation runs found. Run an evaluation first:")
-        print("  agenteval-eval-runner --dataset-dir data/cases --output-dir runs/<run_id>")
+        print("No evaluation runs found. Create one with:")
+        print("  agenteval-run --dataset-dir data/cases")
         return 0
 
     header = f"{'Run ID':<26}  {'Status':<10}  {'Cases':>5}  {'Started'}"
@@ -280,4 +291,190 @@ def main_inspect(argv: Sequence[str] | None = None) -> int:
             severity = result.get("severity") or "—"
             print(f"  {case_id:<20}  {primary:<28}  {severity}")
 
+    return 0
+
+
+def main_run(argv: Sequence[str] | None = None) -> int:
+    """CLI: agenteval-run — create a tracked evaluation run end-to-end.
+
+    Combines create_run + score_dataset + complete_run into one command.
+    Prints the run ID on success so it can be passed to agenteval-compare.
+    """
+    parser = argparse.ArgumentParser(
+        prog="agenteval-run",
+        description=(
+            "Create a tracked evaluation run: score all matching cases and mark "
+            "the run complete. Prints the run ID on success for use with "
+            "agenteval-compare."
+        ),
+    )
+    parser.add_argument(
+        "--dataset-dir",
+        type=str,
+        default=None,
+        help="Path to dataset directory (default: data/cases)",
+    )
+    parser.add_argument(
+        "--rubric",
+        type=str,
+        default=None,
+        help="Path to rubric JSON file (default: rubrics/v1_agent_general.json)",
+    )
+    parser.add_argument(
+        "--cases",
+        type=str,
+        default=None,
+        help="Comma-separated case IDs to score (e.g., case_001,case_003).",
+    )
+    parser.add_argument(
+        "--filter-failure",
+        type=str,
+        default=None,
+        help="Filter cases by primary_failure value (case-insensitive).",
+    )
+    parser.add_argument(
+        "--filter-severity",
+        type=str,
+        default=None,
+        help="Comma-separated severity levels to include (e.g., Critical,High).",
+    )
+    parser.add_argument(
+        "--filter-tag",
+        type=str,
+        default=None,
+        help="Comma-separated tags; case must have ALL listed tags.",
+    )
+    parser.add_argument(
+        "--filter-pattern",
+        type=str,
+        default=None,
+        help="Glob pattern matched against case directory name (e.g., case_0*).",
+    )
+
+    args = parser.parse_args(argv)
+    repo_root = _get_repo_root()
+
+    dataset_dir = Path(args.dataset_dir) if args.dataset_dir else repo_root / "data" / "cases"
+    rubric_path = (
+        Path(args.rubric) if args.rubric else repo_root / "rubrics" / "v1_agent_general.json"
+    )
+
+    dataset_dir = _safe_resolve_within(repo_root, dataset_dir)
+    rubric_path = _safe_resolve_within(repo_root, rubric_path)
+
+    if not dataset_dir.exists():
+        print(f"Error: Dataset directory not found: {dataset_dir}", file=sys.stderr)
+        return 2
+
+    # Create tracked run — this generates the run_id and runs/ directory
+    record = create_run(dataset_dir=dataset_dir, rubric_path=rubric_path)
+    run_id = record.run_id
+    output_dir = get_run_dir(run_id)
+
+    print(f"Started run: {run_id}")
+
+    # Deferred imports to avoid circular dependencies at module load time
+    from agenteval.core.filtering import filter_cases
+    from agenteval.core.scorer import default_registry, score_dataset
+
+    all_case_dirs = sorted(
+        (entry for entry in dataset_dir.iterdir() if entry.is_dir()),
+        key=lambda p: p.name,
+    )
+
+    case_ids: list[str] | None = None
+    if args.cases:
+        requested = [c.strip() for c in args.cases.split(",") if c.strip()]
+        known = {d.name for d in all_case_dirs}
+        valid: list[str] = []
+        for cid in requested:
+            if cid in known:
+                valid.append(cid)
+            else:
+                print(
+                    f"Warning: case '{cid}' not found in {dataset_dir}, skipping.",
+                    file=sys.stderr,
+                )
+        case_ids = valid
+
+    severity_list: list[str] | None = (
+        [s.strip() for s in args.filter_severity.split(",") if s.strip()]
+        if args.filter_severity
+        else None
+    )
+    tag_list: list[str] | None = (
+        [t.strip() for t in args.filter_tag.split(",") if t.strip()]
+        if args.filter_tag
+        else None
+    )
+
+    any_filter = (
+        case_ids is not None
+        or args.filter_failure is not None
+        or severity_list is not None
+        or tag_list is not None
+        or args.filter_pattern is not None
+    )
+
+    case_filter: list[Path] | None = None
+    if any_filter:
+        case_filter = filter_cases(
+            case_dirs=all_case_dirs,
+            case_ids=case_ids,
+            failure_type=args.filter_failure,
+            severity=severity_list,
+            tags=tag_list,
+            pattern=args.filter_pattern,
+        )
+        if not case_filter:
+            fail_run(run_id, "No cases matched the specified filter.")
+            print("No cases matched the specified filter.")
+            return 0
+
+        criteria: dict[str, Any] = {}
+        if case_ids is not None:
+            criteria["cases"] = case_ids
+        if args.filter_failure:
+            criteria["failure_type"] = args.filter_failure
+        if severity_list:
+            criteria["severity"] = severity_list
+        if tag_list:
+            criteria["tags"] = tag_list
+        if args.filter_pattern:
+            criteria["pattern"] = args.filter_pattern
+        _set_filter_criteria(run_id, criteria)
+
+    try:
+        results = score_dataset(
+            dataset_dir=dataset_dir,
+            output_dir=output_dir,
+            rubric_path=rubric_path,
+            registry=default_registry(),
+            case_filter=case_filter,
+        )
+    except Exception as exc:
+        fail_run(run_id, str(exc))
+        print(f"Error during scoring: {exc}", file=sys.stderr)
+        return 1
+
+    complete_run(run_id, num_cases=len(results))
+
+    if not results:
+        print("No cases found to score.")
+        print(f"Run ID: {run_id} (0 cases, marked complete)")
+        return 0
+
+    print(f"\nScored {len(results)} case(s):")
+    for r in results:
+        dims = r.get("dimensions", {})
+        scored_names = [
+            f"{name}={d['score']}"
+            for name, d in dims.items()
+            if isinstance(d, dict) and d.get("score") is not None
+        ]
+        detail = ", ".join(scored_names) if scored_names else "none"
+        print(f"  {r['case_id']}: {detail}")
+
+    print(f"\nRun complete. Run ID: {run_id}")
+    print(f"Compare runs:  agenteval-compare --baseline <other-run> --current {run_id}")
     return 0
