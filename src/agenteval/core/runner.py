@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Sequence, Tuple, cast
 
-from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
+from agenteval.dataset.validator import _friendly_path_error, _get_repo_root, _safe_resolve_within
 from .loader import load_rubric, load_trace
 from .tagger import tag_trace
 from .types import CaseEvaluationTemplate, DimensionEvaluationTemplate, Rubric
@@ -262,10 +262,25 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    dataset_dir = _safe_resolve_within(repo_root, Path(args.dataset_dir))
-    rubric_path = _safe_resolve_within(repo_root, Path(args.rubric_path))
-    trace_schema_path = _safe_resolve_within(repo_root, Path(args.trace_schema_path))
-    output_dir = _safe_resolve_within(repo_root, Path(args.output_dir))
+    try:
+        dataset_dir = _safe_resolve_within(repo_root, Path(args.dataset_dir))
+    except ValueError:
+        _friendly_path_error("--dataset-dir", args.dataset_dir, repo_root)
+
+    try:
+        rubric_path = _safe_resolve_within(repo_root, Path(args.rubric_path))
+    except ValueError:
+        _friendly_path_error("--rubric-path", args.rubric_path, repo_root)
+
+    try:
+        trace_schema_path = _safe_resolve_within(repo_root, Path(args.trace_schema_path))
+    except ValueError:
+        _friendly_path_error("--trace-schema-path", args.trace_schema_path, repo_root)
+
+    try:
+        output_dir = _safe_resolve_within(repo_root, Path(args.output_dir))
+    except ValueError:
+        _friendly_path_error("--output-dir", args.output_dir, repo_root)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 

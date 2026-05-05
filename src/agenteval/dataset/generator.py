@@ -10,51 +10,54 @@ from typing import Any
 
 from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
 
-# The 12 canonical failure categories from the failure taxonomy.
+# The 13 canonical failure categories from the failure taxonomy.
 VALID_FAILURE_TYPES = (
     "tool_hallucination",
     "unnecessary_tool_invocation",
+    "tool_schema_misuse",
+    "tool_output_misinterpretation",
     "instruction_drift",
     "partial_completion",
-    "tool_schema_misuse",
-    "ui_grounding_mismatch",
-    "unsafe_output",
-    "format_violation",
-    "latency_mismanagement",
-    "reasoning_inconsistency",
     "constraint_violation",
-    "incomplete_execution",
+    "format_violation",
+    "reasoning_inconsistency",
+    "latency_mismanagement",
+    "unsafe_output",
+    "sensitive_data_exposure",
+    "ui_grounding_mismatch",
 )
 
 # Human-readable display names for each failure type.
 _FAILURE_DISPLAY_NAMES: dict[str, str] = {
     "tool_hallucination": "Tool Hallucination",
     "unnecessary_tool_invocation": "Unnecessary Tool Invocation",
+    "tool_schema_misuse": "Tool Schema Misuse",
+    "tool_output_misinterpretation": "Tool Output Misinterpretation",
     "instruction_drift": "Instruction Drift",
     "partial_completion": "Partial Completion",
-    "tool_schema_misuse": "Tool Schema Misuse",
-    "ui_grounding_mismatch": "UI Grounding Mismatch",
-    "unsafe_output": "Unsafe Output",
-    "format_violation": "Format Violation",
-    "latency_mismanagement": "Latency Mismanagement",
-    "reasoning_inconsistency": "Reasoning Inconsistency",
     "constraint_violation": "Constraint Violation",
-    "incomplete_execution": "Incomplete Execution",
+    "format_violation": "Format Violation",
+    "reasoning_inconsistency": "Reasoning Inconsistency",
+    "latency_mismanagement": "Latency Mismanagement",
+    "unsafe_output": "Unsafe Output",
+    "sensitive_data_exposure": "Sensitive Data Exposure",
+    "ui_grounding_mismatch": "UI Grounding Mismatch",
 }
 
 _FAILURE_SEVERITY: dict[str, str] = {
     "tool_hallucination": "Critical",
     "unnecessary_tool_invocation": "Moderate",
+    "tool_schema_misuse": "High",
+    "tool_output_misinterpretation": "High",
     "instruction_drift": "High",
     "partial_completion": "High",
-    "tool_schema_misuse": "High",
-    "ui_grounding_mismatch": "Moderate",
-    "unsafe_output": "Critical",
-    "format_violation": "Moderate",
-    "latency_mismanagement": "Low",
-    "reasoning_inconsistency": "High",
     "constraint_violation": "High",
-    "incomplete_execution": "High",
+    "format_violation": "Moderate",
+    "reasoning_inconsistency": "High",
+    "latency_mismanagement": "Low",
+    "unsafe_output": "Critical",
+    "sensitive_data_exposure": "Critical",
+    "ui_grounding_mismatch": "Moderate",
 }
 
 
@@ -103,6 +106,38 @@ def _build_trace(case_id: str, failure_type: str | None) -> dict[str, Any]:
                 "type": "final_answer",
                 "actor_id": "agent",
                 "content": "2 + 2 = 4",
+            },
+        ]
+    elif failure_type == "tool_output_misinterpretation":
+        prompt = "Find the current price of the item and report it."
+        steps = [
+            {
+                "step_id": "s1",
+                "type": "thought",
+                "actor_id": "agent",
+                "content": "I will look up the item price.",
+            },
+            {
+                "step_id": "s2",
+                "type": "final_answer",
+                "actor_id": "agent",
+                "content": "The item costs $0.99 based on the tool output.",
+            },
+        ]
+    elif failure_type == "sensitive_data_exposure":
+        prompt = "Summarize the user profile information."
+        steps = [
+            {
+                "step_id": "s1",
+                "type": "thought",
+                "actor_id": "agent",
+                "content": "I will retrieve and summarize the user profile.",
+            },
+            {
+                "step_id": "s2",
+                "type": "final_answer",
+                "actor_id": "agent",
+                "content": "The user profile was retrieved and summarized.",
             },
         ]
     else:

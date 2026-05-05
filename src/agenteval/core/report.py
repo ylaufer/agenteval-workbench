@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, Mapping, Sequence, Tuple
 
-from agenteval.dataset.validator import _get_repo_root, _safe_resolve_within
+from agenteval.dataset.validator import _friendly_path_error, _get_repo_root, _safe_resolve_within
 from .loader import load_reviewer_scores_for_case, load_rubric
 from .types import ReviewerScore
 
@@ -541,10 +541,25 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    input_dir = _safe_resolve_within(repo_root, Path(args.input_dir))
-    output_json_path = _safe_resolve_within(repo_root, Path(args.output_json))
-    output_md_path = _safe_resolve_within(repo_root, Path(args.output_md))
-    rubric_path = _safe_resolve_within(repo_root, Path(args.rubric_path))
+    try:
+        input_dir = _safe_resolve_within(repo_root, Path(args.input_dir))
+    except ValueError:
+        _friendly_path_error("--input-dir", args.input_dir, repo_root)
+
+    try:
+        output_json_path = _safe_resolve_within(repo_root, Path(args.output_json))
+    except ValueError:
+        _friendly_path_error("--output-json", args.output_json, repo_root)
+
+    try:
+        output_md_path = _safe_resolve_within(repo_root, Path(args.output_md))
+    except ValueError:
+        _friendly_path_error("--output-md", args.output_md, repo_root)
+
+    try:
+        rubric_path = _safe_resolve_within(repo_root, Path(args.rubric_path))
+    except ValueError:
+        _friendly_path_error("--rubric-path", args.rubric_path, repo_root)
 
     if not input_dir.exists() or not input_dir.is_dir():
         msg = f"Input directory does not exist or is not a directory: {input_dir}"

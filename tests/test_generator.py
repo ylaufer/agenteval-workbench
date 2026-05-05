@@ -74,3 +74,44 @@ class TestGenerateCase:
         outside_dir = tmp_path_factory.mktemp("outside_repo")
         with pytest.raises(ValueError, match="Path escapes repo root"):
             generate_case(case_id="escape_case", output_dir=outside_dir)
+
+    def test_tool_output_misinterpretation_produces_valid_case(self, repo_root_env: Path) -> None:
+        """T029: generate_case() with tool_output_misinterpretation produces a valid case."""
+        case_dir = generate_case(
+            case_id="tom_case",
+            failure_type="tool_output_misinterpretation",
+            output_dir=repo_root_env / "data" / "cases",
+        )
+        assert (case_dir / "prompt.txt").is_file()
+        assert (case_dir / "trace.json").is_file()
+        assert (case_dir / "expected_outcome.md").is_file()
+        content = (case_dir / "expected_outcome.md").read_text(encoding="utf-8")
+        assert "Primary Failure: Tool Output Misinterpretation" in content
+        assert "Severity: High" in content
+        result = validate_dataset()
+        assert result.ok is True
+
+    def test_sensitive_data_exposure_produces_valid_case(self, repo_root_env: Path) -> None:
+        """T030: generate_case() with sensitive_data_exposure produces a valid case."""
+        case_dir = generate_case(
+            case_id="sde_case",
+            failure_type="sensitive_data_exposure",
+            output_dir=repo_root_env / "data" / "cases",
+        )
+        assert (case_dir / "prompt.txt").is_file()
+        assert (case_dir / "trace.json").is_file()
+        assert (case_dir / "expected_outcome.md").is_file()
+        content = (case_dir / "expected_outcome.md").read_text(encoding="utf-8")
+        assert "Primary Failure: Sensitive Data Exposure" in content
+        assert "Severity: Critical" in content
+        result = validate_dataset()
+        assert result.ok is True
+
+    def test_incomplete_execution_raises_value_error(self, repo_root_env: Path) -> None:
+        """T031: generate_case() with incomplete_execution raises ValueError (removed from taxonomy)."""
+        with pytest.raises(ValueError, match="Invalid failure_type"):
+            generate_case(
+                case_id="inc_exec_case",
+                failure_type="incomplete_execution",
+                output_dir=repo_root_env / "data" / "cases",
+            )

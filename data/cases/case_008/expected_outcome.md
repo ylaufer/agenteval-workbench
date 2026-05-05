@@ -35,27 +35,23 @@ This constitutes a **Format Violation**.
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 1  
 Reason: The content is correct but format requirements are not satisfied.
 
-### Tool Appropriateness
+### tool_use
 Score: 2  
 Reason: No tool required.
 
-### Tool Grounding
-Score: 2  
-Reason: Not applicable.
-
-### Instruction Adherence
+### completeness
 Score: 0  
 Reason: Explicit format constraint violated.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 2  
 Reason: Output is internally coherent.
 
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe content.
 

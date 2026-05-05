@@ -8,6 +8,7 @@ import pytest
 
 from agenteval.dataset.validator import (
     _check_version_bump,
+    _friendly_path_error,
     _parse_expected_outcome_header,
     _safe_resolve_within,
     _scan_text_for_security_violations,
@@ -94,6 +95,52 @@ class TestScanTextForSecurityViolations:
     def test_path_traversal_backward(self) -> None:
         violations = _scan_text_for_security_violations("go to ..\\secret")
         assert any("Path traversal" in v for v in violations)
+
+    # --- Bug #05: path false-positive fixes ---
+
+    def test_slash_as_separator_pass_fail_no_trigger(self) -> None:
+        """'Pass / fail' prose should NOT trigger absolute path detection."""
+        violations = _scan_text_for_security_violations("Pass / fail")
+        assert not any("Absolute path" in v for v in violations)
+
+    def test_slash_as_separator_input_output_no_trigger(self) -> None:
+        """'input / output' prose should NOT trigger absolute path detection."""
+        violations = _scan_text_for_security_violations("input / output")
+        assert not any("Absolute path" in v for v in violations)
+
+    def test_slash_as_separator_pii_no_trigger(self) -> None:
+        """'PII / secretos' prose should NOT trigger absolute path detection."""
+        violations = _scan_text_for_security_violations("PII / secretos")
+        assert not any("Absolute path" in v for v in violations)
+
+    def test_posix_path_still_triggers(self) -> None:
+        """/Users/foo/bar should still be caught."""
+        violations = _scan_text_for_security_violations("/Users/foo/bar")
+        assert any("Absolute path" in v for v in violations)
+
+    def test_etc_passwd_still_triggers(self) -> None:
+        """/etc/passwd should still be caught."""
+        violations = _scan_text_for_security_violations("/etc/passwd")
+        assert any("Absolute path" in v for v in violations)
+
+    def test_windows_path_still_triggers(self) -> None:
+        r"""C:\Windows\System32 should still be caught."""
+        violations = _scan_text_for_security_violations("C:\\Windows\\System32")
+        assert any("Absolute path" in v for v in violations)
+
+    # --- Bug #03: secret pattern length boundary ---
+
+    def test_api_key_19_chars_no_trigger(self) -> None:
+        """A 19-char api_key value should NOT trigger DEFAULT_SECRET_PATTERNS."""
+        # 19 alphanumeric chars after '='
+        violations = _scan_text_for_security_violations("api_key=ABCDEFGHIJ123456789")
+        assert not any("Secret-like" in v for v in violations)
+
+    def test_api_key_20_chars_triggers(self) -> None:
+        """A 20-char api_key value SHOULD trigger DEFAULT_SECRET_PATTERNS."""
+        # 20 alphanumeric chars after '='
+        violations = _scan_text_for_security_violations("api_key=ABCDEFGHIJ1234567890")
+        assert any("Secret-like" in v for v in violations)
 
 
 # ---------------------------------------------------------------------------
@@ -420,3 +467,40 @@ class TestVersionBumpDetection:
         header = {"case_version": "1.0"}
         issues = _check_version_bump("case_001", case_dir, header, tmp_path)
         assert issues == []
+
+
+# ---------------------------------------------------------------------------
+# _friendly_path_error
+# ---------------------------------------------------------------------------
+
+
+class TestFriendlyPathError:
+    def test_calls_sys_exit_2(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        with pytest.raises(SystemExit) as exc_info:
+            _friendly_path_error("--output-dir", "/tmp/foo", tmp_path)
+        assert exc_info.value.code == 2
+
+    def test_prints_error_to_stderr(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        with pytest.raises(SystemExit):
+            _friendly_path_error("--output-dir", "/tmp/foo", tmp_path)
+        captured = capsys.readouterr()
+        assert "Error:" in captured.err
+        assert "--output-dir" in captured.err
+
+    def test_prints_given_path_and_repo_root(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        with pytest.raises(SystemExit):
+            _friendly_path_error("--dataset-dir", "/bad/path", tmp_path)
+        captured = capsys.readouterr()
+        assert "/bad/path" in captured.err
+        assert str(tmp_path) in captured.err
+
+    def test_no_traceback_in_output(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        with pytest.raises(SystemExit):
+            _friendly_path_error("--rubric", "/outside/repo", tmp_path)
+        captured = capsys.readouterr()
+        assert "Traceback" not in captured.err
+        assert "ValueError" not in captured.err

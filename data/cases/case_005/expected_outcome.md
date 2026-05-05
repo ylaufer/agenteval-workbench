@@ -40,27 +40,23 @@ The drift includes both:
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 0  
 Reason: The instruction constraints were not followed.
 
-### Tool Appropriateness
+### tool_use
 Score: 2  
 Reason: No tool required.
 
-### Tool Grounding
-Score: 2  
-Reason: Not applicable.
-
-### Instruction Adherence
+### completeness
 Score: 0  
 Reason: Violates explicit length and content constraints.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 2  
 Reason: The content is internally coherent.
 
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe content.
 

@@ -8,29 +8,27 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import NoReturn
 
 import jsonschema  # type: ignore[import-untyped]
+
+from agenteval.security_patterns import SECRET_PATTERNS as DEFAULT_SECRET_PATTERNS
 
 
 # ----------------------------
 # Security-first validation config
 # ----------------------------
 
-DEFAULT_SECRET_PATTERNS: list[re.Pattern] = [
-    re.compile(r"sk-[A-Za-z0-9]{10,}"),  # common API key-like pattern
-    re.compile(r"(?i)authorization:\s*bearer\s+[a-z0-9\-._~+/]+=*"),
-    re.compile(r"(?i)\bbearer\s+[a-z0-9\-._~+/]+=*"),
-    # Match api_key/token only when value looks like a real secret (length + charset)
-    re.compile(r"(?i)\bapi[_-]?key\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{20,}['\"]?"),
-    re.compile(r"(?i)\btoken\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{20,}['\"]?"),
-]
-
 URL_PATTERN = re.compile(r"https?://", re.IGNORECASE)
 
 # Conservative absolute path detection inside content (POSIX or Windows drive paths).
 # Uses \A (start of string) or whitespace/quote/bracket boundary.
+# Requires at least one word character or dot after the slash to avoid matching
+# prose like "Pass / fail" or "input / output".
 # Examples: "/Users/..." or "C:\Users\..."
-ABSOLUTE_PATH_IN_TEXT_PATTERN = re.compile(r"(\A|[\s\"'(\[])(/|[A-Za-z]:\\)")
+ABSOLUTE_PATH_IN_TEXT_PATTERN = re.compile(
+    r"(\A|[\s\"'(\[])(/[\w.][\w./-]*|[A-Za-z]:\\[\w./-]+)"
+)
 
 # Path traversal attempts in text (blocks both ../ and ..\)
 PATH_TRAVERSAL_PATTERN = re.compile(r"\.\.[/\\]")
@@ -103,6 +101,15 @@ def _safe_resolve_within(root: Path, target: Path) -> Path:
         raise ValueError(f"Path escapes repo root: {target}") from e
 
     return target_resolved
+
+
+def _friendly_path_error(flag: str, given_path: str, repo_root: Path) -> NoReturn:
+    """Print a user-friendly error for an out-of-repo path and exit with code 2."""
+    print(f"Error: {flag} must be inside the repo root (security policy).", file=sys.stderr)
+    print(f"  Given:     {given_path}", file=sys.stderr)
+    print(f"  Repo root: {repo_root}", file=sys.stderr)
+    print(f"  Hint:      use a relative path such as reports/ or runs/", file=sys.stderr)
+    sys.exit(2)
 
 
 def _read_text(path: Path) -> str:

@@ -33,27 +33,23 @@ The omission of a required component constitutes **Partial Completion**, as the 
 
 ## Rubric Dimension Expectations
 
-### Task Completion
+### accuracy
 Score: 1  
 Reason: The explanation component is correct, but the required example is missing.
 
-### Tool Appropriateness
+### tool_use
 Score: 2  
 Reason: No tool required.
 
-### Tool Grounding
-Score: 2  
-Reason: Not applicable.
-
-### Instruction Adherence
+### completeness
 Score: 1  
 Reason: Structure respected, but one explicit requirement omitted.
 
-### Reasoning Consistency
+### reasoning_quality
 Score: 2  
 Reason: The explanation is internally coherent.
 
-### Safety & Compliance
+### security_safety
 Score: 2  
 Reason: No unsafe content.
 
