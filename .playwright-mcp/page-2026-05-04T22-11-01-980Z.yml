@@ -1,0 +1,468 @@
+- generic [ref=e2]:
+  - generic [ref=e7]:
+    - button "keyboard_double_arrow_left" [ref=e815] [cursor=pointer]:
+      - generic [ref=e817]: keyboard_double_arrow_left
+    - generic [ref=e11]:
+      - heading "AgentEval Workbench" [level=1] [ref=e15]
+      - generic [ref=e17]:
+        - paragraph [ref=e21]: Navigation
+        - radiogroup "Navigation" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]:
+            - radio "Generate"
+            - paragraph [ref=e28]: Generate
+          - generic [ref=e29]:
+            - radio "Inspect"
+            - paragraph [ref=e34]: Inspect
+          - generic [ref=e35]:
+            - radio "Evaluate" [checked] [active]
+            - paragraph [ref=e40]: Evaluate
+          - generic [ref=e41]:
+            - radio "Report"
+            - paragraph [ref=e46]: Report
+          - generic [ref=e47]:
+            - radio "Compare"
+            - paragraph [ref=e52]: Compare
+          - generic [ref=e53]:
+            - radio "Ingest"
+            - paragraph [ref=e58]: Ingest
+          - generic [ref=e59]:
+            - radio "Rubric Builder"
+            - paragraph [ref=e64]: Rubric Builder
+      - separator [ref=e69]
+      - paragraph [ref=e74]:
+        - strong [ref=e75]: Evaluation workflow
+      - paragraph [ref=e80]:
+        - img "circle icon" [ref=e927]: circle
+        - text: Generate
+      - paragraph [ref=e87]:
+        - img "circle icon" [ref=e1406]: circle
+        - text: Inspect
+      - paragraph [ref=e93]:
+        - img "arrow_right icon" [ref=e1407]: arrow_right
+        - strong [ref=e1408]: Evaluate
+      - paragraph [ref=e99]:
+        - img "circle icon" [ref=e100]: circle
+        - text: Report
+      - separator [ref=e105]
+      - heading "⚙️ Settings" [level=3] [ref=e109]
+      - generic [ref=e112] [cursor=pointer]:
+        - checkbox "Show contextual help" [checked]
+        - generic [ref=e115]:
+          - paragraph [ref=e117]: Show contextual help
+          - button "Help for Show contextual help" [ref=e121]:
+            - img [ref=e122]
+      - generic [ref=e127] [cursor=pointer]:
+        - checkbox "Tutorial mode"
+        - generic [ref=e130]:
+          - paragraph [ref=e132]: Tutorial mode
+          - button "Help for Tutorial mode" [ref=e136]:
+            - img [ref=e137]
+      - separator [ref=e144]
+      - heading "book icon Quick Reference" [level=3] [ref=e148]:
+        - img "book icon" [ref=e149]: book
+        - text: Quick Reference
+      - group [ref=e152]:
+        - generic "error Failure Taxonomy (12 categories)" [ref=e153] [cursor=pointer]:
+          - generic [ref=e154]:
+            - generic [ref=e156]: error
+            - paragraph [ref=e159]: Failure Taxonomy (12 categories)
+      - group [ref=e162]:
+        - generic "checklist Rubric Dimensions (6 dimensions)" [ref=e163] [cursor=pointer]:
+          - generic [ref=e164]:
+            - generic [ref=e166]: checklist
+            - paragraph [ref=e169]: Rubric Dimensions (6 dimensions)
+  - generic [ref=e3]:
+    - banner [ref=e172]:
+      - generic [ref=e175]:
+        - button "Deploy" [ref=e822] [cursor=pointer]:
+          - generic [ref=e824]: Deploy
+        - button "Main menu" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+    - generic [ref=e185]:
+      - heading "Run Evaluation Pipeline" [level=2] [ref=e1412]:
+        - text: Run Evaluation Pipeline
+        - generic [ref=e1413]:
+          - link "Link to heading":
+            - /url: "#run-evaluation-pipeline"
+            - img
+      - group [ref=e1416]:
+        - generic "keyboard_arrow_down ℹ️ How this works" [ref=e1417] [cursor=pointer]:
+          - generic [ref=e1418]:
+            - generic [ref=e1420]: keyboard_arrow_down
+            - paragraph [ref=e1423]: ℹ️ How this works
+        - generic [ref=e1429]:
+          - paragraph [ref=e1430]: Run the evaluation pipeline to score agent performance.
+          - paragraph [ref=e1431]: "The workflow:"
+          - list [ref=e1432]:
+            - listitem [ref=e1433]:
+              - text: Load traces from
+              - code [ref=e1434]: data/cases/
+            - listitem [ref=e1435]: Apply rubric to each trace (6 dimensions)
+            - listitem [ref=e1436]: Generate evaluation templates
+            - listitem [ref=e1437]: Auto-score with rule-based + optional LLM evaluators
+          - paragraph [ref=e1438]: "Scoring types: • Rule-based: Deterministic checks (tool use, security) • LLM-as-judge: Subjective dimensions (reasoning quality) • Combined: Both approaches for comprehensive evaluation"
+      - group [ref=e987]:
+        - generic "keyboard_arrow_right Run evaluation on all cases" [ref=e1439] [cursor=pointer]:
+          - generic [ref=e989]:
+            - generic [ref=e1441]: keyboard_arrow_right
+            - paragraph [ref=e994]: Run evaluation on all cases
+      - separator [ref=e1446]
+      - heading "Selective Auto-Scoring" [level=3] [ref=e1451]:
+        - text: Selective Auto-Scoring
+        - generic [ref=e1452]:
+          - link "Link to heading":
+            - /url: "#selective-auto-scoring"
+            - img
+      - paragraph [ref=e1457]:
+        - text: Filter and select cases, then run auto-scoring on the chosen subset. This runs
+        - strong [ref=e1458]: auto-scoring only
+        - text: (rule-based + optional LLM evaluators).
+      - generic [ref=e1460]:
+        - generic [ref=e1464]:
+          - paragraph [ref=e1468]: Failure Type
+          - generic [ref=e1470]:
+            - generic [ref=e1471]:
+              - generic [ref=e1472]: (all)
+              - combobox "Selected (all). Failure Type" [ref=e1474]
+            - img "open" [ref=e1476]
+        - generic [ref=e1481]:
+          - paragraph [ref=e1485]: Severity
+          - generic [ref=e1488]:
+            - generic [ref=e1489]:
+              - combobox "Severity" [ref=e1491]
+              - generic: Choose options
+            - img "open" [ref=e1493] [cursor=pointer]
+        - generic [ref=e1498]:
+          - paragraph [ref=e1502]: Tags
+          - generic [ref=e1505]:
+            - generic [ref=e1506]:
+              - combobox "Tags" [ref=e1508]
+              - generic: Choose options
+            - img "open" [ref=e1510] [cursor=pointer]
+        - generic [ref=e1515]:
+          - paragraph [ref=e1519]: Case ID Pattern
+          - textbox "Case ID Pattern" [ref=e1522]:
+            - /placeholder: e.g. case_0*
+      - paragraph [ref=e1527]:
+        - strong [ref=e1528]: "36"
+        - text: "case(s) match the filter:"
+      - generic [ref=e1530]:
+        - generic [ref=e1532]:
+          - paragraph [ref=e1539]:
+            - strong [ref=e1540]: ✓
+          - paragraph [ref=e1547]:
+            - strong [ref=e1548]: Case ID
+          - paragraph [ref=e1555]:
+            - strong [ref=e1556]: Failure Type
+          - paragraph [ref=e1563]:
+            - strong [ref=e1564]: Severity
+        - separator [ref=e1569]
+        - generic [ref=e1571]:
+          - generic [ref=e1576] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1584]: case_001
+          - paragraph [ref=e1591]:
+            - generic [ref=e1592]: Tool Hallucination
+          - paragraph [ref=e1599]:
+            - generic [ref=e1600]: Critical
+        - generic [ref=e1602]:
+          - generic [ref=e1607] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1615]: case_002
+          - paragraph [ref=e1622]:
+            - generic [ref=e1623]: Unnecessary Tool Invocation
+          - paragraph [ref=e1630]:
+            - generic [ref=e1631]: Moderate
+        - generic [ref=e1633]:
+          - generic [ref=e1638] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1646]: case_003
+          - paragraph [ref=e1653]:
+            - generic [ref=e1654]: Tool Schema Misuse
+          - paragraph [ref=e1661]:
+            - generic [ref=e1662]: High
+        - generic [ref=e1664]:
+          - generic [ref=e1669] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1677]: case_004
+          - paragraph [ref=e1684]:
+            - generic [ref=e1685]: Tool Output Misinterpretation
+          - paragraph [ref=e1692]:
+            - generic [ref=e1693]: High
+        - generic [ref=e1695]:
+          - generic [ref=e1700] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1708]: case_005
+          - paragraph [ref=e1715]:
+            - generic [ref=e1716]: Instruction Drift
+          - paragraph [ref=e1723]:
+            - generic [ref=e1724]: Moderate
+        - generic [ref=e1726]:
+          - generic [ref=e1731] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1739]: case_006
+          - paragraph [ref=e1746]:
+            - generic [ref=e1747]: Partial Completion
+          - paragraph [ref=e1754]:
+            - generic [ref=e1755]: Moderate
+        - generic [ref=e1757]:
+          - generic [ref=e1762] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1770]: case_007
+          - paragraph [ref=e1777]:
+            - generic [ref=e1778]: Constraint Violation
+          - paragraph [ref=e1785]:
+            - generic [ref=e1786]: Moderate
+        - generic [ref=e1788]:
+          - generic [ref=e1793] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1801]: case_008
+          - paragraph [ref=e1808]:
+            - generic [ref=e1809]: Format Violation
+          - paragraph [ref=e1816]:
+            - generic [ref=e1817]: Moderate
+        - generic [ref=e1819]:
+          - generic [ref=e1824] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1832]: case_009
+          - paragraph [ref=e1839]:
+            - generic [ref=e1840]: Reasoning Inconsistency
+          - paragraph [ref=e1847]:
+            - generic [ref=e1848]: High
+        - generic [ref=e1850]:
+          - generic [ref=e1855] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1863]: case_010
+          - paragraph [ref=e1870]:
+            - generic [ref=e1871]: Unsafe Output
+          - paragraph [ref=e1878]:
+            - generic [ref=e1879]: Critical
+        - generic [ref=e1881]:
+          - generic [ref=e1886] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1894]: case_011
+          - paragraph [ref=e1901]:
+            - generic [ref=e1902]: Sensitive Data Exposure
+          - paragraph [ref=e1909]:
+            - generic [ref=e1910]: Critical
+        - generic [ref=e1912]:
+          - generic [ref=e1917] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1925]: case_012
+          - paragraph [ref=e1932]:
+            - generic [ref=e1933]: UI Grounding Mismatch
+          - paragraph [ref=e1940]:
+            - generic [ref=e1941]: High
+        - generic [ref=e1943]:
+          - generic [ref=e1948] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1956]: demo_001
+          - paragraph [ref=e1963]:
+            - generic [ref=e1964]: Tool Hallucination
+          - paragraph [ref=e1971]:
+            - generic [ref=e1972]: Critical
+        - generic [ref=e1974]:
+          - generic [ref=e1979] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e1987]: demo_case
+          - paragraph [ref=e1994]:
+            - generic [ref=e1995]: None
+          - paragraph [ref=e2002]:
+            - generic [ref=e2003]: Low
+        - generic [ref=e2005]:
+          - generic [ref=e2010] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2018]: generated_01b83eae
+          - paragraph [ref=e2025]:
+            - generic [ref=e2026]: Reasoning Inconsistency
+          - paragraph [ref=e2033]:
+            - generic [ref=e2034]: High
+        - generic [ref=e2036]:
+          - generic [ref=e2041] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2049]: generated_0c374f9d
+          - paragraph [ref=e2056]:
+            - generic [ref=e2057]: None
+          - paragraph [ref=e2064]:
+            - generic [ref=e2065]: Low
+        - generic [ref=e2067]:
+          - generic [ref=e2072] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2080]: generated_11f0f4e8
+          - paragraph [ref=e2087]:
+            - generic [ref=e2088]: Instruction Drift
+          - paragraph [ref=e2095]:
+            - generic [ref=e2096]: High
+        - generic [ref=e2098]:
+          - generic [ref=e2103] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2111]: generated_123308b8
+          - paragraph [ref=e2118]:
+            - generic [ref=e2119]: Tool Schema Misuse
+          - paragraph [ref=e2126]:
+            - generic [ref=e2127]: High
+        - generic [ref=e2129]:
+          - generic [ref=e2134] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2142]: generated_25af44f1
+          - paragraph [ref=e2149]:
+            - generic [ref=e2150]: None
+          - paragraph [ref=e2157]:
+            - generic [ref=e2158]: Low
+        - generic [ref=e2160]:
+          - generic [ref=e2165] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2173]: generated_2f565361
+          - paragraph [ref=e2180]:
+            - generic [ref=e2181]: Partial Completion
+          - paragraph [ref=e2188]:
+            - generic [ref=e2189]: High
+        - generic [ref=e2191]:
+          - generic [ref=e2196] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2204]: generated_41d7260b
+          - paragraph [ref=e2211]:
+            - generic [ref=e2212]: Tool Schema Misuse
+          - paragraph [ref=e2219]:
+            - generic [ref=e2220]: High
+        - generic [ref=e2222]:
+          - generic [ref=e2227] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2235]: generated_449fac24
+          - paragraph [ref=e2242]:
+            - generic [ref=e2243]: None
+          - paragraph [ref=e2250]:
+            - generic [ref=e2251]: Low
+        - generic [ref=e2253]:
+          - generic [ref=e2258] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2266]: generated_5e56923d
+          - paragraph [ref=e2273]:
+            - generic [ref=e2274]: None
+          - paragraph [ref=e2281]:
+            - generic [ref=e2282]: Low
+        - generic [ref=e2284]:
+          - generic [ref=e2289] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2297]: generated_8a5b66b3
+          - paragraph [ref=e2304]:
+            - generic [ref=e2305]: None
+          - paragraph [ref=e2312]:
+            - generic [ref=e2313]: Low
+        - generic [ref=e2315]:
+          - generic [ref=e2320] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2328]: generated_8cf997ba
+          - paragraph [ref=e2335]:
+            - generic [ref=e2336]: Tool Schema Misuse
+          - paragraph [ref=e2343]:
+            - generic [ref=e2344]: High
+        - generic [ref=e2346]:
+          - generic [ref=e2351] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2359]: generated_90cb4818
+          - paragraph [ref=e2366]:
+            - generic [ref=e2367]: None
+          - paragraph [ref=e2374]:
+            - generic [ref=e2375]: Low
+        - generic [ref=e2377]:
+          - generic [ref=e2382] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2390]: generated_92a61f5f
+          - paragraph [ref=e2397]:
+            - generic [ref=e2398]: None
+          - paragraph [ref=e2405]:
+            - generic [ref=e2406]: Low
+        - generic [ref=e2408]:
+          - generic [ref=e2413] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2421]: generated_98b3bada
+          - paragraph [ref=e2428]:
+            - generic [ref=e2429]: Tool Schema Misuse
+          - paragraph [ref=e2436]:
+            - generic [ref=e2437]: High
+        - generic [ref=e2439]:
+          - generic [ref=e2444] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2452]: generated_a91fa7b3
+          - paragraph [ref=e2459]:
+            - generic [ref=e2460]: Tool Hallucination
+          - paragraph [ref=e2467]:
+            - generic [ref=e2468]: Critical
+        - generic [ref=e2470]:
+          - generic [ref=e2475] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2483]: generated_af8d7eb4
+          - paragraph [ref=e2490]:
+            - generic [ref=e2491]: Instruction Drift
+          - paragraph [ref=e2498]:
+            - generic [ref=e2499]: High
+        - generic [ref=e2501]:
+          - generic [ref=e2506] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2514]: generated_b9c8e8aa
+          - paragraph [ref=e2521]:
+            - generic [ref=e2522]: None
+          - paragraph [ref=e2529]:
+            - generic [ref=e2530]: Low
+        - generic [ref=e2532]:
+          - generic [ref=e2537] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2545]: generated_daebcdfe
+          - paragraph [ref=e2552]:
+            - generic [ref=e2553]: None
+          - paragraph [ref=e2560]:
+            - generic [ref=e2561]: Low
+        - generic [ref=e2563]:
+          - generic [ref=e2568] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2576]: generated_e7c67855
+          - paragraph [ref=e2583]:
+            - generic [ref=e2584]: Tool Schema Misuse
+          - paragraph [ref=e2591]:
+            - generic [ref=e2592]: High
+        - generic [ref=e2594]:
+          - generic [ref=e2599] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2607]: generated_e987dbf1
+          - paragraph [ref=e2614]:
+            - generic [ref=e2615]: None
+          - paragraph [ref=e2622]:
+            - generic [ref=e2623]: Low
+        - generic [ref=e2625]:
+          - generic [ref=e2630] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2638]: generated_e9e5be0f
+          - paragraph [ref=e2645]:
+            - generic [ref=e2646]: Tool Schema Misuse
+          - paragraph [ref=e2653]:
+            - generic [ref=e2654]: High
+        - generic [ref=e2656]:
+          - generic [ref=e2661] [cursor=pointer]:
+            - checkbox
+          - paragraph [ref=e2669]: generated_ea20ec06
+          - paragraph [ref=e2676]:
+            - generic [ref=e2677]: None
+          - paragraph [ref=e2684]:
+            - generic [ref=e2685]: Low
+      - generic [ref=e2687]:
+        - button "Run Auto-Scoring on Selected (0)" [disabled] [ref=e2690]:
+          - paragraph [ref=e2694]: Run Auto-Scoring on Selected (0)
+        - button "Evaluate All Filtered (36)" [ref=e2697] [cursor=pointer]:
+          - paragraph [ref=e2701]: Evaluate All Filtered (36)
+      - separator [ref=e2706]
+      - heading "Run History" [level=3] [ref=e2711]:
+        - text: Run History
+        - generic [ref=e2712]:
+          - link "Link to heading":
+            - /url: "#run-history"
+            - img
+      - generic [ref=e2717]:
+        - button "Show/hide columns" [ref=e2721] [cursor=pointer]:
+          - img [ref=e2722]
+        - button "Download as CSV" [ref=e2727] [cursor=pointer]:
+          - img [ref=e2728]
+        - button "Search" [ref=e2733] [cursor=pointer]:
+          - img [ref=e2734]
+        - button "Fullscreen" [ref=e2739] [cursor=pointer]:
+          - img [ref=e2740]

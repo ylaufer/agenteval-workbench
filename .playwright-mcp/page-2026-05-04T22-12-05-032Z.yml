@@ -1,0 +1,105 @@
+- generic [ref=e2]:
+  - generic [ref=e11]:
+    - heading "AgentEval Workbench" [level=1] [ref=e15]
+    - generic [ref=e17]:
+      - paragraph [ref=e21]: Navigation
+      - radiogroup "Navigation" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]:
+          - radio "Generate"
+          - paragraph [ref=e28]: Generate
+        - generic [ref=e29]:
+          - radio "Inspect"
+          - paragraph [ref=e34]: Inspect
+        - generic [ref=e35]:
+          - radio "Evaluate"
+          - paragraph [ref=e40]: Evaluate
+        - generic [ref=e41]:
+          - radio "Report" [checked]
+          - paragraph [ref=e46]: Report
+        - generic [ref=e47]:
+          - radio "Compare"
+          - paragraph [ref=e52]: Compare
+        - generic [ref=e53]:
+          - radio "Ingest"
+          - paragraph [ref=e58]: Ingest
+        - generic [ref=e59]:
+          - radio "Rubric Builder"
+          - paragraph [ref=e64]: Rubric Builder
+    - separator [ref=e69]
+    - paragraph [ref=e74]:
+      - strong [ref=e75]: Evaluation workflow
+    - paragraph [ref=e80]:
+      - img "circle icon" [ref=e927]: circle
+      - text: Generate
+    - paragraph [ref=e87]:
+      - img "circle icon" [ref=e1406]: circle
+      - text: Inspect
+    - paragraph [ref=e93]:
+      - img "circle icon" [ref=e2869]: circle
+      - text: Evaluate
+    - paragraph [ref=e99]:
+      - img "arrow_right icon" [ref=e2870]: arrow_right
+      - strong [ref=e2871]: Report
+    - separator [ref=e105]
+    - heading "⚙️ Settings" [level=3] [ref=e109]
+    - generic [ref=e112] [cursor=pointer]:
+      - checkbox "Show contextual help" [checked]
+      - generic [ref=e115]:
+        - paragraph [ref=e117]: Show contextual help
+        - button "Help for Show contextual help" [ref=e121]:
+          - img [ref=e122]
+    - generic [ref=e127] [cursor=pointer]:
+      - checkbox "Tutorial mode"
+      - generic [ref=e130]:
+        - paragraph [ref=e132]: Tutorial mode
+        - button "Help for Tutorial mode" [ref=e136]:
+          - img [ref=e137]
+    - separator [ref=e144]
+    - heading "book icon Quick Reference" [level=3] [ref=e148]:
+      - img "book icon" [ref=e149]: book
+      - text: Quick Reference
+    - group [ref=e152]:
+      - generic "error Failure Taxonomy (12 categories)" [ref=e153] [cursor=pointer]:
+        - generic [ref=e154]:
+          - generic [ref=e156]: error
+          - paragraph [ref=e159]: Failure Taxonomy (12 categories)
+    - group [ref=e162]:
+      - generic "checklist Rubric Dimensions (6 dimensions)" [ref=e163] [cursor=pointer]:
+        - generic [ref=e164]:
+          - generic [ref=e166]: checklist
+          - paragraph [ref=e169]: Rubric Dimensions (6 dimensions)
+  - generic [ref=e3]:
+    - banner [ref=e172]:
+      - generic [ref=e175]:
+        - button "Deploy" [ref=e822] [cursor=pointer]:
+          - generic [ref=e824]: Deploy
+        - button "Main menu" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+    - generic [ref=e185]:
+      - generic:
+        - iframe
+      - heading "Aggregated Evaluation Report" [level=2] [ref=e2876]:
+        - text: Aggregated Evaluation Report
+        - generic [ref=e2877]:
+          - link "Link to heading":
+            - /url: "#aggregated-evaluation-report"
+            - img
+      - group [ref=e987]:
+        - generic "keyboard_arrow_down ℹ️ How this works" [ref=e2878] [cursor=pointer]:
+          - generic [ref=e989]:
+            - generic [ref=e2880]: keyboard_arrow_down
+            - paragraph [ref=e994]: ℹ️ How this works
+        - generic [ref=e1000]:
+          - paragraph [ref=e1001]: View aggregated evaluation results.
+          - paragraph [ref=e2881]: "Metrics include: • Per-dimension statistics (mean, std dev, distribution) • Overall scores (weighted average across dimensions) • Failure classification breakdown • Severity analysis"
+          - paragraph [ref=e2882]: "Use filters to: • Compare manual vs. auto scoring • Focus on specific dimensions • Analyze trends across cases"
+      - paragraph [ref=e2883]:
+        - text: Generate a summary report from all evaluation templates in
+        - code [ref=e2884]: reports/
+        - text: . Results will be written to
+        - code [ref=e2885]: reports/summary.evaluation.json
+        - text: and
+        - code [ref=e2886]: reports/summary.evaluation.md
+        - text: .
+      - button "Generate Report" [ref=e2889] [cursor=pointer]:
+        - paragraph [ref=e2893]: Generate Report

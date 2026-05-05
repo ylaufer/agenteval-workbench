@@ -1,0 +1,21 @@
+[   61446ms] [WARNING] Unrecognized feature: 'ambient-light-sensor'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61446ms] [WARNING] Unrecognized feature: 'battery'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61446ms] [WARNING] Unrecognized feature: 'document-domain'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61447ms] [WARNING] Unrecognized feature: 'layout-animations'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61447ms] [WARNING] Unrecognized feature: 'legacy-image-formats'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61447ms] [WARNING] Unrecognized feature: 'oversized-images'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61447ms] [WARNING] Unrecognized feature: 'vr'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   61447ms] [WARNING] Unrecognized feature: 'wake-lock'. @ http://localhost:8501/static/js/index.RuhrnD1v.js:1
+[   62512ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ about:srcdoc:0
+[   62734ms] TypeError: Cannot read properties of null (reading 'scrollTo')
+    at about:srcdoc:1:61
+[  287749ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ about:srcdoc:0
+[  362226ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ about:srcdoc:0
+[  399531ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ about:srcdoc:0
+[  862370ms] [WARNING] WebSocket onclose @ http://localhost:8501/static/js/index.RuhrnD1v.js:136
+[ 1683948ms] [WARNING] WebSocket onclose @ http://localhost:8501/static/js/index.RuhrnD1v.js:136
+[ 5121458ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ http://localhost:8501/_stcore/health:0
+[ 5121461ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ http://localhost:8501/_stcore/host-config:0
+[ 5126059ms] [WARNING] WebSocket onclose @ http://localhost:8501/static/js/index.RuhrnD1v.js:136
+[30471693ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ http://localhost:8501/_stcore/health:0
+[30471695ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ http://localhost:8501/_stcore/host-config:0

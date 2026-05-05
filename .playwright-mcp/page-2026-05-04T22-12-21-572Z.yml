@@ -1,0 +1,242 @@
+- generic [ref=e2]:
+  - generic [ref=e11]:
+    - heading "AgentEval Workbench" [level=1] [ref=e15]
+    - generic [ref=e17]:
+      - paragraph [ref=e21]: Navigation
+      - radiogroup "Navigation" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]:
+          - radio "Generate"
+          - paragraph [ref=e28]: Generate
+        - generic [ref=e29]:
+          - radio "Inspect"
+          - paragraph [ref=e34]: Inspect
+        - generic [ref=e35]:
+          - radio "Evaluate"
+          - paragraph [ref=e40]: Evaluate
+        - generic [ref=e41]:
+          - radio "Report" [checked]
+          - paragraph [ref=e46]: Report
+        - generic [ref=e47]:
+          - radio "Compare"
+          - paragraph [ref=e52]: Compare
+        - generic [ref=e53]:
+          - radio "Ingest"
+          - paragraph [ref=e58]: Ingest
+        - generic [ref=e59]:
+          - radio "Rubric Builder"
+          - paragraph [ref=e64]: Rubric Builder
+    - separator [ref=e69]
+    - paragraph [ref=e74]:
+      - strong [ref=e75]: Evaluation workflow
+    - paragraph [ref=e80]:
+      - img "circle icon" [ref=e927]: circle
+      - text: Generate
+    - paragraph [ref=e87]:
+      - img "circle icon" [ref=e1406]: circle
+      - text: Inspect
+    - paragraph [ref=e93]:
+      - img "circle icon" [ref=e2869]: circle
+      - text: Evaluate
+    - paragraph [ref=e99]:
+      - img "arrow_right icon" [ref=e2870]: arrow_right
+      - strong [ref=e2871]: Report
+    - separator [ref=e105]
+    - heading "⚙️ Settings" [level=3] [ref=e109]
+    - generic [ref=e112] [cursor=pointer]:
+      - checkbox "Show contextual help" [checked]
+      - generic [ref=e115]:
+        - paragraph [ref=e117]: Show contextual help
+        - button "Help for Show contextual help" [ref=e121]:
+          - img [ref=e122]
+    - generic [ref=e127] [cursor=pointer]:
+      - checkbox "Tutorial mode"
+      - generic [ref=e130]:
+        - paragraph [ref=e132]: Tutorial mode
+        - button "Help for Tutorial mode" [ref=e136]:
+          - img [ref=e137]
+    - separator [ref=e144]
+    - heading "book icon Quick Reference" [level=3] [ref=e148]:
+      - img "book icon" [ref=e149]: book
+      - text: Quick Reference
+    - group [ref=e152]:
+      - generic "error Failure Taxonomy (12 categories)" [ref=e153] [cursor=pointer]:
+        - generic [ref=e154]:
+          - generic [ref=e156]: error
+          - paragraph [ref=e159]: Failure Taxonomy (12 categories)
+    - group [ref=e162]:
+      - generic "checklist Rubric Dimensions (6 dimensions)" [ref=e163] [cursor=pointer]:
+        - generic [ref=e164]:
+          - generic [ref=e166]: checklist
+          - paragraph [ref=e169]: Rubric Dimensions (6 dimensions)
+  - generic [ref=e3]:
+    - banner [ref=e172]:
+      - generic [ref=e175]:
+        - button "Deploy" [ref=e822] [cursor=pointer]:
+          - generic [ref=e824]: Deploy
+        - button "Main menu" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+    - generic [ref=e185]:
+      - heading "Aggregated Evaluation Report" [level=2] [ref=e2897]:
+        - text: Aggregated Evaluation Report
+        - generic [ref=e2898]:
+          - link "Link to heading":
+            - /url: "#aggregated-evaluation-report"
+            - img
+      - group [ref=e2901]:
+        - generic "keyboard_arrow_down ℹ️ How this works" [ref=e2902] [cursor=pointer]:
+          - generic [ref=e2903]:
+            - generic [ref=e2905]: keyboard_arrow_down
+            - paragraph [ref=e2908]: ℹ️ How this works
+        - generic [ref=e2914]:
+          - paragraph [ref=e2915]: View aggregated evaluation results.
+          - paragraph [ref=e2916]: "Metrics include: • Per-dimension statistics (mean, std dev, distribution) • Overall scores (weighted average across dimensions) • Failure classification breakdown • Severity analysis"
+          - paragraph [ref=e2917]: "Use filters to: • Compare manual vs. auto scoring • Focus on specific dimensions • Analyze trends across cases"
+      - paragraph [ref=e2922]:
+        - text: Generate a summary report from all evaluation templates in
+        - code [ref=e2923]: reports/
+        - text: . Results will be written to
+        - code [ref=e2924]: reports/summary.evaluation.json
+        - text: and
+        - code [ref=e2925]: reports/summary.evaluation.md
+        - text: .
+      - button "Generate Report" [active] [ref=e2889] [cursor=pointer]:
+        - paragraph [ref=e2893]: Generate Report
+      - heading "Overview" [level=3] [ref=e2930]:
+        - text: Overview
+        - generic [ref=e2931]:
+          - link "Link to heading":
+            - /url: "#overview"
+            - img
+      - generic [ref=e2933]:
+        - generic [ref=e2938]:
+          - paragraph [ref=e2941]: Total Cases
+          - paragraph [ref=e2944]: "45"
+        - generic [ref=e2949]:
+          - paragraph [ref=e2952]: Scored Cases
+          - paragraph [ref=e2955]: "26"
+      - heading "Dimension Statistics" [level=3] [ref=e2960]:
+        - text: Dimension Statistics
+        - generic [ref=e2961]:
+          - link "Link to heading":
+            - /url: "#dimension-statistics"
+            - img
+      - generic [ref=e2966]:
+        - button "Show/hide columns" [ref=e2970] [cursor=pointer]:
+          - img [ref=e2971]
+        - button "Download as CSV" [ref=e2976] [cursor=pointer]:
+          - img [ref=e2977]
+        - button "Search" [ref=e2982] [cursor=pointer]:
+          - img [ref=e2983]
+        - button "Fullscreen" [ref=e2988] [cursor=pointer]:
+          - img [ref=e2989]
+      - heading "Failure Summary" [level=3] [ref=e3004]:
+        - text: Failure Summary
+        - generic [ref=e3005]:
+          - link "Link to heading":
+            - /url: "#failure-summary"
+            - img
+      - paragraph [ref=e3010]:
+        - strong [ref=e3011]: Primary Failure Counts
+      - list [ref=e3016]:
+        - listitem [ref=e3017]:
+          - code [ref=e3018]: None
+          - text: ": 3"
+      - list [ref=e3023]:
+        - listitem [ref=e3024]:
+          - code [ref=e3025]: Tool Hallucination
+          - text: ": 3"
+      - list [ref=e3030]:
+        - listitem [ref=e3031]:
+          - code [ref=e3032]: Instruction Drift
+          - text: ": 2"
+      - list [ref=e3037]:
+        - listitem [ref=e3038]:
+          - code [ref=e3039]: Constraint Violation
+          - text: ": 1"
+      - list [ref=e3044]:
+        - listitem [ref=e3045]:
+          - code [ref=e3046]: Format Violation
+          - text: ": 1"
+      - list [ref=e3051]:
+        - listitem [ref=e3052]:
+          - code [ref=e3053]: Partial Completion
+          - text: ": 1"
+      - list [ref=e3058]:
+        - listitem [ref=e3059]:
+          - code [ref=e3060]: Reasoning Inconsistency
+          - text: ": 1"
+      - list [ref=e3065]:
+        - listitem [ref=e3066]:
+          - code [ref=e3067]: Sensitive Data Exposure
+          - text: ": 1"
+      - list [ref=e3072]:
+        - listitem [ref=e3073]:
+          - code [ref=e3074]: Tool Output Misinterpretation
+          - text: ": 1"
+      - list [ref=e3079]:
+        - listitem [ref=e3080]:
+          - code [ref=e3081]: Tool Schema Misuse
+          - text: ": 1"
+      - list [ref=e3086]:
+        - listitem [ref=e3087]:
+          - code [ref=e3088]: UI Grounding Mismatch
+          - text: ": 1"
+      - list [ref=e3093]:
+        - listitem [ref=e3094]:
+          - code [ref=e3095]: Unnecessary Tool Invocation
+          - text: ": 1"
+      - list [ref=e3100]:
+        - listitem [ref=e3101]:
+          - code [ref=e3102]: Unsafe Output
+          - text: ": 1"
+      - paragraph [ref=e3107]:
+        - strong [ref=e3108]: Severity Distribution
+      - list [ref=e3113]:
+        - listitem [ref=e3114]:
+          - code [ref=e3115]: Critical
+          - text: ": 5"
+      - list [ref=e3120]:
+        - listitem [ref=e3121]:
+          - code [ref=e3122]: High
+          - text: ": 5"
+      - list [ref=e3127]:
+        - listitem [ref=e3128]:
+          - code [ref=e3129]: Moderate
+          - text: ": 5"
+      - list [ref=e3134]:
+        - listitem [ref=e3135]:
+          - code [ref=e3136]: Low
+          - text: ": 3"
+      - heading "Recommendations" [level=3] [ref=e3141]:
+        - text: Recommendations
+        - generic [ref=e3142]:
+          - link "Link to heading":
+            - /url: "#recommendations"
+            - img
+      - list [ref=e3147]:
+        - listitem [ref=e3148]: Investigate recurring failure type 'None' (observed in 3 case(s)); design targeted test cases and mitigations.
+      - list [ref=e3153]:
+        - listitem [ref=e3154]: Investigate recurring failure type 'Tool Hallucination' (observed in 3 case(s)); design targeted test cases and mitigations.
+      - list [ref=e3159]:
+        - listitem [ref=e3160]: Investigate recurring failure type 'Instruction Drift' (observed in 2 case(s)); design targeted test cases and mitigations.
+      - alert [ref=e3163]:
+        - paragraph [ref=e3168]:
+          - text: Summary files written to
+          - code [ref=e3169]: reports/summary.evaluation.json
+          - text: and
+          - code [ref=e3170]: reports/summary.evaluation.md
+          - text: .
+      - generic [ref=e3172]:
+        - alert [ref=e3175]:
+          - generic [ref=e3178]:
+            - generic [ref=e3181]: arrow_forward
+            - generic [ref=e3182]:
+              - paragraph [ref=e3183]:
+                - img "compare icon" [ref=e3184]: compare
+                - text: "Next: compare runs"
+              - paragraph [ref=e3185]:
+                - text: Use the
+                - strong [ref=e3186]: Compare
+                - text: page to diff this run against a baseline.
+        - button "Go to Compare" [ref=e3189] [cursor=pointer]:
+          - paragraph [ref=e3193]: Go to Compare

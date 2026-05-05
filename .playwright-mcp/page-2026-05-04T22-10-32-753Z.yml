@@ -1,0 +1,142 @@
+- generic [ref=e2]:
+  - generic [ref=e7]:
+    - button "keyboard_double_arrow_left" [ref=e815] [cursor=pointer]:
+      - generic [ref=e817]: keyboard_double_arrow_left
+    - generic [ref=e11]:
+      - heading "AgentEval Workbench" [level=1] [ref=e15]
+      - generic [ref=e17]:
+        - paragraph [ref=e21]: Navigation
+        - radiogroup "Navigation" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]:
+            - radio "Generate" [checked] [active]
+            - paragraph [ref=e28]: Generate
+          - generic [ref=e29]:
+            - radio "Inspect"
+            - paragraph [ref=e34]: Inspect
+          - generic [ref=e35]:
+            - radio "Evaluate"
+            - paragraph [ref=e40]: Evaluate
+          - generic [ref=e41]:
+            - radio "Report"
+            - paragraph [ref=e46]: Report
+          - generic [ref=e47]:
+            - radio "Compare"
+            - paragraph [ref=e52]: Compare
+          - generic [ref=e53]:
+            - radio "Ingest"
+            - paragraph [ref=e58]: Ingest
+          - generic [ref=e59]:
+            - radio "Rubric Builder"
+            - paragraph [ref=e64]: Rubric Builder
+      - separator [ref=e69]
+      - paragraph [ref=e74]:
+        - strong [ref=e75]: Evaluation workflow
+      - paragraph [ref=e80]:
+        - img "arrow_right icon" [ref=e818]: arrow_right
+        - strong [ref=e819]: Generate
+      - paragraph [ref=e87]:
+        - img "circle icon" [ref=e820]: circle
+        - text: Inspect
+      - paragraph [ref=e93]:
+        - img "circle icon" [ref=e94]: circle
+        - text: Evaluate
+      - paragraph [ref=e99]:
+        - img "circle icon" [ref=e100]: circle
+        - text: Report
+      - separator [ref=e105]
+      - heading "⚙️ Settings" [level=3] [ref=e109]
+      - generic [ref=e112] [cursor=pointer]:
+        - checkbox "Show contextual help" [checked]
+        - generic [ref=e115]:
+          - paragraph [ref=e117]: Show contextual help
+          - button "Help for Show contextual help" [ref=e121]:
+            - img [ref=e122]
+      - generic [ref=e127] [cursor=pointer]:
+        - checkbox "Tutorial mode"
+        - generic [ref=e130]:
+          - paragraph [ref=e132]: Tutorial mode
+          - button "Help for Tutorial mode" [ref=e136]:
+            - img [ref=e137]
+      - separator [ref=e144]
+      - heading "book icon Quick Reference" [level=3] [ref=e148]:
+        - img "book icon" [ref=e149]: book
+        - text: Quick Reference
+      - group [ref=e152]:
+        - generic "error Failure Taxonomy (12 categories)" [ref=e153] [cursor=pointer]:
+          - generic [ref=e154]:
+            - generic [ref=e156]: error
+            - paragraph [ref=e159]: Failure Taxonomy (12 categories)
+      - group [ref=e162]:
+        - generic "checklist Rubric Dimensions (6 dimensions)" [ref=e163] [cursor=pointer]:
+          - generic [ref=e164]:
+            - generic [ref=e166]: checklist
+            - paragraph [ref=e169]: Rubric Dimensions (6 dimensions)
+  - generic [ref=e3]:
+    - banner [ref=e172]:
+      - generic [ref=e175]:
+        - button "Deploy" [ref=e822] [cursor=pointer]:
+          - generic [ref=e824]: Deploy
+        - button "Main menu" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+    - generic [ref=e185]:
+      - heading "Generate & Validate Cases" [level=2] [ref=e828]:
+        - text: Generate & Validate Cases
+        - generic [ref=e829]:
+          - link "Link to heading":
+            - /url: "#generate-and-validate-cases"
+            - img
+      - group [ref=e832]:
+        - generic "keyboard_arrow_down ℹ️ How this works" [ref=e833] [cursor=pointer]:
+          - generic [ref=e834]:
+            - generic [ref=e836]: keyboard_arrow_down
+            - paragraph [ref=e839]: ℹ️ How this works
+        - generic [ref=e845]:
+          - paragraph [ref=e846]: This page lets you create benchmark cases for agent evaluation.
+          - paragraph [ref=e847]: "You can either: • Generate a case from a failure type (12 presets available) • Import external traces using the ingestion adapters"
+          - paragraph [ref=e848]:
+            - text: "Each case includes: •"
+            - code [ref=e849]: prompt.txt
+            - text: "- The task given to the agent •"
+            - code [ref=e850]: trace.json
+            - text: "- Step-by-step execution log •"
+            - code [ref=e851]: expected_outcome.md
+            - text: "- Failure classification and severity"
+      - heading "Generate a Benchmark Case" [level=3] [ref=e856]:
+        - text: Generate a Benchmark Case
+        - generic [ref=e857]:
+          - link "Link to heading":
+            - /url: "#generate-a-benchmark-case"
+            - img
+      - generic [ref=e859]:
+        - generic [ref=e860]:
+          - paragraph [ref=e863]: Case ID (leave blank for auto-generated)
+          - button "Help for Case ID (leave blank for auto-generated)" [ref=e867] [cursor=pointer]:
+            - img [ref=e868]
+        - textbox "Case ID (leave blank for auto-generated)" [ref=e873]:
+          - /placeholder: ""
+      - generic [ref=e875]:
+        - paragraph [ref=e879]: Failure Type
+        - generic [ref=e881]:
+          - generic [ref=e882]:
+            - generic [ref=e883]: (None — generic case)
+            - combobox "Selected (None — generic case). Failure Type" [ref=e885]
+          - img "open" [ref=e887]
+      - generic [ref=e891] [cursor=pointer]:
+        - checkbox "Overwrite if case exists"
+        - paragraph [ref=e896]: Overwrite if case exists
+      - button "Generate Case" [ref=e899] [cursor=pointer]:
+        - paragraph [ref=e903]: Generate Case
+      - generic [ref=e905]:
+        - alert [ref=e908]:
+          - generic [ref=e911]:
+            - generic [ref=e914]: arrow_forward
+            - generic [ref=e915]:
+              - paragraph [ref=e916]:
+                - img "search icon" [ref=e917]: search
+                - text: "Next: inspect the trace"
+              - paragraph [ref=e918]:
+                - text: Open the
+                - strong [ref=e919]: Inspect
+                - text: page to browse the generated trace and add annotations.
+        - button "Go to Inspect" [ref=e922] [cursor=pointer]:
+          - paragraph [ref=e926]: Go to Inspect

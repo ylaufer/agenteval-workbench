@@ -1,0 +1,109 @@
+- generic [ref=e2]:
+  - generic [ref=e7]:
+    - button "keyboard_double_arrow_left" [ref=e815] [cursor=pointer]:
+      - generic [ref=e817]: keyboard_double_arrow_left
+    - generic [ref=e11]:
+      - heading "AgentEval Workbench" [level=1] [ref=e15]
+      - generic [ref=e17]:
+        - paragraph [ref=e21]: Navigation
+        - radiogroup "Navigation" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]:
+            - radio "Generate"
+            - paragraph [ref=e28]: Generate
+          - generic [ref=e29]:
+            - radio "Inspect"
+            - paragraph [ref=e34]: Inspect
+          - generic [ref=e35]:
+            - radio "Evaluate"
+            - paragraph [ref=e40]: Evaluate
+          - generic [ref=e41]:
+            - radio "Report"
+            - paragraph [ref=e46]: Report
+          - generic [ref=e47]:
+            - radio "Compare"
+            - paragraph [ref=e52]: Compare
+          - generic [ref=e53]:
+            - radio "Ingest" [checked] [active]
+            - paragraph [ref=e58]: Ingest
+          - generic [ref=e59]:
+            - radio "Rubric Builder"
+            - paragraph [ref=e64]: Rubric Builder
+      - separator [ref=e69]
+      - paragraph [ref=e74]:
+        - strong [ref=e75]: Evaluation workflow
+      - paragraph [ref=e80]:
+        - img "circle icon" [ref=e927]: circle
+        - text: Generate
+      - paragraph [ref=e87]:
+        - img "circle icon" [ref=e1406]: circle
+        - text: Inspect
+      - paragraph [ref=e93]:
+        - img "circle icon" [ref=e2869]: circle
+        - text: Evaluate
+      - paragraph [ref=e99]:
+        - img "circle icon" [ref=e3194]: circle
+        - text: Report
+      - separator [ref=e105]
+      - heading "⚙️ Settings" [level=3] [ref=e109]
+      - generic [ref=e112] [cursor=pointer]:
+        - checkbox "Show contextual help" [checked]
+        - generic [ref=e115]:
+          - paragraph [ref=e117]: Show contextual help
+          - button "Help for Show contextual help" [ref=e121]:
+            - img [ref=e122]
+      - generic [ref=e127] [cursor=pointer]:
+        - checkbox "Tutorial mode"
+        - generic [ref=e130]:
+          - paragraph [ref=e132]: Tutorial mode
+          - button "Help for Tutorial mode" [ref=e136]:
+            - img [ref=e137]
+      - separator [ref=e144]
+      - heading "book icon Quick Reference" [level=3] [ref=e148]:
+        - img "book icon" [ref=e149]: book
+        - text: Quick Reference
+      - group [ref=e152]:
+        - generic "error Failure Taxonomy (12 categories)" [ref=e153] [cursor=pointer]:
+          - generic [ref=e154]:
+            - generic [ref=e156]: error
+            - paragraph [ref=e159]: Failure Taxonomy (12 categories)
+      - group [ref=e162]:
+        - generic "checklist Rubric Dimensions (6 dimensions)" [ref=e163] [cursor=pointer]:
+          - generic [ref=e164]:
+            - generic [ref=e166]: checklist
+            - paragraph [ref=e169]: Rubric Dimensions (6 dimensions)
+  - generic [ref=e3]:
+    - banner [ref=e172]:
+      - generic [ref=e175]:
+        - button "Deploy" [ref=e3268] [cursor=pointer]:
+          - generic [ref=e3270]: Deploy
+        - button "Main menu" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+    - generic [ref=e185]:
+      - heading "Ingest External Traces" [level=2] [ref=e3425]:
+        - text: Ingest External Traces
+        - generic [ref=e3426]:
+          - link "Link to heading":
+            - /url: "#ingest-external-traces"
+            - img
+      - paragraph [ref=e3279]: Upload trace files from LangChain, OpenTelemetry, CrewAI, OpenAI, or custom formats.
+      - group [ref=e3429]:
+        - generic "keyboard_arrow_right ℹ️ How to Use This Page" [ref=e3430] [cursor=pointer]:
+          - generic [ref=e3431]:
+            - generic [ref=e3433]: keyboard_arrow_right
+            - paragraph [ref=e3436]: ℹ️ How to Use This Page
+      - separator [ref=e3441]
+      - alert [ref=e3443]:
+        - paragraph [ref=e3448]: 📤 Upload a JSON trace file to begin
+      - generic [ref=e3450]:
+        - generic [ref=e3451]:
+          - paragraph [ref=e3454]: Upload Trace File (JSON)
+          - button "Help for Upload Trace File (JSON)" [ref=e3458] [cursor=pointer]:
+            - img [ref=e3459]
+        - region "Upload Trace File (JSON)" [ref=e3462] [cursor=pointer]:
+          - button "Choose File" [ref=e3463]
+          - generic [ref=e3464]:
+            - img [ref=e3466]
+            - generic [ref=e3469]:
+              - generic [ref=e3470]: Drag and drop file here
+              - generic [ref=e3471]: Limit 200MB per file • JSON
+          - button "Browse files" [ref=e3473]

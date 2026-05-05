@@ -1,0 +1,134 @@
+- generic [ref=e2]:
+  - generic [ref=e11]:
+    - heading "AgentEval Workbench" [level=1] [ref=e15]
+    - generic [ref=e17]:
+      - paragraph [ref=e21]: Navigation
+      - radiogroup "Navigation" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]:
+          - radio "Generate" [checked]
+          - paragraph [ref=e28]: Generate
+        - generic [ref=e29]:
+          - radio "Inspect"
+          - paragraph [ref=e34]: Inspect
+        - generic [ref=e35]:
+          - radio "Evaluate"
+          - paragraph [ref=e40]: Evaluate
+        - generic [ref=e41]:
+          - radio "Report"
+          - paragraph [ref=e46]: Report
+        - generic [ref=e47]:
+          - radio "Compare"
+          - paragraph [ref=e52]: Compare
+        - generic [ref=e53]:
+          - radio "Ingest"
+          - paragraph [ref=e58]: Ingest
+        - generic [ref=e59]:
+          - radio "Rubric Builder"
+          - paragraph [ref=e64]: Rubric Builder
+    - separator [ref=e69]
+    - paragraph [ref=e74]:
+      - strong [ref=e75]: Evaluation workflow
+    - paragraph [ref=e80]:
+      - img "arrow_right icon" [ref=e81]: arrow_right
+      - strong [ref=e82]: Generate
+    - paragraph [ref=e87]:
+      - img "circle icon" [ref=e88]: circle
+      - text: Inspect
+    - paragraph [ref=e93]:
+      - img "circle icon" [ref=e94]: circle
+      - text: Evaluate
+    - paragraph [ref=e99]:
+      - img "circle icon" [ref=e100]: circle
+      - text: Report
+    - separator [ref=e105]
+    - heading "⚙️ Settings" [level=3] [ref=e109]
+    - generic [ref=e112] [cursor=pointer]:
+      - checkbox "Show contextual help" [checked]
+      - generic [ref=e115]:
+        - paragraph [ref=e117]: Show contextual help
+        - button "Help for Show contextual help" [ref=e121]:
+          - img [ref=e122]
+    - generic [ref=e127] [cursor=pointer]:
+      - checkbox "Tutorial mode"
+      - generic [ref=e130]:
+        - paragraph [ref=e132]: Tutorial mode
+        - button "Help for Tutorial mode" [ref=e136]:
+          - img [ref=e137]
+    - separator [ref=e144]
+    - heading "book icon Quick Reference" [level=3] [ref=e148]:
+      - img "book icon" [ref=e149]: book
+      - text: Quick Reference
+    - group [ref=e152]:
+      - generic "error Failure Taxonomy (12 categories)" [ref=e153] [cursor=pointer]:
+        - generic [ref=e154]:
+          - generic [ref=e156]: error
+          - paragraph [ref=e159]: Failure Taxonomy (12 categories)
+    - group [ref=e162]:
+      - generic "checklist Rubric Dimensions (6 dimensions)" [ref=e163] [cursor=pointer]:
+        - generic [ref=e164]:
+          - generic [ref=e166]: checklist
+          - paragraph [ref=e169]: Rubric Dimensions (6 dimensions)
+  - generic [ref=e3]:
+    - banner [ref=e172]:
+      - generic [ref=e175]:
+        - generic [ref=e267]:
+          - img "Running..." [ref=e268]:
+            - img [ref=e269]
+          - button "Stop" [ref=e273] [cursor=pointer]
+        - button "Deploy" [ref=e177] [cursor=pointer]:
+          - generic [ref=e179]: Deploy
+        - button "Main menu" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+    - generic [ref=e185]:
+      - heading "Generate & Validate Cases" [level=2] [ref=e190]:
+        - text: Generate & Validate Cases
+        - generic [ref=e191]:
+          - link "Link to heading":
+            - /url: "#generate-and-validate-cases"
+            - img
+      - group [ref=e194]:
+        - generic "keyboard_arrow_down ℹ️ How this works" [ref=e195] [cursor=pointer]:
+          - generic [ref=e196]:
+            - generic [ref=e198]: keyboard_arrow_down
+            - paragraph [ref=e201]: ℹ️ How this works
+        - generic [ref=e207]:
+          - paragraph [ref=e208]: This page lets you create benchmark cases for agent evaluation.
+          - paragraph [ref=e209]: "You can either: • Generate a case from a failure type (12 presets available) • Import external traces using the ingestion adapters"
+          - paragraph [ref=e210]:
+            - text: "Each case includes: •"
+            - code [ref=e211]: prompt.txt
+            - text: "- The task given to the agent •"
+            - code [ref=e212]: trace.json
+            - text: "- Step-by-step execution log •"
+            - code [ref=e213]: expected_outcome.md
+            - text: "- Failure classification and severity"
+      - heading "Generate a Benchmark Case" [level=3] [ref=e218]:
+        - text: Generate a Benchmark Case
+        - generic [ref=e219]:
+          - link "Link to heading":
+            - /url: "#generate-a-benchmark-case"
+            - img
+      - generic [ref=e221]:
+        - generic [ref=e222]:
+          - paragraph [ref=e225]: Case ID (leave blank for auto-generated)
+          - button "Help for Case ID (leave blank for auto-generated)" [ref=e229] [cursor=pointer]:
+            - img [ref=e230]
+        - textbox "Case ID (leave blank for auto-generated)" [ref=e235]:
+          - /placeholder: ""
+      - generic [ref=e237]:
+        - paragraph [ref=e241]: Failure Type
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - generic [ref=e245]: (None — generic case)
+            - combobox "Selected (None — generic case). Failure Type" [ref=e247]
+          - img "open" [ref=e249]
+      - generic [ref=e253] [cursor=pointer]:
+        - checkbox "Overwrite if case exists"
+        - paragraph [ref=e258]: Overwrite if case exists
+      - button "Generate Case" [active] [ref=e261] [cursor=pointer]:
+        - paragraph [ref=e265]: Generate Case
+      - alert [ref=e276]:
+        - paragraph [ref=e281]:
+          - text: Case created at
+          - code [ref=e282]: C:\Users\yanil\Documents\agenteval-workbench\data\cases\generated_0c374f9d
+      - paragraph [ref=e290]: Validating dataset...
